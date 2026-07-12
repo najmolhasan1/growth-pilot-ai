@@ -1,0 +1,6 @@
+{
+  "name": "TranscribeStudio",
+  "description": "Professional video-to-audio transcription and multi-language translation platform with an interactive dashboard.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
