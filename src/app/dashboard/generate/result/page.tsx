@@ -188,7 +188,7 @@ export default function ResultPage() {
 
     if (!wpUrl || !wpUser || !wpPass) {
       alert('Please configure your WordPress settings first!');
-      router.push('/dashboard/settings');
+      router.push('/dashboard/wordpress');
       return;
     }
 

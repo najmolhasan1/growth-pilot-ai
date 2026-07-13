@@ -388,7 +388,7 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 gap-4 pt-4 md:grid-cols-3">
           {[
             { title: 'Content Calendar', desc: 'Plan and schedule your upcoming content', icon: List, href: '/dashboard/calendar', color: 'text-orange-400' },
-            { title: 'WordPress Sync', desc: 'Manage your connected WordPress sites', icon: Globe, href: '/dashboard/settings', color: 'text-emerald-400' },
+            { title: 'WordPress Sync', desc: 'Manage your connected WordPress sites', icon: Globe, href: '/dashboard/wordpress', color: 'text-emerald-400' },
             { title: 'SEO Trends', desc: 'Analyze trending keywords in your niche', icon: TrendingUp, href: '/dashboard/trends', color: 'text-blue-400' },
           ].map(card => (
             <Link key={card.title} href={card.href} className="group rounded-2xl border border-white/5 bg-[#0d1117] p-6 transition-all hover:bg-white/5">

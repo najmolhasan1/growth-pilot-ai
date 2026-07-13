@@ -87,7 +87,7 @@ const allTools: ToolCard[] = [
     name: 'WordPress Sync',
     description: 'Connect self-hosted WordPress sites and publish directly.',
     useCase: 'Best for instantly shipping generated articles without manual copy-paste.',
-    href: '/dashboard/settings',
+    href: '/dashboard/wordpress',
     category: 'SEO Workspace',
     icon: Globe,
     color: 'text-amber-400',
