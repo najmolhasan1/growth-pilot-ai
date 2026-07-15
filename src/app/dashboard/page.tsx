@@ -103,6 +103,17 @@ const allTools: ToolCard[] = [
     color: 'text-pink-400',
     bg: 'bg-pink-500/10 border-pink-500/20',
   },
+  {
+    name: 'Website Analyzer',
+    description: 'Perform deep SEO audits, verify HTML metadata structure, headings hierarchy, and get AI CRO suggestions.',
+    useCase: 'Best for diagnosing optimization gaps and copy opportunities on live websites.',
+    href: '/dashboard/website-analyzer',
+    category: 'SEO Workspace',
+    icon: Globe,
+    tag: 'New',
+    color: 'text-emerald-400',
+    bg: 'bg-emerald-500/10 border-emerald-500/20',
+  },
 
   // Growth Suite Tools
   {

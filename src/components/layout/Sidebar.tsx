@@ -478,6 +478,34 @@ export default function Sidebar({ isCollapsed, setIsCollapsed }: SidebarProps) {
               )}
             </div>
 
+            <div className="space-y-1">
+              <Link
+                key="/dashboard/website-analyzer"
+                href="/dashboard/website-analyzer"
+                onClick={() => setIsOpen(false)}
+                title={isCollapsed ? "Website Analyzer" : undefined}
+                className={cn(
+                  "flex items-center rounded-lg transition-all group relative",
+                  isCollapsed ? "lg:justify-center lg:h-10 lg:w-10 lg:mx-auto" : "gap-3 px-3 py-2",
+                  pathname === "/dashboard/website-analyzer" ? "bg-primary text-white" : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                )}
+              >
+                <Globe size={18} />
+                <span className={cn(
+                  "font-medium text-[13px]",
+                  isCollapsed ? "lg:hidden" : "block"
+                )}>
+                  Website Analyzer
+                </span>
+                <span className={cn(
+                  "ml-auto text-[10px] px-1.5 py-0.5 rounded font-bold bg-emerald-500/20 text-emerald-400",
+                  isCollapsed ? "lg:hidden" : "block"
+                )}>
+                  New
+                </span>
+              </Link>
+            </div>
+
             {menuGroups.map((group) => (
               <div key={group.title} className="space-y-1">
                 {isCollapsed && <hr className="hidden lg:block border-border/10 my-4" />}
