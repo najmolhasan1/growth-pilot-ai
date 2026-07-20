@@ -533,16 +533,8 @@ export default function ResultPage() {
     height: auto;
     border-radius: 12px;
     margin: 24px 0;
-    background: linear-gradient(135deg, #e0e7ff, #ede9fe);
-    min-height: 200px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 2px dashed #a5b4fc;
-    padding: 20px;
-    color: #6366f1;
-    font-size: 0.85em;
-    font-family: sans-serif;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    display: block;
   }
   .toc {
     background: #f0f4ff;

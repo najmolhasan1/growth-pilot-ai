@@ -212,6 +212,8 @@ function fallbackMetadata(keyword: string, mode: WritingMode, preferences: Gener
     image_alts: [
       `${cleanKeyword} ${publishingContext.year} overview`,
       `${cleanKeyword} practical workflow`,
+      `${cleanKeyword} implementation details`,
+      `${cleanKeyword} key highlights`,
     ],
     internal_links: [
       `${cleanKeyword} fundamentals`,
@@ -248,9 +250,9 @@ function normalizeYoastMetadata(metadata: Record<string, unknown>, keyword: stri
     schema_keywords: typeof metadata.schema_keywords === 'string' ? metadata.schema_keywords : keyword,
     schema_type: 'Article',
     lsi_keywords: Array.isArray(metadata.lsi_keywords) ? metadata.lsi_keywords : [],
-    image_alts: Array.isArray(metadata.image_alts) && metadata.image_alts.length >= 2
+    image_alts: Array.isArray(metadata.image_alts) && metadata.image_alts.length >= 3
       ? metadata.image_alts
-      : [`${keyword} overview`, `${keyword} practical workflow`],
+      : [`${keyword} overview`, `${keyword} practical workflow`, `${keyword} implementation details`, `${keyword} key highlights`],
     internal_links: Array.isArray(metadata.internal_links) && metadata.internal_links.length >= 2
       ? metadata.internal_links
       : [`${keyword} fundamentals`, `${keyword} practical guide`],
@@ -340,11 +342,11 @@ ${revisionInstructions}`;
     },
     {
       minimumWords: Math.ceil(wordCount * 0.42),
-      instructions: `Write the analytical middle part only. Begin with <section data-cornerstone="true"> and close it. Cover current developments, evidence, limitations and practical decision factors in depth. Include one useful <table> with comparison or action criteria, one image with descriptive ALT text, at least two supplied internal links, and supported source citations where factual claims occur. Use multiple clear H2/H3 headings. Close every tag in this fragment.`,
+      instructions: `Write the analytical middle part only. Begin with <section data-cornerstone="true"> and close it. Cover current developments, evidence, limitations and practical decision factors in depth. Include one useful <table> with comparison or action criteria, two distinct <img> tags representing relevant visual data or diagrams with descriptive ALT text in different subheadings, at least two supplied internal links, and supported source citations where factual claims occur. Use multiple clear H2/H3 headings. Close every tag in this fragment.`,
     },
     {
       minimumWords: Math.ceil(wordCount * 0.34),
-      instructions: `Write the final part only. Include a step-by-step action plan, realistic recommendations, an FAQ with useful answers, and a Sources/তথ্যসূত্র section containing at least two authoritative HTTPS links with rel="nofollow noopener". End with a substantial conclusion paragraph containing the focus keyword. Do not add another H1. Close every tag in this fragment.`,
+      instructions: `Write the final part only. Include a step-by-step action plan, one final <img> representing a summary workflow or roadmap with descriptive ALT text, realistic recommendations, an FAQ with useful answers, and a Sources/তথ্যসূত্র section containing at least two authoritative HTTPS links with rel="nofollow noopener". End with a substantial conclusion paragraph containing the focus keyword. Do not add another H1. Close every tag in this fragment.`,
     },
   ];
   const perSectionYoastInstructions = mode.id === 'yoast'
@@ -367,8 +369,46 @@ ${section.instructions}`,
     .join('\n');
 }
 
-function normalizeGeneratedMarkup(articleHtml: string): string {
-  const normalizedExternalLinks = articleHtml.replace(/<a\b([^>]*href=["']https?:\/\/(?!learn\.programming-hero\.com)[^>]*?)>/gi, fullTag => {
+function injectRealImageUrls(html: string, fallbackKeyword: string): string {
+  return html.replace(/<img\b([^>]*)\/?>/gi, (fullTag, attributes: string) => {
+    const altMatch = attributes.match(/\balt=["']([^"']*)["']/i);
+    const altText = altMatch ? altMatch[1].trim() : '';
+
+    const srcMatch = attributes.match(/\bsrc=["']([^"']*)["']/i);
+    const srcText = srcMatch ? srcMatch[1].trim() : '';
+
+    const isPlaceholder = !srcText || 
+                          srcText.startsWith('data:') || 
+                          srcText.includes('placeholder') || 
+                          srcText.includes('via.placeholder.com') ||
+                          !srcText.startsWith('http') ||
+                          /unsplash\.com|pexels\.com|pixabay\.com/i.test(srcText);
+
+    if (isPlaceholder) {
+      const prompt = altText || fallbackKeyword || 'high quality illustration';
+      const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=1080&height=720&nologo=true`;
+      
+      let newAttributes = attributes;
+      if (srcMatch) {
+        newAttributes = attributes.replace(/\bsrc=["']([^"']*)["']/i, `src="${imageUrl}"`);
+      } else {
+        newAttributes = `${attributes.trim()} src="${imageUrl}"`;
+      }
+      
+      if (!altMatch) {
+        newAttributes = `${newAttributes.trim()} alt="${fallbackKeyword || 'article image'}"`;
+      }
+
+      return `<img ${newAttributes.trim()} />`;
+    }
+
+    return fullTag;
+  });
+}
+
+function normalizeGeneratedMarkup(articleHtml: string, keyword: string): string {
+  const withRealImages = injectRealImageUrls(articleHtml, keyword);
+  const normalizedExternalLinks = withRealImages.replace(/<a\b([^>]*href=["']https?:\/\/(?!learn\.programming-hero\.com)[^>]*?)>/gi, fullTag => {
     if (/\brel=["'][^"']*\bnofollow\b/i.test(fullTag)) return fullTag;
     if (/\brel=["']/i.test(fullTag)) {
       return fullTag.replace(/\brel=["']([^"']*)["']/i, 'rel="nofollow noopener $1"');
@@ -623,7 +663,7 @@ function buildModeAudit(
   add('faq', 'FAQ section included', /\bfaq\b|frequently asked/i.test(text));
   add('two_internal', 'At least two internal links', internalLinks.length >= 2);
   add('two_external', 'At least two external source links', externalLinks.length >= 2);
-  add('two_images', 'At least two images', images.length >= 2);
+  add('two_images', 'At least three images', images.length >= 3);
   add('three_h2', 'At least three H2 sections', h2Count >= 3);
   add('five_h2', 'At least five H2 sections', h2Count >= 5);
   add('step_guide', 'Step-by-step guidance included', /\bstep[- ]by[- ]step\b|\bsteps?\b/i.test(text));
@@ -709,9 +749,9 @@ function buildModeAudit(
     addYoast('Links', 'yoast_suggestions', 'Internal linking suggestions', internalSuggestions >= 2, `${internalSuggestions} internal-link suggestions returned in metadata.`);
     addYoast('Links', 'yoast_anchor', 'Keyphrase-linked text', internalAnchors.some(anchor => anchor.text.includes(keywordLower)), 'One internal anchor must contain the focus keyphrase.');
 
-    addYoast('Images', 'yoast_image_alt', 'Images with ALT tags', imageAlts.length >= 2 && imageAlts.every(Boolean), `${imageAlts.filter(Boolean).length} images with ALT text found.`);
+    addYoast('Images', 'yoast_image_alt', 'Images with ALT tags', imageAlts.length >= 3 && imageAlts.every(Boolean), `${imageAlts.filter(Boolean).length} images with ALT text found.`);
     addYoast('Images', 'yoast_alt_keyphrase', 'Keyphrase in ALT attribute', imageAlts.some(alt => alt.toLowerCase().includes(keywordLower)), 'At least one ALT text includes the focus keyphrase.');
-    addYoast('Images', 'yoast_image_count', 'Minimum image count', images.length >= 2, `${images.length} image elements found; minimum is two.`);
+    addYoast('Images', 'yoast_image_count', 'Minimum image count', images.length >= 3, `${images.length} image elements found; minimum is three.`);
     addYoast('Images', 'yoast_alt_enforced', 'ALT required enforcement', images.length > 0 && images.length === imageAlts.filter(Boolean).length, 'Every generated image must have non-empty ALT text.');
 
     addYoast('URL & Slug', 'yoast_slug_keyphrase', 'Keyphrase in slug', keywordSlugWords.length > 0 && keywordSlugWords.every(word => slugWords.includes(word)), 'Meaningful focus-keyphrase words must occur in slug.');
@@ -862,7 +902,7 @@ export async function POST(req: Request) {
         selectedMode,
         preferences,
         research as ResearchData | undefined,
-      ));
+      ), keyword.trim());
       if (selectedMode.id === 'yoast') {
         articleHtml = ensureYoastSubheadingCoverage(articleHtml, keyword.trim());
         articleHtml = ensureYoastRelatedTermUsage(articleHtml, (metadata.lsi_keywords as string[] | undefined) || []);
@@ -888,7 +928,7 @@ export async function POST(req: Request) {
           `QUALITY REWRITE REQUIRED: The previous draft is not publishable because:
 - ${qualityIssues.join('\n- ')}
 Return a full replacement article in ${preferences.language}. It must be complete, natural, deeply researched, source-backed, valid HTML, and at least ${wordCount} words. Do not patch or append filler to the previous draft.`,
-        ));
+        ), keyword.trim());
         if (selectedMode.id === 'yoast') {
           articleHtml = ensureYoastSubheadingCoverage(articleHtml, keyword.trim());
           articleHtml = ensureYoastRelatedTermUsage(articleHtml, (metadata.lsi_keywords as string[] | undefined) || []);
