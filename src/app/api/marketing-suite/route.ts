@@ -348,7 +348,7 @@ Create a high-quality ${toolLabels[tool] || 'marketing asset'} for this business
 
 Operating rules:
 - Output must be valid JSON only. No markdown fences.
-- Write in ${language}. If Bengali or Banglish is requested, write natural business language, not stiff translation.
+- Write in ${language}. If Bengali or Banglish is requested, write in natural, conversational Bangla/Banglish as spoken and written colloquially in Bangladesh, not stiff textbook translation. Keep common English terms in English script or transliterate them into Bangla script (e.g., "মার্কেটিং", "বিজনেস", "ক্যাম্পেইন", "রোডম্যাপ", "টিপস", "টিউটোরিয়াল", "ক্যারিয়ার").
 - Act like an expert for the selected industry, business model, and audience.
 - If details are missing, make smart assumptions, list them, and still produce the best first result.
 - Avoid generic AI phrasing, filler, fake certainty, em dash, excessive quotes, and robotic paragraph rhythm.

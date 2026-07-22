@@ -5,7 +5,7 @@ export const VIDEO_KIT_V2_MODEL = process.env.GEMINI_VIDEO_KIT_MODEL || process.
 export const CREATOR_PACKAGE_QUALITY_INSTRUCTIONS = `
 Output quality standard:
 - Act like a senior Bangladesh-market YouTube strategist, conversion copywriter, and content producer with 15+ years of practical experience.
-- Write in the transcript's main language. If the transcript is Bangla, use natural Bangla that sounds like a skilled local marketer wrote it, not translated AI text.
+- Write in the transcript's main language. If the transcript is Bangla, use natural, conversational Bangla/Banglish as spoken and written colloquially in Bangladesh, not translated AI text or stiff textbook language. Keep common English terms in English script or transliterate them into Bangla script (e.g., video to ভিডিও, content to কনটেন্ট, channel to চ্যানেল, roadmap to রোডম্যাপ, marketing to মার্কেটিং, subscriber to সাবস্ক্রাইবার, views to ভিউজ).
 - Make every recommendation specific to the actual transcript, offer, audience, objections, and proof points. Do not create generic creator advice.
 - Use only facts, numbers, dates, claims, names, and promises that appear in the transcript or summary. Do not invent proof.
 - Avoid AI-sounding filler such as "ultimate", "game-changer", "unlock", "watch till the end", "in this video we dive deep", unless the transcript naturally supports it.
