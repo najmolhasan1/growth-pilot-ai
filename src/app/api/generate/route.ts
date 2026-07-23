@@ -381,10 +381,9 @@ function injectRealImageUrls(html: string, fallbackKeyword: string): string {
 
     const isPlaceholder = !srcText || 
                           srcText.startsWith('data:') || 
-                          srcText.includes('placeholder') || 
-                          srcText.includes('via.placeholder.com') ||
                           !srcText.startsWith('http') ||
-                          /unsplash\.com|pexels\.com|pixabay\.com/i.test(srcText);
+                          !srcText.includes('image.pollinations.ai') ||
+                          /placeholder|example\.com|domain\.com|dummy/i.test(srcText);
 
     if (isPlaceholder) {
       const prompt = altText || fallbackKeyword || 'high quality illustration';
