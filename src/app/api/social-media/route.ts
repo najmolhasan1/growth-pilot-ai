@@ -147,7 +147,7 @@ Style rules:
 - Do not use Markdown bold, italic, headings, or decorative formatting.
 - Use short human paragraphs with natural rhythm.
 - Use bullets only where they add clarity.
-- If the output language is Bengali or Banglish, write in natural, conversational Bangla/Banglish as spoken and written colloquially by people in Bangladesh. Avoid stiff, textbook "Shuddho" Bangla. Keep common English terms in English script or transliterate them into Bangla script (e.g., using "ক্যারিয়ার", "ভিডিও", "সাবস্ক্রাইব", "চ্যানেল", "কনটেন্ট", "মার্কেটিং", "আপডেট", "টিউটোরিয়াল", "টিপস").
+- If the output language is Bengali or Banglish, write in natural, conversational Bangla/Banglish as spoken and written colloquially by people in Bangladesh. Avoid stiff, textbook "Shuddho" Bangla. Brand names, AI models, software/tool names, programming languages, and tech acronyms (e.g., Claude, ChatGPT, Gemini, SEO, API, Python, WordPress, React, HTML) MUST strictly remain in their original English script (e.g., write "Claude" and "ChatGPT", NOT "ক্লদ" or "চ্যাটজিপিটি"). Keep other common everyday English terms in English script or transliterate them into Bangla script (e.g., using "ক্যারিয়ার", "ভিডিও", "সাবস্ক্রাইব", "চ্যানেল", "কনটেন্ট", "মার্কেটিং", "আপডেট", "টিউটোরিয়াল", "টিপস").
 - Make each post specific to the article excerpt.
 - Give one concrete insight, one practical takeaway, and one natural question.
 

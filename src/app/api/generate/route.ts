@@ -316,7 +316,8 @@ async function generateArticleHTML(
   const languageQuality = preferences.language.toLowerCase() === 'bengali'
     ? `LANGUAGE QUALITY:
 - Write in natural, conversational, and humanized Bangla (Banglish style) as spoken and written colloquially by people in Bangladesh. Avoid stiff, textbook, or overly formal "Shuddho" Bangla.
-- Do not translate common English terms literally. Keep commonly used English terms (such as "career", "roadmap", "website", "details", "update", "tutorial", "marketing", "tips", "link") in English script or transliterate them naturally into Bangla script (e.g., ক্যারিয়ার, রোডম্যাপ, ওয়েবসাইট, ডিটেইলস, আপডেট, টিউটোরিয়াল, মার্কেটিং, টিপস, লিঙ্ক).
+- Brand names, AI models, software/tool names, programming languages, and tech acronyms (e.g., Claude, ChatGPT, Gemini, SEO, API, Python, WordPress, React, HTML) MUST strictly remain in their original English script (e.g., write "Claude" and "ChatGPT", NOT "ক্লদ" or "চ্যাটজিপিটি").
+- Common everyday English nouns/verbs widely used in conversational Bangla (e.g., career, roadmap, website, details, update, tutorial, marketing, tips, link) should be transliterated into Bangla script (e.g., ক্যারিয়ার, রোডম্যাপ, ওয়েবসাইট, ডিটেইলস, আপডেট, টিউটোরিয়াল, মার্কেটিং, টিপস, লিঙ্ক) or kept in English script.
 - Do not insert English filler headings or English transition sentences into a Bangla article.
 - Use natural, smooth Bangla transitions (such as "তবে", "ফলে", "এছাড়া", "যেমন", "সবশেষে", "আসল কথা হলো", "তাই বলে") rather than bookish or textbook transitions.`
     : `LANGUAGE QUALITY:
