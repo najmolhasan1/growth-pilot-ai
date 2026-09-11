@@ -22,6 +22,12 @@ import {
   resultToHtml,
   downloadBlob,
 } from '../marketingUtils';
+import {
+  EmailExecutionStudio,
+  SmsExecutionStudio,
+  ProductCopyStudio,
+  SocialCampaignStudio,
+} from '../executionStudios';
 
 const STORAGE_KEY = 'marketing_brand_profile';
 const ASSET_STORAGE_KEY = 'marketing_saved_assets';
@@ -606,7 +612,35 @@ function ToolWorkspaceContent() {
               <div className="space-y-5">
                 <ResultCard title="Executive Summary" body={result.executiveSummary} />
                 <ResultCard title="Strategy" items={result.strategy} />
-                <ResultCard title="Primary Output" body={result.primaryOutput} large />
+
+                {/* REAL EXECUTION STUDIOS */}
+                {toolId === 'email_campaign' && (
+                  <EmailExecutionStudio
+                    primaryOutput={result.primaryOutput}
+                    businessName={brandProfile.businessName}
+                  />
+                )}
+
+                {toolId === 'sms_campaign' && (
+                  <SmsExecutionStudio
+                    primaryOutput={result.primaryOutput}
+                  />
+                )}
+
+                {toolId === 'product_copy' && (
+                  <ProductCopyStudio
+                    primaryOutput={result.primaryOutput}
+                    productName={inputs.product || inputs.productName || brandProfile.productService || 'Product'}
+                  />
+                )}
+
+                {toolId === 'social_campaign' && (
+                  <SocialCampaignStudio
+                    primaryOutput={result.primaryOutput}
+                  />
+                )}
+
+                <ResultCard title="Primary Draft Output" body={result.primaryOutput} large />
                 
                 {toolId === 'product_photography' && (
                   <section className="rounded-2xl border border-fuchsia-400/20 bg-fuchsia-500/5 p-5">

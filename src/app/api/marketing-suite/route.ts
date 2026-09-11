@@ -356,14 +356,17 @@ Operating rules:
 - The output should feel ready for a founder, marketer, or agency operator to use after light editing.
 
 Tool-specific quality bar:
-- Social campaign: include platform angle, hook depth, CTA, and 3 reusable post angles.
-- Product copy: include pain, benefit, proof, objections, feature-to-benefit translation, and CTA.
-- Product photography: create a conversion-focused product shoot plan. Include ecommerce shot list, lifestyle concepts, AI image prompts, background/prop ideas, composition rules, platform crops, thumbnail/ad overlay text, and a production checklist. Prompts must be realistic, product-accurate, and avoid generic AI-art language.
-- Email campaign: include subject logic, sequence flow, objection handling, and conversion moment.
-- SMS campaign: keep it concise, permission-friendly, urgent without being spammy.
+- Email campaign: must include clearly labeled 'Subject: [High-converting subject line]', 'Preheader: [Catchy preview snippet]', followed by the email body. Use personalization tags {{name}} and {{company}}. Make it clean, persuasive, and ready to send via SMTP/ESP.
+- SMS campaign: must be concise (under 160 characters for standard 1-credit GSM SMS). Include punchy offer, immediate urgency, clear CTA link, and optional personalization tag {{name}}.
+- Product copy: must provide structured ecommerce modules: 1. Catchy Titles (3 options), 2. Feature-to-Benefit Matrix, 3. Ready-to-paste Rich HTML Description (clean <div>, <h3>, <ul>, specifications, guarantee box), 4. SEO Meta Title (<60 chars) & Meta Description (<160 chars), 5. Product FAQ (3 Q&As) and valid JSON-LD schema block.
+- Social campaign: must provide 4 dedicated platform sections clearly marked with headers:
+  ### [LINKEDIN POST]: Scroll-stopping hook, whitespace formatting, thought leadership insight, engagement question, and 3-5 focused hashtags.
+  ### [X / TWITTER THREAD]: Tweet 1 (Hook, under 280 chars), Tweet 2 (Core value), Tweet 3 (Proof), Tweet 4 (Actionable takeaway & CTA).
+  ### [FACEBOOK POST]: Emotional hook, relatable story/offer context, and clear link CTA.
+  ### [INSTAGRAM CAPTION]: Aesthetic caption with readable spacing and 3-tier hashtag trays (High-volume, Niche, Brand).
+- Product photography: create a conversion-focused product shoot plan. Include ecommerce shot list, lifestyle concepts, AI image prompts, background/prop ideas, composition rules, platform crops, thumbnail/ad overlay text, and a production checklist.
 - Landing page: include hero, sections, proof blocks, objections, CTA, and page flow.
-- Video content optimization kit: include 5 viral but relevant title options, thumbnail text ideas, thumbnail direction, SEO optimized description, chapters/timestamps, shorts/reels hooks, hashtags, video tags, and social post versions. If exact timecodes are missing, create suggested timestamps from transcript structure and clearly call them suggested.
-- For video content, also include 8-10 Reels/Shorts ideas with timestamps or suggested timestamps, plus 3 separate 3-5 minute video ideas with section-by-section timestamps.
+- Video content optimization kit: include 5 viral but relevant title options, thumbnail text ideas, thumbnail direction, SEO optimized description, chapters/timestamps, shorts/reels hooks, hashtags, video tags, and social post versions.
 - Campaign planner: create a practical 7/14/30 day calendar with channels, hooks, asset types, CTA, owner task, and conversion goal for each phase.
 - Launch pack: produce a complete starter kit with landing hero/sections, 3 social posts, 3-email sequence, 1 SMS, 3 ad angles, and 1 image or thumbnail prompt.
 - Growth strategy audit: diagnose ICP, positioning, offer strength, funnel gaps, channel priorities, risks, and a 7-day action plan.
