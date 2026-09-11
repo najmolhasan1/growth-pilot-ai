@@ -173,6 +173,39 @@ interface BacklinksResult {
   }>;
 }
 
+interface BlogSerpResult {
+  title: string;
+  url: string;
+  serp: {
+    averageRank: number;
+    estimatedMonthlyClicks: number;
+    estimatedMonthlyImpressions: number;
+    averageCtr: string;
+    serpHealthScore: number;
+    rankingQueries: Array<{
+      query: string;
+      position: number;
+      volume: string;
+      clicks: string;
+      intent: string;
+    }>;
+  };
+  aiCitation: {
+    status: string;
+    isCited: boolean;
+    citationReadinessScore: number;
+    shareOfVoice: string;
+    aiEnginesCited: string[];
+    citationSnippet: string;
+    geoActionPlan: Array<{
+      priority: string;
+      title: string;
+      details: string;
+      impact: string;
+    }>;
+  };
+}
+
 interface AuditReport {
   url: string;
   domain: string;
@@ -286,8 +319,8 @@ export default function WebsiteAnalyzerPage() {
   const [expandedIssues, setExpandedIssues] = useState<Record<string, boolean>>({});
   const [recentAudits, setRecentAudits] = useState<StoredAsset[]>([]);
 
-  // Mode Switcher: single | compare | sitemap | backlinks
-  const [auditMode, setAuditMode] = useState<'single' | 'compare' | 'sitemap' | 'backlinks'>('single');
+  // Mode Switcher: single | compare | sitemap | backlinks | blog-serp
+  const [auditMode, setAuditMode] = useState<'single' | 'compare' | 'sitemap' | 'backlinks' | 'blog-serp'>('single');
 
   // Competitor Comparison state
   const [competitorUrlInput, setCompetitorUrlInput] = useState('');
@@ -301,6 +334,10 @@ export default function WebsiteAnalyzerPage() {
   // Backlink Equity & Off-Page Audit state
   const [backlinkScanning, setBacklinkScanning] = useState(false);
   const [backlinkResult, setBacklinkResult] = useState<BacklinksResult | null>(null);
+
+  // Blog SERP & AI Citation state
+  const [blogSerpScanning, setBlogSerpScanning] = useState(false);
+  const [blogSerpResult, setBlogSerpResult] = useState<BlogSerpResult | null>(null);
 
   // Robots.txt generator modal/state
   const [showRobotsModal, setShowRobotsModal] = useState(false);
@@ -407,6 +444,34 @@ export default function WebsiteAnalyzerPage() {
       setErrorMsg(err.message || 'Error occurred during backlink analysis.');
     } finally {
       setBacklinkScanning(false);
+    }
+  };
+
+  // Handle Blog SERP & AI Citation Analysis
+  const handleBlogSerpAudit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!urlInput.trim()) return;
+
+    setBlogSerpScanning(true);
+    setErrorMsg('');
+    setBlogSerpResult(null);
+
+    try {
+      const res = await fetch('/api/website-audit/blog-serp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: urlInput.trim() })
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Failed to analyze blog SERP and AI Citation.');
+      }
+      setBlogSerpResult(data.data);
+    } catch (err: any) {
+      setErrorMsg(err.message || 'Error occurred during Blog SERP analysis.');
+    } finally {
+      setBlogSerpScanning(false);
     }
   };
 
@@ -656,6 +721,21 @@ export default function WebsiteAnalyzerPage() {
               Off-Page
             </span>
           </button>
+
+          <button
+            onClick={() => setAuditMode('blog-serp')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-xs transition-all ${
+              auditMode === 'blog-serp'
+                ? 'bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 shadow-sm'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+            }`}
+          >
+            <TrendingUp className="w-4 h-4 text-purple-500" />
+            📊 Blog SERP & AI Citation
+            <span className="px-1.5 py-0.5 rounded text-[10px] bg-purple-100 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 font-extrabold">
+              GEO
+            </span>
+          </button>
         </div>
 
         {/* Input Form Containers */}
@@ -807,6 +887,40 @@ export default function WebsiteAnalyzerPage() {
                   <>
                     <Link2 className="w-4 h-4" />
                     Audit Backlinks
+                  </>
+                )}
+              </button>
+            </form>
+          )}
+
+          {/* MODE 5: BLOG SERP & AI CITATION (GEO) AUDIT */}
+          {auditMode === 'blog-serp' && (
+            <form onSubmit={handleBlogSerpAudit} className="flex flex-col sm:flex-row gap-3">
+              <div className="relative flex-1">
+                <TrendingUp className="absolute left-3.5 top-3.5 w-4 h-4 text-purple-500" />
+                <input
+                  type="text"
+                  placeholder="Enter specific blog post URL (e.g. yourwebsite.com/blog/best-seo-tips)"
+                  value={urlInput}
+                  onChange={(e) => setUrlInput(e.target.value)}
+                  disabled={blogSerpScanning}
+                  className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={blogSerpScanning || !urlInput.trim()}
+                className="px-6 py-3 rounded-xl font-bold text-xs sm:text-sm bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white transition-all shadow-md shadow-purple-600/20 flex items-center justify-center gap-2 disabled:opacity-50"
+              >
+                {blogSerpScanning ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Checking SERP & AI Citations...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-4 h-4 text-amber-300" />
+                    Analyze Blog & GEO
                   </>
                 )}
               </button>
@@ -2135,6 +2249,218 @@ export default function WebsiteAnalyzerPage() {
                     <p className="text-xs text-slate-700 dark:text-slate-300 bg-white/70 dark:bg-slate-900/80 p-2.5 rounded-lg border border-emerald-200/50 dark:border-emerald-900/30">
                       <span className="font-semibold text-emerald-700 dark:text-emerald-400">Outreach Angle: </span>
                       {road.pitchAngle}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODE 5 VIEW: BLOG SERP & AI CITATION (GEO) BOARD */}
+      {auditMode === 'blog-serp' && blogSerpResult && (
+        <div className="max-w-7xl mx-auto space-y-6 mt-6">
+          {/* Header Card */}
+          <div className="bg-gradient-to-r from-purple-950 via-slate-900 to-indigo-950 p-6 rounded-3xl border border-slate-800 text-white shadow-xl">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="px-3 py-1 rounded-full text-xs font-black bg-purple-500 text-white uppercase tracking-wider">
+                    📊 Blog SERP & Generative AI Citation (GEO)
+                  </span>
+                  <span className={`px-2.5 py-0.5 rounded-full text-xs font-extrabold ${
+                    blogSerpResult.aiCitation.isCited 
+                      ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                      : 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
+                  }`}>
+                    {blogSerpResult.aiCitation.status}
+                  </span>
+                </div>
+                <h2 className="text-2xl font-black mt-2">
+                  {blogSerpResult.title}
+                </h2>
+                <p className="text-xs text-slate-300 mt-1 max-w-2xl">
+                  {blogSerpResult.aiCitation.citationSnippet}
+                </p>
+              </div>
+
+              {/* Core SERP & GEO Dials */}
+              <div className="flex items-center gap-6">
+                <div className="text-center">
+                  <div className="text-3xl font-black text-purple-400">
+                    #{blogSerpResult.serp.averageRank}
+                  </div>
+                  <div className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">Est. Google Rank</div>
+                </div>
+
+                <div className="text-center">
+                  <div className="text-3xl font-black text-emerald-400">
+                    {blogSerpResult.serp.estimatedMonthlyClicks.toLocaleString()}
+                  </div>
+                  <div className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">Monthly Clicks</div>
+                </div>
+
+                <div className="text-center">
+                  <div className="text-3xl font-black text-sky-400">
+                    {blogSerpResult.serp.estimatedMonthlyImpressions.toLocaleString()}
+                  </div>
+                  <div className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">Impressions</div>
+                </div>
+
+                <div className="text-center">
+                  <div className="text-3xl font-black text-amber-400">
+                    {blogSerpResult.aiCitation.citationReadinessScore}%
+                  </div>
+                  <div className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">AI Citation Score</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* KPI Metrics */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">
+                Average CTR%
+              </span>
+              <div className="text-2xl font-black text-slate-900 dark:text-white my-1">
+                {blogSerpResult.serp.averageCtr}
+              </div>
+              <span className="text-[11px] font-semibold text-purple-600 dark:text-purple-400">
+                Click-Through Rate
+              </span>
+            </div>
+
+            <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">
+                SERP Health
+              </span>
+              <div className="text-2xl font-black text-slate-900 dark:text-white my-1">
+                {blogSerpResult.serp.serpHealthScore}/100
+              </div>
+              <span className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+                Competitive Stability
+              </span>
+            </div>
+
+            <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">
+                AI Share of Voice
+              </span>
+              <div className="text-2xl font-black text-slate-900 dark:text-white my-1">
+                {blogSerpResult.aiCitation.shareOfVoice}
+              </div>
+              <span className="text-[11px] font-semibold text-indigo-600 dark:text-indigo-400">
+                Conversational Queries
+              </span>
+            </div>
+
+            <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">
+                AI Engines Citing
+              </span>
+              <div className="text-lg font-black text-slate-900 dark:text-white my-1 truncate">
+                {blogSerpResult.aiCitation.aiEnginesCited.length > 0 
+                  ? blogSerpResult.aiCitation.aiEnginesCited.join(', ')
+                  : 'Needs Optimization'}
+              </div>
+              <span className="text-[11px] font-semibold text-slate-500">
+                Perplexity / Gemini / ChatGPT
+              </span>
+            </div>
+          </div>
+
+          {/* Ranking Queries Table */}
+          <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                  <Search className="w-4 h-4 text-purple-600" />
+                  Target Google SERP Ranking Queries & Clicks
+                </h3>
+                <p className="text-xs text-slate-500">
+                  Search phrases for which this blog post ranks in Google SERP with projected clicks and search intent.
+                </p>
+              </div>
+              <span className="text-xs font-bold text-purple-600 dark:text-purple-400">
+                {blogSerpResult.serp.rankingQueries.length} Queries Tracked
+              </span>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-slate-200 dark:border-slate-800 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                    <th className="pb-3 px-3">Search Query</th>
+                    <th className="pb-3 px-3">SERP Rank</th>
+                    <th className="pb-3 px-3">Est. Monthly Volume</th>
+                    <th className="pb-3 px-3">Projected Clicks</th>
+                    <th className="pb-3 px-3">Search Intent</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-xs">
+                  {blogSerpResult.serp.rankingQueries.map((q, idx) => (
+                    <tr key={idx} className="hover:bg-slate-50 dark:hover:bg-slate-950/50">
+                      <td className="py-3 px-3 font-semibold text-slate-900 dark:text-white">
+                        {q.query}
+                      </td>
+                      <td className="py-3 px-3">
+                        <span className={`px-2.5 py-0.5 rounded-full font-black text-xs ${
+                          q.position <= 3 
+                            ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300'
+                            : q.position <= 10 
+                            ? 'bg-indigo-100 text-indigo-800 dark:bg-indigo-950/80 dark:text-indigo-300'
+                            : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300'
+                        }`}>
+                          #{q.position}
+                        </span>
+                      </td>
+                      <td className="py-3 px-3 font-mono text-slate-600 dark:text-slate-300">
+                        {q.volume}
+                      </td>
+                      <td className="py-3 px-3 font-mono font-bold text-emerald-600 dark:text-emerald-400">
+                        {q.clicks} clicks/mo
+                      </td>
+                      <td className="py-3 px-3">
+                        <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                          {q.intent}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* GEO (Generative Engine Optimization) Action Blueprint */}
+          <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+            <h3 className="text-base font-bold text-slate-900 dark:text-white mb-2 flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-purple-500" />
+              Generative Engine Optimization (GEO) Blueprint: How to Become the #1 AI Cited Source
+            </h3>
+            <p className="text-xs text-slate-500 mb-4">
+              Implement these structured tweaks so Perplexity AI, ChatGPT Search, and Gemini Grounding reliably reference your blog:
+            </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {blogSerpResult.aiCitation.geoActionPlan.map((plan, i) => (
+                <div key={i} className="p-4 rounded-xl bg-purple-50/40 dark:bg-purple-950/20 border border-purple-100 dark:border-purple-900/50 flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-center justify-between gap-2 mb-2">
+                      <span className="text-[10px] font-extrabold px-2 py-0.5 rounded bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300">
+                        {plan.priority} Priority
+                      </span>
+                      <span className="text-[10px] font-extrabold text-emerald-600 dark:text-emerald-400">
+                        {plan.impact}
+                      </span>
+                    </div>
+                    <h4 className="text-sm font-bold text-slate-900 dark:text-white mb-2">
+                      {plan.title}
+                    </h4>
+                    <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                      {plan.details}
                     </p>
                   </div>
                 </div>
