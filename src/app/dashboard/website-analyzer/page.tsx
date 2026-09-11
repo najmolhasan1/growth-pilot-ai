@@ -253,6 +253,36 @@ interface ContentOptimizerResult {
   internalLinkingSuggestions: InternalLinkSuggestion[];
 }
 
+interface SingleBlogSummaryItem {
+  title: string;
+  url: string;
+  slug: string;
+  rank: number;
+  monthlyClicks: number;
+  monthlyImpressions: number;
+  ctr: string;
+  topQuery: string;
+  intent: 'Informational' | 'Commercial' | 'Transactional' | 'Navigational';
+  isAiCited: boolean;
+  aiCitationScore: number;
+  publishDate: string;
+}
+
+interface AllBlogsResult {
+  domain: string;
+  dataSource: 'crawler_mode' | 'gsc_live';
+  discoveredCount: number;
+  summary: {
+    totalBlogs: number;
+    totalClicks: number;
+    totalImpressions: number;
+    averageCtr: string;
+    aiCitedPercentage: number;
+    topRankingBlog: { title: string; rank: number; clicks: number } | null;
+  };
+  blogs: SingleBlogSummaryItem[];
+}
+
 interface AuditReport {
   url: string;
   domain: string;
@@ -399,6 +429,23 @@ export default function WebsiteAnalyzerPage() {
   const [liveEntities, setLiveEntities] = useState<NlpEntityItem[]>([]);
   const [entityFilter, setEntityFilter] = useState<'all' | 'missing' | 'optimal' | 'high'>('all');
   const [copiedOptimizerText, setCopiedOptimizerText] = useState(false);
+
+  // Phase 6: All Blogs SERP Directory & GSC state
+  const [blogSubTab, setBlogSubTab] = useState<'single' | 'directory'>('directory');
+  const [allBlogsScanning, setAllBlogsScanning] = useState(false);
+  const [allBlogsResult, setAllBlogsResult] = useState<AllBlogsResult | null>(null);
+  const [blogSearchQuery, setBlogSearchQuery] = useState('');
+  const [blogRankFilter, setBlogRankFilter] = useState<'all' | 'top3' | 'top10' | 'low' | 'cited'>('all');
+  const [blogSortBy, setBlogSortBy] = useState<'clicks' | 'impressions' | 'rank' | 'ctr'>('clicks');
+
+  // GSC Connect Modal state
+  const [showGscModal, setShowGscModal] = useState(false);
+  const [gscSiteUrl, setGscSiteUrl] = useState('');
+  const [gscAccessToken, setGscAccessToken] = useState('');
+  const [gscServiceAccountJson, setGscServiceAccountJson] = useState('');
+  const [gscConnecting, setGscConnecting] = useState(false);
+  const [gscConnected, setGscConnected] = useState(false);
+  const [gscStatusMessage, setGscStatusMessage] = useState('');
 
   // Robots.txt generator modal/state
   const [showRobotsModal, setShowRobotsModal] = useState(false);
@@ -680,6 +727,107 @@ export default function WebsiteAnalyzerPage() {
   const insertTermIntoEditor = (term: string) => {
     const updated = liveArticleText ? `${liveArticleText} ${term}` : term;
     handleLiveTextChange(updated);
+  };
+
+  // Handle All-Blogs Directory Audit
+  const handleAllBlogsScan = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!urlInput.trim()) return;
+
+    setAllBlogsScanning(true);
+    setErrorMsg('');
+    setAllBlogsResult(null);
+
+    try {
+      const res = await fetch('/api/website-audit/all-blogs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: urlInput.trim() }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Failed to inspect blog directory.');
+      }
+      setAllBlogsResult(data.data);
+    } catch (err: any) {
+      setErrorMsg(err.message || 'Error occurred while scanning all blogs.');
+    } finally {
+      setAllBlogsScanning(false);
+    }
+  };
+
+  // Handle Google Search Console Connection test / query
+  const handleGscConnect = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!gscSiteUrl.trim()) return;
+
+    setGscConnecting(true);
+    setGscStatusMessage('');
+
+    try {
+      const res = await fetch('/api/website-audit/gsc', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          siteUrl: gscSiteUrl.trim(),
+          accessToken: gscAccessToken.trim(),
+          serviceAccountJson: gscServiceAccountJson.trim(),
+          action: gscAccessToken.trim() ? 'query' : 'test',
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'GSC connection failed.');
+      }
+
+      setGscConnected(true);
+      setGscStatusMessage(data.message || 'Google Search Console synced successfully!');
+      if (data.data?.blogs) {
+        setAllBlogsResult(data.data);
+        setShowGscModal(false);
+      }
+    } catch (err: any) {
+      setErrorMsg(err.message || 'Failed to connect Google Search Console.');
+    } finally {
+      setGscConnecting(false);
+    }
+  };
+
+  // Export blogs performance to CSV
+  const exportBlogsToCsv = () => {
+    if (!allBlogsResult || allBlogsResult.blogs.length === 0) return;
+    const headers = ['Article Title', 'URL', 'SERP Rank', 'Monthly Clicks', 'Monthly Impressions', 'CTR', 'Top Query', 'Search Intent', 'AI Citation', 'AI Score'];
+    const rows = allBlogsResult.blogs.map(b => [
+      `"${b.title.replace(/"/g, '""')}"`,
+      `"${b.url}"`,
+      b.rank,
+      b.monthlyClicks,
+      b.monthlyImpressions,
+      `"${b.ctr}"`,
+      `"${b.topQuery.replace(/"/g, '""')}"`,
+      `"${b.intent}"`,
+      b.isAiCited ? 'Cited' : 'Uncited',
+      b.aiCitationScore
+    ]);
+
+    const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `${allBlogsResult.domain}_all_blogs_serp.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  // Send single blog directly to SurferSEO Content Optimizer
+  const handleSendToOptimizer = (blogItem: SingleBlogSummaryItem) => {
+    setAuditMode('optimizer');
+    setOptimizerInputMode('url');
+    setUrlInput(blogItem.url);
+    setOptimizerKeyword(blogItem.topQuery);
   };
 
   // Scanning progress simulation
@@ -1115,38 +1263,109 @@ export default function WebsiteAnalyzerPage() {
             </form>
           )}
 
-          {/* MODE 5: BLOG SERP & AI CITATION (GEO) AUDIT */}
+          {/* MODE 5: BLOG SERP & AI CITATION (GEO) AUDIT + ALL-BLOGS DIRECTORY */}
           {auditMode === 'blog-serp' && (
-            <form onSubmit={handleBlogSerpAudit} className="flex flex-col sm:flex-row gap-3">
-              <div className="relative flex-1">
-                <TrendingUp className="absolute left-3.5 top-3.5 w-4 h-4 text-purple-500" />
-                <input
-                  type="text"
-                  placeholder="Enter specific blog post URL (e.g. yourwebsite.com/blog/best-seo-tips)"
-                  value={urlInput}
-                  onChange={(e) => setUrlInput(e.target.value)}
-                  disabled={blogSerpScanning}
-                  className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
-                />
+            <div className="space-y-3">
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-2.5">
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setBlogSubTab('directory')}
+                    className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${
+                      blogSubTab === 'directory'
+                        ? 'bg-purple-100 dark:bg-purple-950/60 text-purple-800 dark:text-purple-300'
+                        : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
+                    }`}
+                  >
+                    📑 All Blogs Directory {allBlogsResult?.blogs?.length ? `(${allBlogsResult.blogs.length})` : ''}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setBlogSubTab('single')}
+                    className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${
+                      blogSubTab === 'single'
+                        ? 'bg-purple-100 dark:bg-purple-950/60 text-purple-800 dark:text-purple-300'
+                        : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
+                    }`}
+                  >
+                    🔍 Single Blog Deep Dive
+                  </button>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setShowGscModal(true)}
+                  className="text-xs font-extrabold px-3 py-1.5 rounded-xl border border-indigo-200 dark:border-indigo-800 bg-indigo-50/70 dark:bg-indigo-950/50 hover:bg-indigo-100 text-indigo-700 dark:text-indigo-300 flex items-center gap-1.5 transition-all shadow-sm"
+                >
+                  <span className={`w-2 h-2 rounded-full ${gscConnected ? 'bg-emerald-500 animate-pulse' : 'bg-amber-400'}`} />
+                  {gscConnected ? 'Google Search Console Synced' : 'Connect Google Search Console'}
+                </button>
               </div>
-              <button
-                type="submit"
-                disabled={blogSerpScanning || !urlInput.trim()}
-                className="px-6 py-3 rounded-xl font-bold text-xs sm:text-sm bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white transition-all shadow-md shadow-purple-600/20 flex items-center justify-center gap-2 disabled:opacity-50"
-              >
-                {blogSerpScanning ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    Checking SERP & AI Citations...
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="w-4 h-4 text-amber-300" />
-                    Analyze Blog & GEO
-                  </>
-                )}
-              </button>
-            </form>
+
+              {blogSubTab === 'directory' ? (
+                <form onSubmit={handleAllBlogsScan} className="flex flex-col sm:flex-row gap-3">
+                  <div className="relative flex-1">
+                    <Globe className="absolute left-3.5 top-3.5 w-4 h-4 text-purple-500" />
+                    <input
+                      type="text"
+                      placeholder="Enter blog domain or sitemap to list all blogs (e.g. site.com or site.com/blog)"
+                      value={urlInput}
+                      onChange={(e) => setUrlInput(e.target.value)}
+                      disabled={allBlogsScanning}
+                      className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    disabled={allBlogsScanning || !urlInput.trim()}
+                    className="px-6 py-3 rounded-xl font-bold text-xs sm:text-sm bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white transition-all shadow-md shadow-purple-600/20 flex items-center justify-center gap-2 disabled:opacity-50"
+                  >
+                    {allBlogsScanning ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        Scanning All Blogs &amp; SERP...
+                      </>
+                    ) : (
+                      <>
+                        <TrendingUp className="w-4 h-4 text-white" />
+                        Analyze All Blogs
+                      </>
+                    )}
+                  </button>
+                </form>
+              ) : (
+                <form onSubmit={handleBlogSerpAudit} className="flex flex-col sm:flex-row gap-3">
+                  <div className="relative flex-1">
+                    <TrendingUp className="absolute left-3.5 top-3.5 w-4 h-4 text-purple-500" />
+                    <input
+                      type="text"
+                      placeholder="Enter specific blog post URL (e.g. yourwebsite.com/blog/best-seo-tips)"
+                      value={urlInput}
+                      onChange={(e) => setUrlInput(e.target.value)}
+                      disabled={blogSerpScanning}
+                      className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    disabled={blogSerpScanning || !urlInput.trim()}
+                    className="px-6 py-3 rounded-xl font-bold text-xs sm:text-sm bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white transition-all shadow-md shadow-purple-600/20 flex items-center justify-center gap-2 disabled:opacity-50"
+                  >
+                    {blogSerpScanning ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        Checking SERP &amp; AI Citations...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="w-4 h-4 text-amber-300" />
+                        Analyze Single Blog
+                      </>
+                    )}
+                  </button>
+                </form>
+              )}
+            </div>
           )}
 
           {/* MODE 6: LIVE CONTENT OPTIMIZER (SURFERSEO STYLE) */}
@@ -2566,8 +2785,334 @@ export default function WebsiteAnalyzerPage() {
         </div>
       )}
 
-      {/* MODE 5 VIEW: BLOG SERP & AI CITATION (GEO) BOARD */}
-      {auditMode === 'blog-serp' && blogSerpResult && (
+      {/* MODE 5.B: ALL-BLOGS DIRECTORY & PERFORMANCE HUB (PHASE 6) */}
+      {auditMode === 'blog-serp' && blogSubTab === 'directory' && allBlogsResult && (
+        <div className="max-w-7xl mx-auto space-y-6 mt-6">
+          {/* Summary & KPI Top Card */}
+          <div className="bg-gradient-to-r from-purple-950 via-slate-900 to-indigo-950 p-6 rounded-3xl border border-slate-800 text-white shadow-xl">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="px-3 py-1 rounded-full text-xs font-black bg-purple-500 text-white uppercase tracking-wider">
+                    📑 All-Blogs Directory Intelligence
+                  </span>
+                  <span className="px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                    {allBlogsResult.dataSource === 'gsc_live' ? '⚡ Google Search Console Synced' : '🌐 Crawler + SERP Mode'}
+                  </span>
+                </div>
+                <h2 className="text-2xl font-black mt-2">
+                  {allBlogsResult.domain} — Full Blog Portfolio
+                </h2>
+                <p className="text-xs text-slate-300 mt-1 max-w-2xl">
+                  Discovered {allBlogsResult.summary.totalBlogs} indexed blog posts across the domain. Track rankings, organic clicks, impressions, and generative AI citations.
+                </p>
+              </div>
+
+              {/* KPI Dials */}
+              <div className="flex flex-wrap items-center gap-6 bg-slate-950/60 p-4 rounded-2xl border border-slate-800/80">
+                <div className="text-center">
+                  <div className="text-3xl font-black text-purple-400">
+                    {allBlogsResult.summary.totalBlogs}
+                  </div>
+                  <div className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">Total Blogs</div>
+                </div>
+
+                <div className="h-10 w-px bg-slate-800" />
+
+                <div className="text-center">
+                  <div className="text-3xl font-black text-emerald-400">
+                    {allBlogsResult.summary.totalClicks.toLocaleString()}
+                  </div>
+                  <div className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">Total Clicks</div>
+                </div>
+
+                <div className="h-10 w-px bg-slate-800" />
+
+                <div className="text-center">
+                  <div className="text-3xl font-black text-sky-400">
+                    {allBlogsResult.summary.totalImpressions.toLocaleString()}
+                  </div>
+                  <div className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">Impressions</div>
+                </div>
+
+                <div className="h-10 w-px bg-slate-800" />
+
+                <div className="text-center">
+                  <div className="text-3xl font-black text-amber-400">
+                    {allBlogsResult.summary.averageCtr}
+                  </div>
+                  <div className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">Average CTR</div>
+                </div>
+
+                <div className="h-10 w-px bg-slate-800" />
+
+                <div className="text-center">
+                  <div className="text-3xl font-black text-indigo-400">
+                    {allBlogsResult.summary.aiCitedPercentage}%
+                  </div>
+                  <div className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">AI Cited</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Table Container & Filter Toolbar */}
+          <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-100 dark:border-slate-800">
+              {/* Search input */}
+              <div className="relative flex-1 max-w-md">
+                <Search className="absolute left-3.5 top-3 w-4 h-4 text-slate-400" />
+                <input
+                  type="text"
+                  placeholder="Filter by article title, slug, or top keyword..."
+                  value={blogSearchQuery}
+                  onChange={(e) => setBlogSearchQuery(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                />
+              </div>
+
+              {/* Action Buttons & Export */}
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={exportBlogsToCsv}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-extrabold bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 transition-all shadow-sm"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  Export to CSV
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setShowGscModal(true)}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-extrabold bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-100 transition-all shadow-sm"
+                >
+                  <RefreshCw className="w-3.5 h-3.5" />
+                  Sync GSC
+                </button>
+              </div>
+            </div>
+
+            {/* Filter Pills & Sort Bar */}
+            <div className="flex flex-wrap items-center justify-between gap-3 text-xs">
+              <div className="flex flex-wrap items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => setBlogRankFilter('all')}
+                  className={`px-3 py-1.5 rounded-xl font-extrabold text-xs transition-all ${
+                    blogRankFilter === 'all'
+                      ? 'bg-purple-600 text-white shadow-sm'
+                      : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900'
+                  }`}
+                >
+                  All ({allBlogsResult.blogs.length})
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setBlogRankFilter('top3')}
+                  className={`px-3 py-1.5 rounded-xl font-extrabold text-xs transition-all ${
+                    blogRankFilter === 'top3'
+                      ? 'bg-emerald-600 text-white shadow-sm'
+                      : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-emerald-600'
+                  }`}
+                >
+                  🥇 Top 3 Rank ({allBlogsResult.blogs.filter(b => b.rank <= 3).length})
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setBlogRankFilter('top10')}
+                  className={`px-3 py-1.5 rounded-xl font-extrabold text-xs transition-all ${
+                    blogRankFilter === 'top10'
+                      ? 'bg-sky-600 text-white shadow-sm'
+                      : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-sky-600'
+                  }`}
+                >
+                  🎯 Top 10 Rank ({allBlogsResult.blogs.filter(b => b.rank <= 10).length})
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setBlogRankFilter('low')}
+                  className={`px-3 py-1.5 rounded-xl font-extrabold text-xs transition-all ${
+                    blogRankFilter === 'low'
+                      ? 'bg-rose-600 text-white shadow-sm'
+                      : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-rose-600'
+                  }`}
+                >
+                  ⚠️ Needs Work (#11+) ({allBlogsResult.blogs.filter(b => b.rank > 10).length})
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setBlogRankFilter('cited')}
+                  className={`px-3 py-1.5 rounded-xl font-extrabold text-xs transition-all ${
+                    blogRankFilter === 'cited'
+                      ? 'bg-amber-600 text-white shadow-sm'
+                      : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-amber-600'
+                  }`}
+                >
+                  🤖 AI Cited ({allBlogsResult.blogs.filter(b => b.isAiCited).length})
+                </button>
+              </div>
+
+              {/* Sort Selector */}
+              <div className="flex items-center gap-2">
+                <span className="font-semibold text-slate-500 text-[11px]">Sort By:</span>
+                <select
+                  value={blogSortBy}
+                  onChange={(e: any) => setBlogSortBy(e.target.value)}
+                  className="px-2.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-xs font-bold text-slate-700 dark:text-slate-200 focus:outline-none"
+                >
+                  <option value="clicks">Highest Clicks</option>
+                  <option value="impressions">Highest Impressions</option>
+                  <option value="rank">Best Rank (#1 First)</option>
+                  <option value="ctr">Highest CTR%</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Performance Table */}
+            <div className="overflow-x-auto rounded-2xl border border-slate-200 dark:border-slate-800">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-slate-100 dark:bg-slate-950 text-slate-500 font-extrabold uppercase text-[10px] tracking-wider border-b border-slate-200 dark:border-slate-800">
+                  <tr>
+                    <th className="p-3.5">Blog Article</th>
+                    <th className="p-3.5 text-center">Google Rank</th>
+                    <th className="p-3.5 text-right">Clicks</th>
+                    <th className="p-3.5 text-right">Impressions</th>
+                    <th className="p-3.5 text-center">CTR</th>
+                    <th className="p-3.5">Top Query</th>
+                    <th className="p-3.5 text-center">AI Citation</th>
+                    <th className="p-3.5 text-center">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-800 font-medium">
+                  {allBlogsResult.blogs
+                    .filter(b => {
+                      if (blogRankFilter === 'top3') return b.rank <= 3;
+                      if (blogRankFilter === 'top10') return b.rank <= 10;
+                      if (blogRankFilter === 'low') return b.rank > 10;
+                      if (blogRankFilter === 'cited') return b.isAiCited;
+                      return true;
+                    })
+                    .filter(b => {
+                      if (!blogSearchQuery.trim()) return true;
+                      const q = blogSearchQuery.toLowerCase();
+                      return b.title.toLowerCase().includes(q) || b.url.toLowerCase().includes(q) || b.topQuery.toLowerCase().includes(q);
+                    })
+                    .sort((a, b) => {
+                      if (blogSortBy === 'clicks') return b.monthlyClicks - a.monthlyClicks;
+                      if (blogSortBy === 'impressions') return b.monthlyImpressions - a.monthlyImpressions;
+                      if (blogSortBy === 'rank') return a.rank - b.rank;
+                      if (blogSortBy === 'ctr') return parseFloat(b.ctr) - parseFloat(a.ctr);
+                      return 0;
+                    })
+                    .map((blog, idx) => (
+                      <tr key={idx} className="hover:bg-slate-50/80 dark:hover:bg-slate-950/50 transition-colors">
+                        {/* Title & URL */}
+                        <td className="p-3.5 max-w-xs">
+                          <div className="font-bold text-slate-900 dark:text-white truncate">
+                            {blog.title}
+                          </div>
+                          <a
+                            href={blog.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-[11px] text-indigo-600 dark:text-indigo-400 hover:underline truncate block flex items-center gap-1 mt-0.5"
+                          >
+                            <ExternalLink className="w-3 h-3 flex-shrink-0" />
+                            <span className="truncate">{blog.url.replace(/^https?:\/\//, '')}</span>
+                          </a>
+                        </td>
+
+                        {/* Rank */}
+                        <td className="p-3.5 text-center">
+                          <span className={`inline-block px-2.5 py-1 rounded-xl text-xs font-black ${
+                            blog.rank <= 3
+                              ? 'bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300'
+                              : blog.rank <= 10
+                              ? 'bg-sky-100 dark:bg-sky-950/80 text-sky-700 dark:text-sky-300'
+                              : 'bg-amber-100 dark:bg-amber-950/80 text-amber-700 dark:text-amber-300'
+                          }`}>
+                            #{blog.rank}
+                          </span>
+                        </td>
+
+                        {/* Clicks */}
+                        <td className="p-3.5 text-right font-black text-slate-900 dark:text-white">
+                          {blog.monthlyClicks.toLocaleString()}
+                        </td>
+
+                        {/* Impressions */}
+                        <td className="p-3.5 text-right text-slate-600 dark:text-slate-300 font-mono">
+                          {blog.monthlyImpressions.toLocaleString()}
+                        </td>
+
+                        {/* CTR */}
+                        <td className="p-3.5 text-center font-bold text-emerald-600 dark:text-emerald-400">
+                          {blog.ctr}
+                        </td>
+
+                        {/* Top Query */}
+                        <td className="p-3.5">
+                          <div className="font-bold text-slate-900 dark:text-white truncate max-w-[160px]">
+                            {blog.topQuery}
+                          </div>
+                          <span className="text-[10px] font-semibold text-slate-400">
+                            {blog.intent}
+                          </span>
+                        </td>
+
+                        {/* AI Citation */}
+                        <td className="p-3.5 text-center">
+                          <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-extrabold ${
+                            blog.isAiCited
+                              ? 'bg-purple-100 dark:bg-purple-950/80 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800'
+                              : 'bg-slate-100 dark:bg-slate-800 text-slate-500'
+                          }`}>
+                            {blog.isAiCited ? `Cited (${blog.aiCitationScore}%)` : 'Uncited'}
+                          </span>
+                        </td>
+
+                        {/* Actions */}
+                        <td className="p-3.5 text-center">
+                          <div className="flex items-center justify-center gap-1.5">
+                            <button
+                              type="button"
+                              onClick={() => handleSendToOptimizer(blog)}
+                              title="Optimize in SurferSEO Workbench"
+                              className="px-2.5 py-1 rounded-lg text-[11px] font-extrabold bg-amber-500 hover:bg-amber-600 text-white transition-all shadow-sm flex items-center gap-1"
+                            >
+                              <Wand2 className="w-3 h-3" />
+                              Optimize
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setUrlInput(blog.url);
+                                setBlogSubTab('single');
+                              }}
+                              title="Audit SERP in detail"
+                              className="p-1 rounded-lg text-slate-400 hover:text-indigo-600 transition-colors"
+                            >
+                              <ArrowUpRight className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODE 5.A VIEW: SINGLE BLOG SERP & AI CITATION (GEO) BOARD */}
+      {auditMode === 'blog-serp' && blogSubTab === 'single' && blogSerpResult && (
         <div className="max-w-7xl mx-auto space-y-6 mt-6">
           {/* Header Card */}
           <div className="bg-gradient-to-r from-purple-950 via-slate-900 to-indigo-950 p-6 rounded-3xl border border-slate-800 text-white shadow-xl">
@@ -3441,6 +3986,132 @@ module.exports = {
                 Copy Headers Config
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* GOOGLE SEARCH CONSOLE CONNECT MODAL (PHASE 6) */}
+      {showGscModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 max-w-xl w-full p-6 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+              <div className="flex items-center gap-2">
+                <span className="w-6 h-6 rounded-lg bg-indigo-600 flex items-center justify-center text-white text-xs font-black">
+                  G
+                </span>
+                <h3 className="font-extrabold text-base text-slate-900 dark:text-white">
+                  Connect Google Search Console (GSC)
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowGscModal(false)}
+                className="text-slate-400 hover:text-slate-600 dark:hover:text-white text-lg font-bold"
+              >
+                ✕
+              </button>
+            </div>
+
+            <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+              Connect your verified Google Search Console property to pull 100% genuine Google organic search impressions, clicks, CTR, and average position for all blog posts.
+            </p>
+
+            <form onSubmit={handleGscConnect} className="space-y-3.5 text-xs">
+              <div>
+                <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">
+                  Search Console Property URL:
+                </label>
+                <input
+                  type="text"
+                  placeholder="https://yourdomain.com/ or sc-domain:yourdomain.com"
+                  value={gscSiteUrl || (report?.domain ? `https://${report.domain}/` : '')}
+                  onChange={(e) => setGscSiteUrl(e.target.value)}
+                  required
+                  className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 font-mono text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                />
+                <span className="text-[10px] text-slate-400 mt-0.5 block">
+                  Must exactly match the site URL property defined in your Google Search Console.
+                </span>
+              </div>
+
+              <div>
+                <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">
+                  Google OAuth 2.0 Access Token (Recommended for Instant Sync):
+                </label>
+                <input
+                  type="password"
+                  placeholder="ya29.a0AfH6SM..."
+                  value={gscAccessToken}
+                  onChange={(e) => setGscAccessToken(e.target.value)}
+                  className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 font-mono text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                />
+                <span className="text-[10px] text-slate-400 mt-0.5 block">
+                  Token requires scope: <code className="text-indigo-600 font-mono">https://www.googleapis.com/auth/webmasters.readonly</code>
+                </span>
+              </div>
+
+              <div className="relative flex py-1 items-center">
+                <div className="flex-grow border-t border-slate-200 dark:border-slate-800" />
+                <span className="flex-shrink mx-3 text-[10px] font-bold text-slate-400 uppercase">Or Service Account JSON</span>
+                <div className="flex-grow border-t border-slate-200 dark:border-slate-800" />
+              </div>
+
+              <div>
+                <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">
+                  Google Cloud Service Account Key (JSON):
+                </label>
+                <textarea
+                  rows={3}
+                  placeholder='{"type": "service_account", "project_id": "...", "client_email": "...", "private_key": "..."}'
+                  value={gscServiceAccountJson}
+                  onChange={(e) => setGscServiceAccountJson(e.target.value)}
+                  className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 font-mono text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                />
+                <span className="text-[10px] text-slate-400 mt-0.5 block">
+                  Add the Service Account <code className="text-indigo-600 font-mono">client_email</code> as a &quot;Viewer&quot; in Google Search Console Settings.
+                </span>
+              </div>
+
+              {gscStatusMessage && (
+                <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 flex items-center gap-2">
+                  <Check className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+                  <span>{gscStatusMessage}</span>
+                </div>
+              )}
+
+              <div className="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setUrlInput(gscSiteUrl || report?.domain || '');
+                    setBlogSubTab('directory');
+                    setShowGscModal(false);
+                    handleAllBlogsScan();
+                  }}
+                  className="text-xs font-bold text-slate-500 hover:text-indigo-600 underline"
+                >
+                  Use Instant Crawler Mode (No Credentials)
+                </button>
+
+                <button
+                  type="submit"
+                  disabled={gscConnecting}
+                  className="px-5 py-2.5 rounded-xl font-bold bg-indigo-600 hover:bg-indigo-700 text-white transition-all shadow-md shadow-indigo-600/20 flex items-center gap-1.5 disabled:opacity-50"
+                >
+                  {gscConnecting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Connecting GSC...
+                    </>
+                  ) : (
+                    <>
+                      <TrendingUp className="w-4 h-4" />
+                      Verify &amp; Fetch GSC Data
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
