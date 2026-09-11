@@ -276,6 +276,10 @@ export default function WebsiteAnalyzerPage() {
   const [customSitemapPath, setCustomSitemapPath] = useState('');
   const [disallowedPaths, setDisallowedPaths] = useState('/admin/\n/wp-admin/\n/private/');
 
+  // Schema & Security Headers Modals
+  const [showSchemaModal, setShowSchemaModal] = useState(false);
+  const [showSecurityModal, setShowSecurityModal] = useState(false);
+
   // Historical score delta calculation
   const getScoreDelta = () => {
     if (!report || recentAudits.length < 2) return null;
@@ -498,22 +502,38 @@ export default function WebsiteAnalyzerPage() {
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2.5">
             <button
               onClick={() => setShowRobotsModal(true)}
-              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 hover:border-indigo-500 transition-all shadow-sm"
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 hover:border-emerald-500 transition-all shadow-sm"
             >
               <FileCode className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-              Robots.txt Generator
+              Robots.txt
+            </button>
+
+            <button
+              onClick={() => setShowSchemaModal(true)}
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 hover:border-indigo-500 transition-all shadow-sm"
+            >
+              <Code className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+              Schema Generator
+            </button>
+
+            <button
+              onClick={() => setShowSecurityModal(true)}
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 hover:border-amber-500 transition-all shadow-sm"
+            >
+              <ShieldCheck className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+              Security Headers
             </button>
 
             {report && (
               <button
                 onClick={() => window.print()}
-                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 hover:border-indigo-500 transition-all shadow-sm"
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-100 transition-all shadow-sm"
               >
                 <Printer className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
-                Export Client PDF / Print
+                Export PDF / Print
               </button>
             )}
           </div>
@@ -710,6 +730,34 @@ export default function WebsiteAnalyzerPage() {
             <div className="mt-3 p-3 rounded-xl text-xs bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-900 flex items-center gap-2">
               <AlertTriangle className="w-4 h-4 flex-shrink-0" />
               {errorMsg}
+            </div>
+          )}
+
+          {/* Quick Recent Audits History Bar */}
+          {recentAudits.length > 0 && !scanning && !comparing && !sitemapScanning && (
+            <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex flex-wrap items-center gap-2">
+              <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
+                <Clock className="w-3.5 h-3.5" /> Recent:
+              </span>
+              {recentAudits.map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => {
+                    setUrlInput(item.result.url);
+                    setReport(item.result);
+                    setAuditMode('single');
+                  }}
+                  className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-100 dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all text-slate-700 dark:text-slate-300 flex items-center gap-1.5"
+                >
+                  <Globe className="w-3 h-3 text-slate-400" />
+                  {item.result.domain}
+                  <span className={`text-[10px] font-bold px-1 rounded ${
+                    (item.result.audit.healthScore ?? 80) >= 80 ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
+                  }`}>
+                    {item.result.audit.healthScore ?? 80}%
+                  </span>
+                </button>
+              ))}
             </div>
           )}
         </div>
@@ -1868,6 +1916,142 @@ Sitemap: ${customSitemapPath || (report?.domain ? `https://${report.domain}/site
               >
                 <Copy className="w-3.5 h-3.5" />
                 Copy Robots.txt
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 1-CLICK SCHEMA.ORG JSON-LD GENERATOR MODAL */}
+      {showSchemaModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 max-w-xl w-full p-6 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+              <div className="flex items-center gap-2">
+                <Code className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+                <h3 className="font-extrabold text-base text-slate-900 dark:text-white">
+                  1-Click Schema.org (JSON-LD) Generator
+                </h3>
+              </div>
+              <button
+                onClick={() => setShowSchemaModal(false)}
+                className="text-slate-400 hover:text-slate-600 dark:hover:text-white text-lg font-bold"
+              >
+                ✕
+              </button>
+            </div>
+
+            <p className="text-xs text-slate-600 dark:text-slate-400">
+              Ready-to-paste <code className="text-indigo-600 font-mono">Organization</code> and <code className="text-indigo-600 font-mono">WebSite</code> structured data markup to unlock Google Rich Results and Knowledge Graph badges.
+            </p>
+
+            <div className="space-y-3">
+              <label className="font-bold text-xs text-slate-700 dark:text-slate-300 block">
+                Structured Data Markup (JSON-LD):
+              </label>
+              <pre className="p-3.5 rounded-xl bg-slate-950 text-indigo-300 font-mono text-[11px] overflow-x-auto max-h-64">
+{`<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://${report?.domain || 'yourdomain.com'}/#organization",
+      "name": "${report?.crawled.ogTitle || report?.domain || 'Your Brand'}",
+      "url": "https://${report?.domain || 'yourdomain.com'}",
+      "logo": "${report?.crawled.ogImage || 'https://' + (report?.domain || 'yourdomain.com') + '/logo.png'}"
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://${report?.domain || 'yourdomain.com'}/#website",
+      "url": "https://${report?.domain || 'yourdomain.com'}",
+      "name": "${report?.crawled.title || report?.domain || 'Your Site'}",
+      "publisher": {
+        "@id": "https://${report?.domain || 'yourdomain.com'}/#organization"
+      }
+    }
+  ]
+}
+</script>`}
+              </pre>
+            </div>
+
+            <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+              <button
+                onClick={() => {
+                  const schemaSnippet = `<script type="application/ld+json">\n{\n  "@context": "https://schema.org",\n  "@graph": [\n    {\n      "@type": "Organization",\n      "@id": "https://${report?.domain || 'yourdomain.com'}/#organization",\n      "name": "${report?.crawled.ogTitle || report?.domain || 'Your Brand'}",\n      "url": "https://${report?.domain || 'yourdomain.com'}",\n      "logo": "${report?.crawled.ogImage || 'https://' + (report?.domain || 'yourdomain.com') + '/logo.png'}"\n    },\n    {\n      "@type": "WebSite",\n      "@id": "https://${report?.domain || 'yourdomain.com'}/#website",\n      "url": "https://${report?.domain || 'yourdomain.com'}",\n      "name": "${report?.crawled.title || report?.domain || 'Your Site'}",\n      "publisher": {\n        "@id": "https://${report?.domain || 'yourdomain.com'}/#organization"\n      }\n    }\n  ]\n}\n</script>`;
+                  navigator.clipboard.writeText(schemaSnippet);
+                  alert('Schema.org JSON-LD copied to clipboard!');
+                }}
+                className="px-4 py-2 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white transition-all shadow-md flex items-center gap-1.5"
+              >
+                <Copy className="w-3.5 h-3.5" />
+                Copy Schema JSON-LD
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 1-CLICK SECURITY HEADERS GENERATOR MODAL */}
+      {showSecurityModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 max-w-xl w-full p-6 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="w-5 h-5 text-amber-500" />
+                <h3 className="font-extrabold text-base text-slate-900 dark:text-white">
+                  Technical Security Headers Config
+                </h3>
+              </div>
+              <button
+                onClick={() => setShowSecurityModal(false)}
+                className="text-slate-400 hover:text-slate-600 dark:hover:text-white text-lg font-bold"
+              >
+                ✕
+              </button>
+            </div>
+
+            <p className="text-xs text-slate-600 dark:text-slate-400">
+              Paste these production headers into your web server (<code className="font-mono text-amber-600">next.config.js</code>, Nginx, or Cloudflare) to protect your domain from Clickjacking and XSS.
+            </p>
+
+            <div className="space-y-3">
+              <label className="font-bold text-xs text-slate-700 dark:text-slate-300 block">
+                Next.js / Nginx Recommended Headers:
+              </label>
+              <pre className="p-3.5 rounded-xl bg-slate-950 text-amber-300 font-mono text-[11px] overflow-x-auto max-h-60">
+{`// next.config.js security headers
+module.exports = {
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          { key: 'X-Frame-Options', value: 'DENY' },
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+          { key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains; preload' },
+          { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' }
+        ]
+      }
+    ]
+  }
+};`}
+              </pre>
+            </div>
+
+            <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+              <button
+                onClick={() => {
+                  const headersConfig = `// Security Headers\nconst securityHeaders = [\n  { key: 'X-Frame-Options', value: 'DENY' },\n  { key: 'X-Content-Type-Options', value: 'nosniff' },\n  { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },\n  { key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains; preload' },\n  { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' }\n];`;
+                  navigator.clipboard.writeText(headersConfig);
+                  alert('Security headers copied to clipboard!');
+                }}
+                className="px-4 py-2 rounded-xl text-xs font-bold bg-amber-600 hover:bg-amber-700 text-white transition-all shadow-md flex items-center gap-1.5"
+              >
+                <Copy className="w-3.5 h-3.5" />
+                Copy Headers Config
               </button>
             </div>
           </div>
