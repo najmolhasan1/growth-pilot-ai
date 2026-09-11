@@ -963,153 +963,254 @@ export default function WebsiteAnalyzerPage() {
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-4 md:p-8">
       {/* Header */}
       <div className="max-w-7xl mx-auto mb-8">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-6 border-b border-slate-200/70 dark:border-slate-800/80">
           <div>
-            <div className="flex items-center gap-2 mb-1">
-              <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-100 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
-                Enterprise Site Audit
+            <div className="flex items-center gap-2 mb-1.5">
+              <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20">
+                SEO Intelligence Suite
               </span>
-              <span className="text-xs text-slate-500 dark:text-slate-400">
-                SEMrush & Ubersuggest Diagnostic Engine
+              <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                Enterprise Diagnostic &amp; Content Engine
               </span>
             </div>
             <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-              Website SEO & Speed Analyzer
+              Website SEO &amp; Speed Analyzer
             </h1>
-            <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
-              Deep crawler inspection, Core Web Vitals, Schema.org verification, organic keyword gap, and 1-click code fixes.
+            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
+              Deep crawler inspection, SERP performance, backlink authority, and generative AI optimization.
             </p>
           </div>
 
+          {/* Quick Technical Toolset */}
           <div className="flex flex-wrap items-center gap-2.5">
-            <button
-              onClick={() => setShowRobotsModal(true)}
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 hover:border-emerald-500 transition-all shadow-sm"
-            >
-              <FileCode className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-              Robots.txt
-            </button>
+            <div className="flex items-center p-1 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+              <button
+                onClick={() => setShowRobotsModal(true)}
+                className="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all flex items-center gap-1.5"
+              >
+                <FileCode className="w-3.5 h-3.5 text-emerald-500" />
+                Robots.txt
+              </button>
 
-            <button
-              onClick={() => setShowSchemaModal(true)}
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 hover:border-indigo-500 transition-all shadow-sm"
-            >
-              <Code className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
-              Schema Generator
-            </button>
+              <div className="h-4 w-px bg-slate-200 dark:bg-slate-800 mx-0.5" />
 
-            <button
-              onClick={() => setShowSecurityModal(true)}
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 hover:border-amber-500 transition-all shadow-sm"
-            >
-              <ShieldCheck className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-              Security Headers
-            </button>
+              <button
+                onClick={() => setShowSchemaModal(true)}
+                className="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all flex items-center gap-1.5"
+              >
+                <Code className="w-3.5 h-3.5 text-indigo-500" />
+                Schema
+              </button>
+
+              <div className="h-4 w-px bg-slate-200 dark:bg-slate-800 mx-0.5" />
+
+              <button
+                onClick={() => setShowSecurityModal(true)}
+                className="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all flex items-center gap-1.5"
+              >
+                <ShieldCheck className="w-3.5 h-3.5 text-amber-500" />
+                Security
+              </button>
+            </div>
 
             {report && (
               <button
                 onClick={() => window.print()}
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-100 transition-all shadow-sm"
+                className="px-3.5 py-2 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white transition-all shadow-sm flex items-center gap-1.5"
               >
-                <Printer className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
-                Export PDF / Print
+                <Printer className="w-3.5 h-3.5" />
+                Export PDF
               </button>
             )}
           </div>
         </div>
 
-        {/* Phase 2 Mode Switcher */}
-        <div className="mt-6 flex items-center gap-2 p-1.5 bg-slate-200/70 dark:bg-slate-900/80 rounded-2xl w-fit border border-slate-300/60 dark:border-slate-800 shadow-inner">
-          <button
-            onClick={() => setAuditMode('single')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-xs transition-all ${
-              auditMode === 'single'
-                ? 'bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 shadow-sm'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-            }`}
-          >
-            <Globe className="w-4 h-4" />
-            Single URL Audit
-          </button>
+        {/* Modern Segmented Mode Navigation Bar */}
+        <div className="mt-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 p-1.5 bg-slate-200/60 dark:bg-slate-900/90 rounded-2xl border border-slate-300/60 dark:border-slate-800 shadow-sm">
+            
+            {/* Mode 1: Single URL */}
+            <button
+              onClick={() => setAuditMode('single')}
+              className={`flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl font-bold text-xs transition-all ${
+                auditMode === 'single'
+                  ? 'bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 shadow-sm'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/40 dark:hover:bg-slate-800/40'
+              }`}
+            >
+              <Globe className="w-4 h-4 flex-shrink-0 text-indigo-500" />
+              <span>Site Audit</span>
+            </button>
 
-          <button
-            onClick={() => setAuditMode('compare')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-xs transition-all ${
-              auditMode === 'compare'
-                ? 'bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 shadow-sm'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-            }`}
-          >
-            <Swords className="w-4 h-4 text-rose-500" />
-            🥊 Competitor Head-to-Head
-            <span className="px-1.5 py-0.5 rounded text-[10px] bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 font-extrabold">
-              Battle
-            </span>
-          </button>
+            {/* Mode 2: Competitor Battle */}
+            <button
+              onClick={() => setAuditMode('compare')}
+              className={`flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl font-bold text-xs transition-all ${
+                auditMode === 'compare'
+                  ? 'bg-white dark:bg-slate-800 text-rose-600 dark:text-rose-400 shadow-sm'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/40 dark:hover:bg-slate-800/40'
+              }`}
+            >
+              <Swords className="w-4 h-4 flex-shrink-0 text-rose-500" />
+              <span>Competitor VS</span>
+            </button>
 
-          <button
-            onClick={() => setAuditMode('sitemap')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-xs transition-all ${
-              auditMode === 'sitemap'
-                ? 'bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 shadow-sm'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-            }`}
-          >
-            <Network className="w-4 h-4 text-sky-500" />
-            🗺️ Sitemap Deep Scan
-            <span className="px-1.5 py-0.5 rounded text-[10px] bg-sky-100 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 font-extrabold">
-              Multi-Page
-            </span>
-          </button>
+            {/* Mode 3: Sitemap Crawl */}
+            <button
+              onClick={() => setAuditMode('sitemap')}
+              className={`flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl font-bold text-xs transition-all ${
+                auditMode === 'sitemap'
+                  ? 'bg-white dark:bg-slate-800 text-sky-600 dark:text-sky-400 shadow-sm'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/40 dark:hover:bg-slate-800/40'
+              }`}
+            >
+              <Network className="w-4 h-4 flex-shrink-0 text-sky-500" />
+              <span>Sitemap Crawl</span>
+            </button>
 
-          <button
-            onClick={() => setAuditMode('backlinks')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-xs transition-all ${
-              auditMode === 'backlinks'
-                ? 'bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 shadow-sm'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-            }`}
-          >
-            <Link2 className="w-4 h-4 text-emerald-500" />
-            🔗 Backlink Profile
-            <span className="px-1.5 py-0.5 rounded text-[10px] bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 font-extrabold">
-              Off-Page
-            </span>
-          </button>
+            {/* Mode 4: Backlinks */}
+            <button
+              onClick={() => setAuditMode('backlinks')}
+              className={`flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl font-bold text-xs transition-all ${
+                auditMode === 'backlinks'
+                  ? 'bg-white dark:bg-slate-800 text-emerald-600 dark:text-emerald-400 shadow-sm'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/40 dark:hover:bg-slate-800/40'
+              }`}
+            >
+              <Link2 className="w-4 h-4 flex-shrink-0 text-emerald-500" />
+              <span>Backlinks</span>
+            </button>
 
-          <button
-            onClick={() => setAuditMode('blog-serp')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-xs transition-all ${
-              auditMode === 'blog-serp'
-                ? 'bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 shadow-sm'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-            }`}
-          >
-            <TrendingUp className="w-4 h-4 text-purple-500" />
-            📊 Blog SERP & AI Citation
-            <span className="px-1.5 py-0.5 rounded text-[10px] bg-purple-100 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 font-extrabold">
-              GEO
-            </span>
-          </button>
+            {/* Mode 5: Blog SERP & AI Citation */}
+            <button
+              onClick={() => setAuditMode('blog-serp')}
+              className={`flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl font-bold text-xs transition-all ${
+                auditMode === 'blog-serp'
+                  ? 'bg-white dark:bg-slate-800 text-purple-600 dark:text-purple-400 shadow-sm'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/40 dark:hover:bg-slate-800/40'
+              }`}
+            >
+              <TrendingUp className="w-4 h-4 flex-shrink-0 text-purple-500" />
+              <span>Blog SERP &amp; GEO</span>
+            </button>
 
-          <button
-            onClick={() => setAuditMode('optimizer')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-xs transition-all ${
-              auditMode === 'optimizer'
-                ? 'bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 shadow-sm'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-            }`}
-          >
-            <Sparkles className="w-4 h-4 text-amber-500" />
-            ✍️ Content Optimizer (NLP)
-            <span className="px-1.5 py-0.5 rounded text-[10px] bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 font-extrabold">
-              SurferSEO
-            </span>
-          </button>
+            {/* Mode 6: Content Optimizer */}
+            <button
+              onClick={() => setAuditMode('optimizer')}
+              className={`flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl font-bold text-xs transition-all ${
+                auditMode === 'optimizer'
+                  ? 'bg-white dark:bg-slate-800 text-amber-600 dark:text-amber-400 shadow-sm'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/40 dark:hover:bg-slate-800/40'
+              }`}
+            >
+              <Sparkles className="w-4 h-4 flex-shrink-0 text-amber-500" />
+              <span>AI Optimizer</span>
+            </button>
+          </div>
         </div>
 
-        {/* Input Form Containers */}
-        <div className="mt-4 bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+        {/* Unified Enterprise Input Card */}
+        <div className="mt-5 bg-white dark:bg-slate-900 p-5 md:p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+          
+          {/* Card Context Header */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-700 dark:text-slate-200">
+                {auditMode === 'single' && <Globe className="w-4 h-4 text-indigo-500" />}
+                {auditMode === 'compare' && <Swords className="w-4 h-4 text-rose-500" />}
+                {auditMode === 'sitemap' && <Network className="w-4 h-4 text-sky-500" />}
+                {auditMode === 'backlinks' && <Link2 className="w-4 h-4 text-emerald-500" />}
+                {auditMode === 'blog-serp' && <TrendingUp className="w-4 h-4 text-purple-500" />}
+                {auditMode === 'optimizer' && <Sparkles className="w-4 h-4 text-amber-500" />}
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+                  {auditMode === 'single' && 'Website Technical & SEO Diagnostic'}
+                  {auditMode === 'compare' && 'Head-to-Head Competitor Benchmark'}
+                  {auditMode === 'sitemap' && 'Multi-Page Sitemap Deep Crawler'}
+                  {auditMode === 'backlinks' && 'Off-Page Backlink Authority & Equity'}
+                  {auditMode === 'blog-serp' && 'Blog SERP Rankings & AI Citation (GEO)'}
+                  {auditMode === 'optimizer' && 'SurferSEO-Style Live Content Optimizer'}
+                </h3>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                  {auditMode === 'single' && 'Scan site health score, Core Web Vitals, Schema markup, and 1-click code fixes.'}
+                  {auditMode === 'compare' && 'Compare your site side-by-side with a competitor to find ranking & content gaps.'}
+                  {auditMode === 'sitemap' && 'Crawl your entire sitemap.xml to find broken links, slow pages, and missing tags.'}
+                  {auditMode === 'backlinks' && 'Analyze Domain Rating (DR), referring domains, anchor text safety, and outreach blueprint.'}
+                  {auditMode === 'blog-serp' && 'Inspect Google SERP ranks, monthly clicks, impressions, and generative AI citations.'}
+                  {auditMode === 'optimizer' && 'Write or paste blog drafts to optimize NLP entity coverage and rank #1 on Google.'}
+                </p>
+              </div>
+            </div>
+
+            {/* Contextual Sub-Tab Selector for Mode 5 */}
+            {auditMode === 'blog-serp' && (
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="p-1 bg-slate-100 dark:bg-slate-950 rounded-xl border border-slate-200/60 dark:border-slate-800 flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={() => setBlogSubTab('directory')}
+                    className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
+                      blogSubTab === 'directory'
+                        ? 'bg-purple-600 text-white shadow-sm'
+                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+                    }`}
+                  >
+                    All Blogs Directory{allBlogsResult?.blogs?.length ? ` (${allBlogsResult.blogs.length})` : ''}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setBlogSubTab('single')}
+                    className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
+                      blogSubTab === 'single'
+                        ? 'bg-purple-600 text-white shadow-sm'
+                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+                    }`}
+                  >
+                    Single Blog Scan
+                  </button>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setShowGscModal(true)}
+                  className="px-3 py-1.5 rounded-xl text-xs font-bold border border-indigo-200 dark:border-indigo-800/80 bg-indigo-50/50 dark:bg-indigo-950/40 hover:bg-indigo-100/70 text-indigo-700 dark:text-indigo-300 transition-all flex items-center gap-1.5 shadow-sm"
+                >
+                  <span className={`w-2 h-2 rounded-full ${gscConnected ? 'bg-emerald-500' : 'bg-amber-400'}`} />
+                  {gscConnected ? 'GSC Connected' : 'Connect GSC'}
+                </button>
+              </div>
+            )}
+
+            {/* Contextual Sub-Tab Selector for Mode 6 */}
+            {auditMode === 'optimizer' && (
+              <div className="p-1 bg-slate-100 dark:bg-slate-950 rounded-xl border border-slate-200/60 dark:border-slate-800 flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => setOptimizerInputMode('url')}
+                  className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
+                    optimizerInputMode === 'url'
+                      ? 'bg-amber-500 text-white shadow-sm'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+                  }`}
+                >
+                  Scrape Live URL
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setOptimizerInputMode('raw')}
+                  className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
+                    optimizerInputMode === 'raw'
+                      ? 'bg-amber-500 text-white shadow-sm'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+                  }`}
+                >
+                  Paste Raw Draft
+                </button>
+              </div>
+            )}
+          </div>
+
           {/* MODE 1: SINGLE URL AUDIT */}
           {auditMode === 'single' && (
             <form onSubmit={handleScan} className="flex flex-col sm:flex-row gap-3">
@@ -1265,193 +1366,128 @@ export default function WebsiteAnalyzerPage() {
 
           {/* MODE 5: BLOG SERP & AI CITATION (GEO) AUDIT + ALL-BLOGS DIRECTORY */}
           {auditMode === 'blog-serp' && (
-            <div className="space-y-3">
-              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-2.5">
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setBlogSubTab('directory')}
-                    className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${
-                      blogSubTab === 'directory'
-                        ? 'bg-purple-100 dark:bg-purple-950/60 text-purple-800 dark:text-purple-300'
-                        : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
-                    }`}
-                  >
-                    📑 All Blogs Directory {allBlogsResult?.blogs?.length ? `(${allBlogsResult.blogs.length})` : ''}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setBlogSubTab('single')}
-                    className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${
-                      blogSubTab === 'single'
-                        ? 'bg-purple-100 dark:bg-purple-950/60 text-purple-800 dark:text-purple-300'
-                        : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
-                    }`}
-                  >
-                    🔍 Single Blog Deep Dive
-                  </button>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => setShowGscModal(true)}
-                  className="text-xs font-extrabold px-3 py-1.5 rounded-xl border border-indigo-200 dark:border-indigo-800 bg-indigo-50/70 dark:bg-indigo-950/50 hover:bg-indigo-100 text-indigo-700 dark:text-indigo-300 flex items-center gap-1.5 transition-all shadow-sm"
-                >
-                  <span className={`w-2 h-2 rounded-full ${gscConnected ? 'bg-emerald-500 animate-pulse' : 'bg-amber-400'}`} />
-                  {gscConnected ? 'Google Search Console Synced' : 'Connect Google Search Console'}
-                </button>
-              </div>
-
-              {blogSubTab === 'directory' ? (
-                <form onSubmit={handleAllBlogsScan} className="flex flex-col sm:flex-row gap-3">
-                  <div className="relative flex-1">
-                    <Globe className="absolute left-3.5 top-3.5 w-4 h-4 text-purple-500" />
-                    <input
-                      type="text"
-                      placeholder="Enter blog domain or sitemap to list all blogs (e.g. site.com or site.com/blog)"
-                      value={urlInput}
-                      onChange={(e) => setUrlInput(e.target.value)}
-                      disabled={allBlogsScanning}
-                      className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
-                    />
-                  </div>
-                  <button
-                    type="submit"
-                    disabled={allBlogsScanning || !urlInput.trim()}
-                    className="px-6 py-3 rounded-xl font-bold text-xs sm:text-sm bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white transition-all shadow-md shadow-purple-600/20 flex items-center justify-center gap-2 disabled:opacity-50"
-                  >
-                    {allBlogsScanning ? (
-                      <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        Scanning All Blogs &amp; SERP...
-                      </>
-                    ) : (
-                      <>
-                        <TrendingUp className="w-4 h-4 text-white" />
-                        Analyze All Blogs
-                      </>
-                    )}
-                  </button>
-                </form>
-              ) : (
-                <form onSubmit={handleBlogSerpAudit} className="flex flex-col sm:flex-row gap-3">
-                  <div className="relative flex-1">
-                    <TrendingUp className="absolute left-3.5 top-3.5 w-4 h-4 text-purple-500" />
-                    <input
-                      type="text"
-                      placeholder="Enter specific blog post URL (e.g. yourwebsite.com/blog/best-seo-tips)"
-                      value={urlInput}
-                      onChange={(e) => setUrlInput(e.target.value)}
-                      disabled={blogSerpScanning}
-                      className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
-                    />
-                  </div>
-                  <button
-                    type="submit"
-                    disabled={blogSerpScanning || !urlInput.trim()}
-                    className="px-6 py-3 rounded-xl font-bold text-xs sm:text-sm bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white transition-all shadow-md shadow-purple-600/20 flex items-center justify-center gap-2 disabled:opacity-50"
-                  >
-                    {blogSerpScanning ? (
-                      <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        Checking SERP &amp; AI Citations...
-                      </>
-                    ) : (
-                      <>
-                        <Sparkles className="w-4 h-4 text-amber-300" />
-                        Analyze Single Blog
-                      </>
-                    )}
-                  </button>
-                </form>
-              )}
-            </div>
-          )}
-
-          {/* MODE 6: LIVE CONTENT OPTIMIZER (SURFERSEO STYLE) */}
-          {auditMode === 'optimizer' && (
-            <div className="space-y-3">
-              <div className="flex items-center gap-3 border-b border-slate-100 dark:border-slate-800 pb-2.5">
-                <button
-                  type="button"
-                  onClick={() => setOptimizerInputMode('url')}
-                  className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-all ${
-                    optimizerInputMode === 'url'
-                      ? 'bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300'
-                      : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
-                  }`}
-                >
-                  🌐 Scrape Live Blog URL
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setOptimizerInputMode('raw')}
-                  className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-all ${
-                    optimizerInputMode === 'raw'
-                      ? 'bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300'
-                      : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
-                  }`}
-                >
-                  📝 Paste Raw Draft / Text
-                </button>
-              </div>
-
-              <form onSubmit={handleContentOptimization} className="flex flex-col md:flex-row gap-3">
-                {optimizerInputMode === 'url' ? (
-                  <div className="relative flex-1">
-                    <Globe className="absolute left-3.5 top-3.5 w-4 h-4 text-amber-500" />
-                    <input
-                      type="text"
-                      placeholder="Enter blog article URL to score & optimize (e.g. domain.com/blog/seo-guide)"
-                      value={urlInput}
-                      onChange={(e) => setUrlInput(e.target.value)}
-                      disabled={optimizerScanning}
-                      className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500"
-                    />
-                  </div>
-                ) : (
-                  <div className="flex-1">
-                    <textarea
-                      rows={2}
-                      placeholder="Paste your blog draft / raw markdown text here..."
-                      value={liveArticleText}
-                      onChange={(e) => handleLiveTextChange(e.target.value)}
-                      disabled={optimizerScanning}
-                      className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 font-mono"
-                    />
-                  </div>
-                )}
-
-                <div className="w-full md:w-64">
+            blogSubTab === 'directory' ? (
+              <form onSubmit={handleAllBlogsScan} className="flex flex-col sm:flex-row gap-3">
+                <div className="relative flex-1">
+                  <Globe className="absolute left-3.5 top-3.5 w-4 h-4 text-purple-500" />
                   <input
                     type="text"
-                    placeholder="Primary Keyword (e.g. AI SEO Tools)"
-                    value={optimizerKeyword}
-                    onChange={(e) => setOptimizerKeyword(e.target.value)}
-                    disabled={optimizerScanning}
-                    className="w-full px-3.5 py-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500"
+                    placeholder="Enter blog domain or sitemap to list all blogs (e.g. site.com or site.com/blog)"
+                    value={urlInput}
+                    onChange={(e) => setUrlInput(e.target.value)}
+                    disabled={allBlogsScanning}
+                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
                   />
                 </div>
-
                 <button
                   type="submit"
-                  disabled={optimizerScanning || (optimizerInputMode === 'url' ? !urlInput.trim() : !liveArticleText.trim())}
-                  className="px-6 py-3 rounded-xl font-bold text-xs sm:text-sm bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white transition-all shadow-md shadow-amber-500/20 flex items-center justify-center gap-2 disabled:opacity-50"
+                  disabled={allBlogsScanning || !urlInput.trim()}
+                  className="px-6 py-3 rounded-xl font-bold text-xs sm:text-sm bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white transition-all shadow-md shadow-purple-600/20 flex items-center justify-center gap-2 disabled:opacity-50"
                 >
-                  {optimizerScanning ? (
+                  {allBlogsScanning ? (
                     <>
                       <Loader2 className="w-4 h-4 animate-spin" />
-                      Analyzing NLP & SERP...
+                      Scanning All Blogs &amp; SERP...
                     </>
                   ) : (
                     <>
-                      <Sparkles className="w-4 h-4 text-white" />
-                      Optimize Content
+                      <TrendingUp className="w-4 h-4 text-white" />
+                      Analyze All Blogs
                     </>
                   )}
                 </button>
               </form>
-            </div>
+            ) : (
+              <form onSubmit={handleBlogSerpAudit} className="flex flex-col sm:flex-row gap-3">
+                <div className="relative flex-1">
+                  <TrendingUp className="absolute left-3.5 top-3.5 w-4 h-4 text-purple-500" />
+                  <input
+                    type="text"
+                    placeholder="Enter specific blog post URL (e.g. yourwebsite.com/blog/best-seo-tips)"
+                    value={urlInput}
+                    onChange={(e) => setUrlInput(e.target.value)}
+                    disabled={blogSerpScanning}
+                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  disabled={blogSerpScanning || !urlInput.trim()}
+                  className="px-6 py-3 rounded-xl font-bold text-xs sm:text-sm bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white transition-all shadow-md shadow-purple-600/20 flex items-center justify-center gap-2 disabled:opacity-50"
+                >
+                  {blogSerpScanning ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Checking SERP &amp; AI Citations...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="w-4 h-4 text-amber-300" />
+                      Analyze Single Blog
+                    </>
+                  )}
+                </button>
+              </form>
+            )
+          )}
+
+          {/* MODE 6: LIVE CONTENT OPTIMIZER (SURFERSEO STYLE) */}
+          {auditMode === 'optimizer' && (
+            <form onSubmit={handleContentOptimization} className="flex flex-col md:flex-row gap-3">
+              {optimizerInputMode === 'url' ? (
+                <div className="relative flex-1">
+                  <Globe className="absolute left-3.5 top-3.5 w-4 h-4 text-amber-500" />
+                  <input
+                    type="text"
+                    placeholder="Enter blog article URL to score & optimize (e.g. domain.com/blog/seo-guide)"
+                    value={urlInput}
+                    onChange={(e) => setUrlInput(e.target.value)}
+                    disabled={optimizerScanning}
+                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500"
+                  />
+                </div>
+              ) : (
+                <div className="flex-1">
+                  <textarea
+                    rows={2}
+                    placeholder="Paste your blog draft / raw markdown text here..."
+                    value={liveArticleText}
+                    onChange={(e) => handleLiveTextChange(e.target.value)}
+                    disabled={optimizerScanning}
+                    className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 font-mono"
+                  />
+                </div>
+              )}
+
+              <div className="w-full md:w-64">
+                <input
+                  type="text"
+                  placeholder="Primary Keyword (e.g. AI SEO Tools)"
+                  value={optimizerKeyword}
+                  onChange={(e) => setOptimizerKeyword(e.target.value)}
+                  disabled={optimizerScanning}
+                  className="w-full px-3.5 py-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500"
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={optimizerScanning || (optimizerInputMode === 'url' ? !urlInput.trim() : !liveArticleText.trim())}
+                className="px-6 py-3 rounded-xl font-bold text-xs sm:text-sm bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white transition-all shadow-md shadow-amber-500/20 flex items-center justify-center gap-2 disabled:opacity-50"
+              >
+                {optimizerScanning ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Analyzing NLP &amp; SERP...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-4 h-4 text-white" />
+                    Optimize Content
+                  </>
+                )}
+              </button>
+            </form>
           )}
 
           {/* Scanning Progress Timeline */}
@@ -1483,10 +1519,10 @@ export default function WebsiteAnalyzerPage() {
           )}
 
           {/* Quick Recent Audits History Bar */}
-          {recentAudits.length > 0 && !scanning && !comparing && !sitemapScanning && (
-            <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex flex-wrap items-center gap-2">
-              <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
-                <Clock className="w-3.5 h-3.5" /> Recent:
+          {recentAudits.length > 0 && !scanning && !comparing && !sitemapScanning && !backlinkScanning && !blogSerpScanning && !optimizerScanning && !allBlogsScanning && (
+            <div className="mt-4 pt-3.5 border-t border-slate-100 dark:border-slate-800/80 flex flex-wrap items-center gap-2">
+              <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider flex items-center gap-1.5 mr-1">
+                <Clock className="w-3.5 h-3.5 text-indigo-500" /> Recent Scans:
               </span>
               {recentAudits.map((item) => (
                 <button
@@ -1496,12 +1532,14 @@ export default function WebsiteAnalyzerPage() {
                     setReport(item.result);
                     setAuditMode('single');
                   }}
-                  className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-100 dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all text-slate-700 dark:text-slate-300 flex items-center gap-1.5"
+                  className="group px-3 py-1 rounded-lg text-xs font-semibold bg-slate-100/80 dark:bg-slate-800/80 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 hover:text-indigo-600 dark:hover:text-indigo-400 border border-slate-200/60 dark:border-slate-700/60 transition-all text-slate-700 dark:text-slate-300 flex items-center gap-2 shadow-sm"
                 >
-                  <Globe className="w-3 h-3 text-slate-400" />
-                  {item.result.domain}
-                  <span className={`text-[10px] font-bold px-1 rounded ${
-                    (item.result.audit.healthScore ?? 80) >= 80 ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
+                  <Globe className="w-3 h-3 text-slate-400 group-hover:text-indigo-500 transition-colors" />
+                  <span>{item.result.domain}</span>
+                  <span className={`text-[10px] font-black px-1.5 py-0.2 rounded ${
+                    (item.result.audit.healthScore ?? 80) >= 80 
+                      ? 'bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300' 
+                      : 'bg-amber-100 dark:bg-amber-950/80 text-amber-700 dark:text-amber-300'
                   }`}>
                     {item.result.audit.healthScore ?? 80}%
                   </span>
