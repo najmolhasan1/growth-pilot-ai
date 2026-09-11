@@ -44,7 +44,11 @@ import {
   FileCode,
   Trophy,
   ArrowRight,
-  RefreshCw
+  RefreshCw,
+  Edit3,
+  Wand2,
+  BookOpen,
+  CheckSquare
 } from 'lucide-react';
 import { getSupabaseBrowserClient, isSupabaseConfigured } from '@/lib/supabase';
 import Link from 'next/link';
@@ -206,6 +210,49 @@ interface BlogSerpResult {
   };
 }
 
+interface NlpEntityItem {
+  term: string;
+  category: 'High Priority' | 'Secondary' | 'GEO Citation' | 'LSI';
+  targetMin: number;
+  targetMax: number;
+  currentCount: number;
+  importance?: string;
+}
+
+interface MissingQuestionItem {
+  question: string;
+  intent: string;
+  suggestedAnswerSnippet: string;
+}
+
+interface InternalLinkSuggestion {
+  anchorText: string;
+  targetTopic: string;
+  contextSentence: string;
+}
+
+interface ContentOptimizerResult {
+  keyword: string;
+  articleTitle: string;
+  initialContent: string;
+  contentScore: number;
+  scoreBreakdown: {
+    semanticRelevance: number;
+    contentDepth: number;
+    entityCoverage: number;
+    readability: number;
+  };
+  benchmarks: {
+    targetWordCount: { min: number; max: number; current: number };
+    targetHeadings: { min: number; max: number; current: number };
+    readingLevel: string;
+    recommendedParagraphLength: string;
+  };
+  nlpEntities: NlpEntityItem[];
+  missingQuestions: MissingQuestionItem[];
+  internalLinkingSuggestions: InternalLinkSuggestion[];
+}
+
 interface AuditReport {
   url: string;
   domain: string;
@@ -319,8 +366,8 @@ export default function WebsiteAnalyzerPage() {
   const [expandedIssues, setExpandedIssues] = useState<Record<string, boolean>>({});
   const [recentAudits, setRecentAudits] = useState<StoredAsset[]>([]);
 
-  // Mode Switcher: single | compare | sitemap | backlinks | blog-serp
-  const [auditMode, setAuditMode] = useState<'single' | 'compare' | 'sitemap' | 'backlinks' | 'blog-serp'>('single');
+  // Mode Switcher: single | compare | sitemap | backlinks | blog-serp | optimizer
+  const [auditMode, setAuditMode] = useState<'single' | 'compare' | 'sitemap' | 'backlinks' | 'blog-serp' | 'optimizer'>('single');
 
   // Competitor Comparison state
   const [competitorUrlInput, setCompetitorUrlInput] = useState('');
@@ -338,6 +385,20 @@ export default function WebsiteAnalyzerPage() {
   // Blog SERP & AI Citation state
   const [blogSerpScanning, setBlogSerpScanning] = useState(false);
   const [blogSerpResult, setBlogSerpResult] = useState<BlogSerpResult | null>(null);
+
+  // Phase 5: Live AI Content Optimizer state
+  const [optimizerKeyword, setOptimizerKeyword] = useState('');
+  const [optimizerInputMode, setOptimizerInputMode] = useState<'url' | 'raw'>('url');
+  const [optimizerScanning, setOptimizerScanning] = useState(false);
+  const [optimizerAutoFixing, setOptimizerAutoFixing] = useState(false);
+  const [optimizerResult, setOptimizerResult] = useState<ContentOptimizerResult | null>(null);
+  const [liveArticleText, setLiveArticleText] = useState('');
+  const [liveWordCount, setLiveWordCount] = useState(0);
+  const [liveHeadingsCount, setLiveHeadingsCount] = useState(0);
+  const [liveScore, setLiveScore] = useState(0);
+  const [liveEntities, setLiveEntities] = useState<NlpEntityItem[]>([]);
+  const [entityFilter, setEntityFilter] = useState<'all' | 'missing' | 'optimal' | 'high'>('all');
+  const [copiedOptimizerText, setCopiedOptimizerText] = useState(false);
 
   // Robots.txt generator modal/state
   const [showRobotsModal, setShowRobotsModal] = useState(false);
@@ -473,6 +534,152 @@ export default function WebsiteAnalyzerPage() {
     } finally {
       setBlogSerpScanning(false);
     }
+  };
+
+  // Helper to dynamically calculate live metrics and SurferSEO score as user types
+  const recalculateLiveMetrics = (
+    text: string,
+    entities: NlpEntityItem[],
+    benchmarks?: any
+  ) => {
+    const words = text.split(/\s+/).filter(Boolean);
+    const wordCount = words.length;
+    const headingMatches = text.match(/^#{1,4}\s+.+$/gm) || [];
+    const headingCount = headingMatches.length;
+
+    const lowerText = text.toLowerCase();
+    let coveredEntitiesCount = 0;
+
+    const updatedEntities = entities.map((ent) => {
+      const termLower = ent.term.toLowerCase();
+      let count = 0;
+      let pos = lowerText.indexOf(termLower);
+      while (pos !== -1) {
+        count++;
+        pos = lowerText.indexOf(termLower, pos + termLower.length);
+      }
+      if (count >= ent.targetMin) coveredEntitiesCount++;
+      return { ...ent, currentCount: count };
+    });
+
+    const entityRatio = entities.length > 0 ? coveredEntitiesCount / entities.length : 0.5;
+    const targetMinWords = benchmarks?.targetWordCount?.min || 1500;
+    const wordRatio = Math.min(1, wordCount / targetMinWords);
+    const targetMinHeadings = benchmarks?.targetHeadings?.min || 6;
+    const headingRatio = Math.min(1, headingCount / targetMinHeadings);
+
+    const calculatedScore = Math.round(
+      (entityRatio * 55) + (wordRatio * 30) + (headingRatio * 15)
+    );
+
+    return {
+      wordCount,
+      headingCount,
+      updatedEntities,
+      score: Math.min(100, Math.max(15, calculatedScore)),
+    };
+  };
+
+  // Handle Content Optimization Audit submit
+  const handleContentOptimization = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (optimizerInputMode === 'url' && !urlInput.trim()) return;
+    if (optimizerInputMode === 'raw' && !liveArticleText.trim()) return;
+
+    setOptimizerScanning(true);
+    setErrorMsg('');
+    setOptimizerResult(null);
+
+    try {
+      const res = await fetch('/api/website-audit/content-optimizer', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          url: optimizerInputMode === 'url' ? urlInput.trim() : '',
+          content: optimizerInputMode === 'raw' ? liveArticleText.trim() : '',
+          keyword: optimizerKeyword.trim()
+        })
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Failed to optimize content.');
+      }
+
+      const optData: ContentOptimizerResult = data.data;
+      setOptimizerResult(optData);
+      setOptimizerKeyword(optData.keyword);
+      const textToUse = optData.initialContent || liveArticleText;
+      setLiveArticleText(textToUse);
+
+      const metrics = recalculateLiveMetrics(textToUse, optData.nlpEntities, optData.benchmarks);
+      setLiveWordCount(metrics.wordCount);
+      setLiveHeadingsCount(metrics.headingCount);
+      setLiveEntities(metrics.updatedEntities);
+      setLiveScore(optData.contentScore || metrics.score);
+    } catch (err: any) {
+      setErrorMsg(err.message || 'Error occurred during Content Optimization.');
+    } finally {
+      setOptimizerScanning(false);
+    }
+  };
+
+  // Live text change listener in editor
+  const handleLiveTextChange = (newText: string) => {
+    setLiveArticleText(newText);
+    if (optimizerResult) {
+      const metrics = recalculateLiveMetrics(newText, optimizerResult.nlpEntities, optimizerResult.benchmarks);
+      setLiveWordCount(metrics.wordCount);
+      setLiveHeadingsCount(metrics.headingCount);
+      setLiveEntities(metrics.updatedEntities);
+      setLiveScore(metrics.score);
+    } else {
+      setLiveWordCount(newText.split(/\s+/).filter(Boolean).length);
+    }
+  };
+
+  // 1-Click AI Auto-Optimize
+  const handleAutoOptimize = async () => {
+    if (!liveArticleText.trim() || !optimizerResult) return;
+
+    setOptimizerAutoFixing(true);
+    setErrorMsg('');
+
+    try {
+      const missing = liveEntities.filter(e => e.currentCount < e.targetMin);
+      const res = await fetch('/api/website-audit/content-optimizer/auto-fix', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          content: liveArticleText,
+          keyword: optimizerKeyword || optimizerResult.keyword,
+          missingEntities: missing,
+          missingQuestions: optimizerResult.missingQuestions || []
+        })
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Failed to auto-optimize article.');
+      }
+
+      const enriched = data.data.enrichedContent;
+      setLiveArticleText(enriched);
+      const metrics = recalculateLiveMetrics(enriched, optimizerResult.nlpEntities, optimizerResult.benchmarks);
+      setLiveWordCount(metrics.wordCount);
+      setLiveHeadingsCount(metrics.headingCount);
+      setLiveEntities(metrics.updatedEntities);
+      setLiveScore(Math.max(88, metrics.score));
+    } catch (err: any) {
+      setErrorMsg(err.message || 'Error auto-optimizing content.');
+    } finally {
+      setOptimizerAutoFixing(false);
+    }
+  };
+
+  const insertTermIntoEditor = (term: string) => {
+    const updated = liveArticleText ? `${liveArticleText} ${term}` : term;
+    handleLiveTextChange(updated);
   };
 
   // Scanning progress simulation
@@ -736,6 +943,21 @@ export default function WebsiteAnalyzerPage() {
               GEO
             </span>
           </button>
+
+          <button
+            onClick={() => setAuditMode('optimizer')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-xs transition-all ${
+              auditMode === 'optimizer'
+                ? 'bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 shadow-sm'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+            }`}
+          >
+            <Sparkles className="w-4 h-4 text-amber-500" />
+            ✍️ Content Optimizer (NLP)
+            <span className="px-1.5 py-0.5 rounded text-[10px] bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 font-extrabold">
+              SurferSEO
+            </span>
+          </button>
         </div>
 
         {/* Input Form Containers */}
@@ -925,6 +1147,92 @@ export default function WebsiteAnalyzerPage() {
                 )}
               </button>
             </form>
+          )}
+
+          {/* MODE 6: LIVE CONTENT OPTIMIZER (SURFERSEO STYLE) */}
+          {auditMode === 'optimizer' && (
+            <div className="space-y-3">
+              <div className="flex items-center gap-3 border-b border-slate-100 dark:border-slate-800 pb-2.5">
+                <button
+                  type="button"
+                  onClick={() => setOptimizerInputMode('url')}
+                  className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-all ${
+                    optimizerInputMode === 'url'
+                      ? 'bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300'
+                      : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
+                  }`}
+                >
+                  🌐 Scrape Live Blog URL
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setOptimizerInputMode('raw')}
+                  className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-all ${
+                    optimizerInputMode === 'raw'
+                      ? 'bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300'
+                      : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
+                  }`}
+                >
+                  📝 Paste Raw Draft / Text
+                </button>
+              </div>
+
+              <form onSubmit={handleContentOptimization} className="flex flex-col md:flex-row gap-3">
+                {optimizerInputMode === 'url' ? (
+                  <div className="relative flex-1">
+                    <Globe className="absolute left-3.5 top-3.5 w-4 h-4 text-amber-500" />
+                    <input
+                      type="text"
+                      placeholder="Enter blog article URL to score & optimize (e.g. domain.com/blog/seo-guide)"
+                      value={urlInput}
+                      onChange={(e) => setUrlInput(e.target.value)}
+                      disabled={optimizerScanning}
+                      className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500"
+                    />
+                  </div>
+                ) : (
+                  <div className="flex-1">
+                    <textarea
+                      rows={2}
+                      placeholder="Paste your blog draft / raw markdown text here..."
+                      value={liveArticleText}
+                      onChange={(e) => handleLiveTextChange(e.target.value)}
+                      disabled={optimizerScanning}
+                      className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 font-mono"
+                    />
+                  </div>
+                )}
+
+                <div className="w-full md:w-64">
+                  <input
+                    type="text"
+                    placeholder="Primary Keyword (e.g. AI SEO Tools)"
+                    value={optimizerKeyword}
+                    onChange={(e) => setOptimizerKeyword(e.target.value)}
+                    disabled={optimizerScanning}
+                    className="w-full px-3.5 py-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={optimizerScanning || (optimizerInputMode === 'url' ? !urlInput.trim() : !liveArticleText.trim())}
+                  className="px-6 py-3 rounded-xl font-bold text-xs sm:text-sm bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white transition-all shadow-md shadow-amber-500/20 flex items-center justify-center gap-2 disabled:opacity-50"
+                >
+                  {optimizerScanning ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Analyzing NLP & SERP...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="w-4 h-4 text-white" />
+                      Optimize Content
+                    </>
+                  )}
+                </button>
+              </form>
+            </div>
           )}
 
           {/* Scanning Progress Timeline */}
@@ -2465,6 +2773,455 @@ export default function WebsiteAnalyzerPage() {
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODE 6 VIEW: LIVE AI CONTENT OPTIMIZER & NLP SCORER (SURFERSEO STYLE) */}
+      {auditMode === 'optimizer' && optimizerResult && (
+        <div className="max-w-7xl mx-auto space-y-6 mt-6">
+          {/* Header Card */}
+          <div className="bg-gradient-to-r from-amber-950 via-slate-900 to-orange-950 p-6 rounded-3xl border border-slate-800 text-white shadow-xl">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+              <div>
+                <div className="flex flex-wrap items-center gap-2 mb-1">
+                  <span className="px-3 py-1 rounded-full text-xs font-black bg-amber-500 text-slate-950 uppercase tracking-wider flex items-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5" />
+                    SurferSEO-Style NLP Content Optimizer
+                  </span>
+                  <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                    Target: &quot;{optimizerResult.keyword}&quot;
+                  </span>
+                  <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-800 text-slate-300">
+                    {optimizerResult.benchmarks.readingLevel}
+                  </span>
+                </div>
+                <h2 className="text-2xl font-black mt-2">
+                  {optimizerResult.articleTitle}
+                </h2>
+                <p className="text-xs text-slate-300 mt-1 max-w-2xl">
+                  Real-time entity frequency tracking, Google #1 SERP benchmark modeling, and 1-click generative AI optimization.
+                </p>
+              </div>
+
+              {/* Dynamic Score & Core Targets */}
+              <div className="flex items-center gap-6 bg-slate-950/60 p-4 rounded-2xl border border-slate-800/80">
+                <div className="text-center">
+                  <div className={`text-4xl font-black ${
+                    liveScore >= 80 ? 'text-emerald-400' : liveScore >= 65 ? 'text-amber-400' : 'text-rose-400'
+                  }`}>
+                    {liveScore}
+                    <span className="text-sm font-bold text-slate-400">/100</span>
+                  </div>
+                  <div className="text-[10px] font-bold uppercase tracking-tight text-slate-400 mt-0.5">
+                    Content Score
+                  </div>
+                </div>
+
+                <div className="h-10 w-px bg-slate-800" />
+
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-slate-200">
+                    {liveWordCount.toLocaleString()}
+                    <span className="text-xs font-normal text-slate-400">
+                      {' '}/ {optimizerResult.benchmarks.targetWordCount.min}
+                    </span>
+                  </div>
+                  <div className="text-[10px] font-bold uppercase tracking-tight text-slate-400 mt-0.5">
+                    Word Count
+                  </div>
+                </div>
+
+                <div className="h-10 w-px bg-slate-800" />
+
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-slate-200">
+                    {liveHeadingsCount}
+                    <span className="text-xs font-normal text-slate-400">
+                      {' '}/ {optimizerResult.benchmarks.targetHeadings.min}+
+                    </span>
+                  </div>
+                  <div className="text-[10px] font-bold uppercase tracking-tight text-slate-400 mt-0.5">
+                    Headings
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Interactive Split Workbench */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            {/* LEFT / CENTER: Interactive Writing Studio (8 Cols) */}
+            <div className="lg:col-span-8 space-y-4">
+              <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm p-6 space-y-4">
+                {/* Editor Action Bar */}
+                <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
+                  <div className="flex items-center gap-2">
+                    <Edit3 className="w-4 h-4 text-amber-500" />
+                    <span className="text-xs font-extrabold text-slate-900 dark:text-white uppercase tracking-wider">
+                      Live Content Studio
+                    </span>
+                    <span className="text-[11px] text-slate-500">
+                      • {Math.ceil(liveWordCount / 200)} min read
+                    </span>
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={handleAutoOptimize}
+                      disabled={optimizerAutoFixing}
+                      className="px-3.5 py-1.5 rounded-xl text-xs font-extrabold bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white transition-all shadow-sm flex items-center gap-1.5 disabled:opacity-50"
+                    >
+                      {optimizerAutoFixing ? (
+                        <>
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          AI Auto-Optimizing...
+                        </>
+                      ) : (
+                        <>
+                          <Wand2 className="w-3.5 h-3.5 text-amber-200" />
+                          Auto-Fix with AI
+                        </>
+                      )}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        navigator.clipboard.writeText(liveArticleText);
+                        setCopiedOptimizerText(true);
+                        setTimeout(() => setCopiedOptimizerText(false), 2000);
+                      }}
+                      className="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition-all flex items-center gap-1.5"
+                    >
+                      {copiedOptimizerText ? (
+                        <>
+                          <Check className="w-3.5 h-3.5 text-emerald-500" />
+                          Copied!
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="w-3.5 h-3.5" />
+                          Copy Markdown
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Live Writing Textarea */}
+                <div>
+                  <textarea
+                    rows={22}
+                    value={liveArticleText}
+                    onChange={(e) => handleLiveTextChange(e.target.value)}
+                    placeholder="Write or edit your article here... The NLP score and entity frequencies update dynamically as you type!"
+                    className="w-full p-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950 font-mono text-xs sm:text-sm text-slate-900 dark:text-slate-100 leading-relaxed focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 resize-y"
+                  />
+                  <div className="flex items-center justify-between text-[11px] text-slate-400 mt-2 px-1">
+                    <span>Markdown formatting supported (# H1, ## H2, - lists, &gt; blockquotes)</span>
+                    <span>{liveWordCount} words • {liveArticleText.length} characters</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* People Also Ask & Missing Questions Accordion */}
+              {optimizerResult.missingQuestions && optimizerResult.missingQuestions.length > 0 && (
+                <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm p-6 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <HelpCircle className="w-4 h-4 text-sky-500" />
+                      <h3 className="text-sm font-extrabold text-slate-900 dark:text-white">
+                        Questions to Cover (Google PAA & Perplexity AI Intent)
+                      </h3>
+                    </div>
+                    <span className="text-xs text-slate-500">
+                      Essential for Rich Snippets & AI Citations
+                    </span>
+                  </div>
+
+                  <div className="space-y-2.5">
+                    {optimizerResult.missingQuestions.map((q, idx) => (
+                      <div
+                        key={idx}
+                        className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200/80 dark:border-slate-800/80 flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs"
+                      >
+                        <div>
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="font-bold text-slate-900 dark:text-white">
+                              {q.question}
+                            </span>
+                            <span className="px-2 py-0.5 rounded text-[10px] font-extrabold bg-sky-100 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300">
+                              {q.intent}
+                            </span>
+                          </div>
+                          <p className="text-slate-600 dark:text-slate-400 text-[11px] leading-relaxed">
+                            {q.suggestedAnswerSnippet}
+                          </p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const addition = `\n\n### ${q.question}\n${q.suggestedAnswerSnippet}`;
+                            handleLiveTextChange(liveArticleText + addition);
+                          }}
+                          className="px-3 py-1.5 rounded-xl text-[11px] font-bold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-sky-500 text-slate-700 dark:text-slate-200 transition-all flex items-center gap-1 whitespace-nowrap self-start md:self-center"
+                        >
+                          + Append Section
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Internal Linking Recommendations */}
+              {optimizerResult.internalLinkingSuggestions && optimizerResult.internalLinkingSuggestions.length > 0 && (
+                <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm p-6 space-y-3">
+                  <div className="flex items-center gap-2">
+                    <Link2 className="w-4 h-4 text-emerald-500" />
+                    <h3 className="text-sm font-extrabold text-slate-900 dark:text-white">
+                      Recommended Internal Links (PageRank Silo Architecture)
+                    </h3>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {optimizerResult.internalLinkingSuggestions.map((link, idx) => (
+                      <div
+                        key={idx}
+                        className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200/80 dark:border-slate-800/80 text-xs"
+                      >
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="font-extrabold text-indigo-600 dark:text-indigo-400">
+                            [{link.anchorText}]
+                          </span>
+                          <span className="text-[10px] font-bold text-slate-500">
+                            {link.targetTopic}
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-slate-600 dark:text-slate-400 mb-2">
+                          &quot;{link.contextSentence}&quot;
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            navigator.clipboard.writeText(`[${link.anchorText}](/${link.anchorText.toLowerCase().replace(/\\s+/g, '-')})`);
+                            alert(`Anchor copied: [${link.anchorText}]`);
+                          }}
+                          className="text-[10px] font-bold text-slate-500 hover:text-indigo-600 flex items-center gap-1"
+                        >
+                          <Copy className="w-3 h-3" />
+                          Copy Anchor Markdown
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* RIGHT SIDEBAR: Live SurferSEO-Style NLP Inspector (4 Cols) */}
+            <div className="lg:col-span-4 space-y-4">
+              {/* Score Breakdown Card */}
+              <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm p-5 space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xs font-extrabold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-1.5">
+                    <Gauge className="w-4 h-4 text-amber-500" />
+                    Score Breakdown
+                  </h3>
+                  <span className={`px-2 py-0.5 rounded text-[10px] font-black ${
+                    liveScore >= 80 ? 'bg-emerald-100 text-emerald-700' : liveScore >= 65 ? 'bg-amber-100 text-amber-700' : 'bg-rose-100 text-rose-700'
+                  }`}>
+                    {liveScore >= 80 ? '🏆 Rank-Ready' : liveScore >= 65 ? '👍 Good' : '⚠️ Under-Optimized'}
+                  </span>
+                </div>
+
+                <div className="space-y-3 text-xs">
+                  <div>
+                    <div className="flex items-center justify-between text-slate-700 dark:text-slate-300 font-semibold mb-1">
+                      <span>Semantic Relevance</span>
+                      <span className="font-mono">{optimizerResult.scoreBreakdown.semanticRelevance}%</span>
+                    </div>
+                    <div className="w-full h-1.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+                      <div className="h-full bg-indigo-600 rounded-full" style={{ width: `${optimizerResult.scoreBreakdown.semanticRelevance}%` }} />
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="flex items-center justify-between text-slate-700 dark:text-slate-300 font-semibold mb-1">
+                      <span>Entity Coverage</span>
+                      <span className="font-mono">
+                        {Math.round((liveEntities.filter(e => e.currentCount >= e.targetMin).length / Math.max(1, liveEntities.length)) * 100)}%
+                      </span>
+                    </div>
+                    <div className="w-full h-1.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+                      <div 
+                        className="h-full bg-amber-500 rounded-full" 
+                        style={{ width: `${Math.min(100, Math.round((liveEntities.filter(e => e.currentCount >= e.targetMin).length / Math.max(1, liveEntities.length)) * 100))}%` }} 
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="flex items-center justify-between text-slate-700 dark:text-slate-300 font-semibold mb-1">
+                      <span>Content Depth</span>
+                      <span className="font-mono">
+                        {Math.min(100, Math.round((liveWordCount / optimizerResult.benchmarks.targetWordCount.min) * 100))}%
+                      </span>
+                    </div>
+                    <div className="w-full h-1.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+                      <div 
+                        className="h-full bg-emerald-500 rounded-full" 
+                        style={{ width: `${Math.min(100, Math.round((liveWordCount / optimizerResult.benchmarks.targetWordCount.min) * 100))}%` }} 
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="flex items-center justify-between text-slate-700 dark:text-slate-300 font-semibold mb-1">
+                      <span>Readability Index</span>
+                      <span className="font-mono">{optimizerResult.scoreBreakdown.readability}%</span>
+                    </div>
+                    <div className="w-full h-1.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+                      <div className="h-full bg-sky-500 rounded-full" style={{ width: `${optimizerResult.scoreBreakdown.readability}%` }} />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* NLP Entities & LSI Terms Inspector */}
+              <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm p-5 space-y-4">
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <h3 className="text-xs font-extrabold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-1.5">
+                      <Layers className="w-4 h-4 text-indigo-500" />
+                      NLP Entities &amp; LSI Terms
+                    </h3>
+                    <span className="text-[10px] font-bold text-slate-500">
+                      {liveEntities.filter(e => e.currentCount >= e.targetMin).length} / {liveEntities.length} optimal
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-500">
+                    Include these semantic terms to match Google #1 SERP patterns.
+                  </p>
+                </div>
+
+                {/* Filter Pills */}
+                <div className="flex items-center gap-1.5 border-b border-slate-100 dark:border-slate-800 pb-2.5">
+                  <button
+                    type="button"
+                    onClick={() => setEntityFilter('all')}
+                    className={`px-2 py-1 rounded-lg text-[10px] font-extrabold transition-all ${
+                      entityFilter === 'all'
+                        ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900'
+                        : 'text-slate-500 hover:text-slate-800'
+                    }`}
+                  >
+                    All ({liveEntities.length})
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setEntityFilter('missing')}
+                    className={`px-2 py-1 rounded-lg text-[10px] font-extrabold transition-all ${
+                      entityFilter === 'missing'
+                        ? 'bg-rose-600 text-white'
+                        : 'text-slate-500 hover:text-rose-600'
+                    }`}
+                  >
+                    Missing ({liveEntities.filter(e => e.currentCount === 0).length})
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setEntityFilter('optimal')}
+                    className={`px-2 py-1 rounded-lg text-[10px] font-extrabold transition-all ${
+                      entityFilter === 'optimal'
+                        ? 'bg-emerald-600 text-white'
+                        : 'text-slate-500 hover:text-emerald-600'
+                    }`}
+                  >
+                    Optimal ({liveEntities.filter(e => e.currentCount >= e.targetMin && e.currentCount <= e.targetMax).length})
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setEntityFilter('high')}
+                    className={`px-2 py-1 rounded-lg text-[10px] font-extrabold transition-all ${
+                      entityFilter === 'high'
+                        ? 'bg-amber-600 text-white'
+                        : 'text-slate-500 hover:text-amber-600'
+                    }`}
+                  >
+                    High ({liveEntities.filter(e => e.category === 'High Priority' || e.category === 'GEO Citation').length})
+                  </button>
+                </div>
+
+                {/* Entity Cards List */}
+                <div className="space-y-2 max-h-[480px] overflow-y-auto pr-1">
+                  {liveEntities
+                    .filter((ent) => {
+                      if (entityFilter === 'missing') return ent.currentCount === 0;
+                      if (entityFilter === 'optimal') return ent.currentCount >= ent.targetMin && ent.currentCount <= ent.targetMax;
+                      if (entityFilter === 'high') return ent.category === 'High Priority' || ent.category === 'GEO Citation';
+                      return true;
+                    })
+                    .map((ent, idx) => {
+                      const isOptimal = ent.currentCount >= ent.targetMin && ent.currentCount <= ent.targetMax;
+                      const isMissing = ent.currentCount === 0;
+                      const isOver = ent.currentCount > ent.targetMax;
+
+                      return (
+                        <div
+                          key={idx}
+                          className={`p-2.5 rounded-xl border text-xs flex items-center justify-between gap-2 transition-all ${
+                            isOptimal
+                              ? 'bg-emerald-50/60 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-900/50'
+                              : isMissing
+                              ? 'bg-rose-50/50 dark:bg-rose-950/20 border-rose-200 dark:border-rose-900/40'
+                              : isOver
+                              ? 'bg-amber-50/50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-900/40'
+                              : 'bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800'
+                          }`}
+                        >
+                          <div className="min-w-0">
+                            <div className="font-bold text-slate-900 dark:text-white truncate">
+                              {ent.term}
+                            </div>
+                            <div className="text-[10px] text-slate-500 flex items-center gap-1.5 mt-0.5">
+                              <span className="font-semibold">{ent.category}</span>
+                              {ent.importance && <span>• {ent.importance.slice(0, 32)}...</span>}
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-1.5 flex-shrink-0">
+                            <span
+                              className={`px-2 py-0.5 rounded text-[11px] font-mono font-bold ${
+                                isOptimal
+                                  ? 'bg-emerald-200 dark:bg-emerald-900 text-emerald-800 dark:text-emerald-200'
+                                  : isMissing
+                                  ? 'bg-rose-200 dark:bg-rose-900 text-rose-800 dark:text-rose-200'
+                                  : isOver
+                                  ? 'bg-amber-200 dark:bg-amber-900 text-amber-800 dark:text-amber-200'
+                                  : 'bg-sky-200 dark:bg-sky-900 text-sky-800 dark:text-sky-200'
+                              }`}
+                            >
+                              {ent.currentCount} / {ent.targetMin}-{ent.targetMax}
+                            </span>
+
+                            <button
+                              type="button"
+                              title="Append this entity to content"
+                              onClick={() => insertTermIntoEditor(ent.term)}
+                              className="w-6 h-6 rounded-lg bg-white dark:bg-slate-800 hover:bg-amber-500 hover:text-white dark:hover:bg-amber-500 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300 font-bold transition-all text-xs"
+                            >
+                              +
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                </div>
+              </div>
             </div>
           </div>
         </div>
