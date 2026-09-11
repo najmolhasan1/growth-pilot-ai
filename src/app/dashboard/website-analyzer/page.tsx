@@ -146,6 +146,33 @@ interface CompetitorComparisonResult {
   };
 }
 
+interface BacklinksResult {
+  domainRating: number;
+  authorityScore: number;
+  estimatedBacklinks: string;
+  referringDomains: number;
+  dofollowRatio: string;
+  toxicScore: string;
+  toxicRisk: string;
+  linkProfileSummary: string;
+  topReferringCategories: Array<{
+    category: string;
+    percentage: string;
+    impact: string;
+  }>;
+  anchorTextDistribution: Array<{
+    anchor: string;
+    share: string;
+  }>;
+  linkBuildingRoadmap: Array<{
+    priority: string;
+    strategy: string;
+    targetProspects: string;
+    estimatedImpact: string;
+    pitchAngle: string;
+  }>;
+}
+
 interface AuditReport {
   url: string;
   domain: string;
@@ -259,8 +286,8 @@ export default function WebsiteAnalyzerPage() {
   const [expandedIssues, setExpandedIssues] = useState<Record<string, boolean>>({});
   const [recentAudits, setRecentAudits] = useState<StoredAsset[]>([]);
 
-  // Mode Switcher: single | compare | sitemap
-  const [auditMode, setAuditMode] = useState<'single' | 'compare' | 'sitemap'>('single');
+  // Mode Switcher: single | compare | sitemap | backlinks
+  const [auditMode, setAuditMode] = useState<'single' | 'compare' | 'sitemap' | 'backlinks'>('single');
 
   // Competitor Comparison state
   const [competitorUrlInput, setCompetitorUrlInput] = useState('');
@@ -270,6 +297,10 @@ export default function WebsiteAnalyzerPage() {
   // Sitemap Deep Scan state
   const [sitemapScanning, setSitemapScanning] = useState(false);
   const [sitemapResult, setSitemapResult] = useState<SitemapScanResult | null>(null);
+
+  // Backlink Equity & Off-Page Audit state
+  const [backlinkScanning, setBacklinkScanning] = useState(false);
+  const [backlinkResult, setBacklinkResult] = useState<BacklinksResult | null>(null);
 
   // Robots.txt generator modal/state
   const [showRobotsModal, setShowRobotsModal] = useState(false);
@@ -348,6 +379,34 @@ export default function WebsiteAnalyzerPage() {
       setErrorMsg(err.message || 'Error occurred during sitemap deep scan.');
     } finally {
       setSitemapScanning(false);
+    }
+  };
+
+  // Handle Backlink Profile Audit
+  const handleBacklinkAudit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!urlInput.trim()) return;
+
+    setBacklinkScanning(true);
+    setErrorMsg('');
+    setBacklinkResult(null);
+
+    try {
+      const res = await fetch('/api/website-audit/backlinks', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: urlInput.trim() })
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Failed to analyze backlink equity.');
+      }
+      setBacklinkResult(data.data);
+    } catch (err: any) {
+      setErrorMsg(err.message || 'Error occurred during backlink analysis.');
+    } finally {
+      setBacklinkScanning(false);
     }
   };
 
@@ -582,6 +641,21 @@ export default function WebsiteAnalyzerPage() {
               Multi-Page
             </span>
           </button>
+
+          <button
+            onClick={() => setAuditMode('backlinks')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-xs transition-all ${
+              auditMode === 'backlinks'
+                ? 'bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 shadow-sm'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+            }`}
+          >
+            <Link2 className="w-4 h-4 text-emerald-500" />
+            🔗 Backlink Profile
+            <span className="px-1.5 py-0.5 rounded text-[10px] bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 font-extrabold">
+              Off-Page
+            </span>
+          </button>
         </div>
 
         {/* Input Form Containers */}
@@ -699,6 +773,40 @@ export default function WebsiteAnalyzerPage() {
                   <>
                     <Network className="w-4 h-4" />
                     Deep Scan Sitemap
+                  </>
+                )}
+              </button>
+            </form>
+          )}
+
+          {/* MODE 4: BACKLINK EQUITY & OFF-PAGE AUDIT */}
+          {auditMode === 'backlinks' && (
+            <form onSubmit={handleBacklinkAudit} className="flex flex-col sm:flex-row gap-3">
+              <div className="relative flex-1">
+                <Link2 className="absolute left-3.5 top-3.5 w-4 h-4 text-emerald-500" />
+                <input
+                  type="text"
+                  placeholder="Enter target domain or URL for Backlink Analysis (e.g. yourwebsite.com)"
+                  value={urlInput}
+                  onChange={(e) => setUrlInput(e.target.value)}
+                  disabled={backlinkScanning}
+                  className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={backlinkScanning || !urlInput.trim()}
+                className="px-6 py-3 rounded-xl font-bold text-xs sm:text-sm bg-emerald-600 hover:bg-emerald-700 text-white transition-all shadow-md shadow-emerald-600/20 flex items-center justify-center gap-2 disabled:opacity-50"
+              >
+                {backlinkScanning ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Analyzing Backlinks...
+                  </>
+                ) : (
+                  <>
+                    <Link2 className="w-4 h-4" />
+                    Audit Backlinks
                   </>
                 )}
               </button>
@@ -1835,6 +1943,202 @@ export default function WebsiteAnalyzerPage() {
                   ))}
                 </tbody>
               </table>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODE 4 VIEW: BACKLINK PROFILE & OFF-PAGE EQUITY (Ahrefs / SEMrush) */}
+      {auditMode === 'backlinks' && backlinkResult && (
+        <div className="max-w-7xl mx-auto space-y-6 mt-6">
+          {/* Header Card */}
+          <div className="bg-gradient-to-r from-emerald-950 via-slate-900 to-indigo-950 p-6 rounded-3xl border border-slate-800 text-white shadow-xl">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div>
+                <span className="px-3 py-1 rounded-full text-xs font-black bg-emerald-500 text-slate-950 uppercase tracking-wider">
+                  🔗 Off-Page Authority & Link Equity
+                </span>
+                <h2 className="text-2xl font-black mt-2">
+                  Backlink Profile & Equity: {urlInput.replace(/^https?:\/\//, '')}
+                </h2>
+                <p className="text-xs text-slate-300 mt-1 max-w-2xl">
+                  {backlinkResult.linkProfileSummary}
+                </p>
+              </div>
+
+              {/* Authority Metrics */}
+              <div className="flex items-center gap-6">
+                <div className="text-center">
+                  <div className="text-3xl font-black text-emerald-400">
+                    {backlinkResult.domainRating}/100
+                  </div>
+                  <div className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">Domain Rating (DR)</div>
+                </div>
+
+                <div className="text-center">
+                  <div className="text-3xl font-black text-indigo-400">
+                    {backlinkResult.referringDomains}
+                  </div>
+                  <div className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">Ref Domains</div>
+                </div>
+
+                <div className="text-center">
+                  <div className="text-3xl font-black text-sky-400">
+                    {backlinkResult.dofollowRatio}
+                  </div>
+                  <div className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">Dofollow Ratio</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Metric KPIs */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">
+                Estimated Backlinks
+              </span>
+              <div className="text-2xl font-black text-slate-900 dark:text-white my-1">
+                {backlinkResult.estimatedBacklinks}
+              </div>
+              <span className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+                Active Index Signals
+              </span>
+            </div>
+
+            <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">
+                Authority Score
+              </span>
+              <div className="text-2xl font-black text-slate-900 dark:text-white my-1">
+                {backlinkResult.authorityScore}%
+              </div>
+              <span className="text-[11px] font-semibold text-indigo-600 dark:text-indigo-400">
+                Organic Search Weight
+              </span>
+            </div>
+
+            <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">
+                Toxic Link Risk
+              </span>
+              <div className="text-2xl font-black text-emerald-600 dark:text-emerald-400 my-1">
+                {backlinkResult.toxicScore}
+              </div>
+              <span className="text-[11px] font-semibold text-emerald-700 dark:text-emerald-300">
+                Risk Level: {backlinkResult.toxicRisk}
+              </span>
+            </div>
+
+            <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">
+                Link Quality Rating
+              </span>
+              <div className="text-2xl font-black text-slate-900 dark:text-white my-1">
+                {backlinkResult.domainRating >= 60 ? 'Tier A (High)' : backlinkResult.domainRating >= 40 ? 'Tier B (Moderate)' : 'Tier C (Growing)'}
+              </div>
+              <span className="text-[11px] font-semibold text-slate-500">
+                Competitive Standing
+              </span>
+            </div>
+          </div>
+
+          {/* Referring Domain Categories & Anchor Text Distribution */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Categories */}
+            <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+              <h3 className="text-sm font-bold text-slate-900 dark:text-white mb-2 flex items-center gap-2">
+                <Network className="w-4 h-4 text-emerald-600" />
+                Referring Website Industries & Niches
+              </h3>
+              <p className="text-xs text-slate-500 mb-4">
+                Distribution of industry niches linking back to this domain.
+              </p>
+
+              <div className="space-y-3">
+                {backlinkResult.topReferringCategories.map((cat, i) => (
+                  <div key={i} className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-xs">
+                    <span className="font-semibold text-slate-800 dark:text-slate-200">
+                      {cat.category}
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold text-slate-900 dark:text-white">{cat.percentage}</span>
+                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                        cat.impact === 'High' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 text-slate-700'
+                      }`}>
+                        {cat.impact} Impact
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Anchors */}
+            <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+              <h3 className="text-sm font-bold text-slate-900 dark:text-white mb-2 flex items-center gap-2">
+                <Tag className="w-4 h-4 text-indigo-600" />
+                Anchor Text Profile (Anti-Spam Safety)
+              </h3>
+              <p className="text-xs text-slate-500 mb-4">
+                Proportion of branded vs commercial keyword anchors to verify Google Penguin algorithm safety.
+              </p>
+
+              <div className="space-y-3">
+                {backlinkResult.anchorTextDistribution.map((anc, i) => (
+                  <div key={i} className="p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
+                    <div className="flex items-center justify-between text-xs mb-1.5">
+                      <span className="font-semibold text-slate-800 dark:text-slate-200">{anc.anchor}</span>
+                      <span className="font-mono font-bold text-indigo-600 dark:text-indigo-400">{anc.share}</span>
+                    </div>
+                    <div className="w-full h-1.5 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden">
+                      <div 
+                        className="h-full bg-indigo-600 rounded-full" 
+                        style={{ width: anc.share }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* High-Impact Link Building Outreach Roadmap */}
+          <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+            <h3 className="text-base font-bold text-slate-900 dark:text-white mb-2 flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-amber-500" />
+              Strategic Link Building & Outreach Blueprint (How to Build High-DA Links)
+            </h3>
+            <p className="text-xs text-slate-500 mb-4">
+              Tailored outreach campaigns to safely acquire authoritative editorial backlinks and accelerate organic ranking:
+            </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {backlinkResult.linkBuildingRoadmap.map((road, i) => (
+                <div key={i} className="p-4 rounded-xl bg-emerald-50/40 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-900/50 flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-center justify-between gap-2 mb-2">
+                      <span className="text-[10px] font-extrabold px-2 py-0.5 rounded bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300">
+                        {road.priority} Priority
+                      </span>
+                      <span className="text-[10px] font-extrabold text-indigo-600 dark:text-indigo-400">
+                        {road.estimatedImpact}
+                      </span>
+                    </div>
+                    <h4 className="text-sm font-bold text-slate-900 dark:text-white mb-2">
+                      {road.strategy}
+                    </h4>
+                    <p className="text-xs text-slate-600 dark:text-slate-400 mb-3">
+                      <span className="font-semibold text-slate-700 dark:text-slate-300">Target Prospects: </span>
+                      {road.targetProspects}
+                    </p>
+                    <p className="text-xs text-slate-700 dark:text-slate-300 bg-white/70 dark:bg-slate-900/80 p-2.5 rounded-lg border border-emerald-200/50 dark:border-emerald-900/30">
+                      <span className="font-semibold text-emerald-700 dark:text-emerald-400">Outreach Angle: </span>
+                      {road.pitchAngle}
+                    </p>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
