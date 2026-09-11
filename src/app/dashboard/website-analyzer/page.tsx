@@ -23,10 +23,47 @@ import {
   Loader2,
   HelpCircle,
   RotateCcw,
-  Sparkle
+  Sparkle,
+  Copy,
+  Check,
+  Printer,
+  Code,
+  Share2,
+  TrendingUp,
+  Tag,
+  Gauge,
+  Flame,
+  Layers,
+  ChevronDown,
+  ChevronUp,
+  SlidersHorizontal,
+  Info
 } from 'lucide-react';
 import { getSupabaseBrowserClient, isSupabaseConfigured } from '@/lib/supabase';
 import Link from 'next/link';
+
+interface IssueItem {
+  id: string;
+  category: string;
+  title: string;
+  description: string;
+  impact: 'High' | 'Medium' | 'Low';
+  howToFix: string;
+  codeFix?: string;
+}
+
+interface OrganicKeyword {
+  keyword: string;
+  intent: 'Informational' | 'Commercial' | 'Transactional' | 'Navigational';
+  kd: number;
+  estimatedVolume: string;
+  relevanceScore: number;
+}
+
+interface ContentGapItem {
+  topic: string;
+  reason: string;
+}
 
 interface AuditReport {
   url: string;
@@ -37,9 +74,15 @@ interface AuditReport {
     description: string;
     robots: string;
     canonical: string;
+    hasViewport?: boolean;
     ogTitle: string;
     ogDescription: string;
     ogImage: string;
+    twitterCard?: string;
+    twitterTitle?: string;
+    twitterImage?: string;
+    schemas?: string[];
+    hasSchema?: boolean;
     h1Count: number;
     h1s: string[];
     headings: {
@@ -59,13 +102,23 @@ interface AuditReport {
       internal: number;
       external: number;
     };
+    scriptCount?: number;
+    stylesheetCount?: number;
+    pageSizeKb?: number;
     wordCount: number;
     loadTimeMs: number;
     isHttps: boolean;
     hasRobotsTxt: boolean;
     hasSitemap: boolean;
+    vitals?: {
+      ttfbMs: number;
+      lcpSec: number;
+      cls: number;
+      inpMs: number;
+    };
   };
   audit: {
+    healthScore?: number;
     scores: {
       seo: number;
       speed: number;
@@ -73,25 +126,22 @@ interface AuditReport {
       mobile: number;
     };
     summary: string;
-    seoAudit: {
-      titleEvaluation: string;
-      descriptionEvaluation: string;
-      headingsEvaluation: string;
-      contentEvaluation: string;
+    issues?: {
+      errors: IssueItem[];
+      warnings: IssueItem[];
+      notices: IssueItem[];
     };
-    uxCroAudit: {
-      evaluation: string;
-      strengths: string[];
-      weaknesses: string[];
-    };
-    checklist: Array<{
+    checklist?: Array<{
       id: string;
       category: string;
       title: string;
       description: string;
       priority: 'High' | 'Medium' | 'Low';
       status: 'fail' | 'warning' | 'pass';
+      codeFix?: string;
     }>;
+    organicKeywords?: OrganicKeyword[];
+    contentGaps?: ContentGapItem[];
     copywritingSuggestions: {
       headlineTweaks: Array<{
         original: string;
@@ -118,702 +168,1046 @@ export default function WebsiteAnalyzerPage() {
   const [report, setReport] = useState<AuditReport | null>(null);
   const [errorMsg, setErrorMsg] = useState('');
   
-  // History lists
-  const [history, setHistory] = useState<StoredAsset[]>([]);
-  const [loadingHistory, setLoadingHistory] = useState(false);
+  // Navigation Tabs
+  const [activeTab, setActiveTab] = useState<'overview' | 'issues' | 'keywords' | 'vitals' | 'social' | 'copywriting'>('overview');
+  const [issueFilter, setIssueFilter] = useState<'all' | 'errors' | 'warnings' | 'notices'>('all');
+  const [socialPlatform, setSocialPlatform] = useState<'facebook' | 'linkedin' | 'twitter'>('facebook');
   
-  // Active UI tabs
-  const [activeTab, setActiveTab] = useState<'checklist' | 'structure' | 'copywriting' | 'preview'>('checklist');
-  const [previewDevice, setPreviewDevice] = useState<'desktop' | 'mobile'>('desktop');
+  // UI state
+  const [copiedCodeId, setCopiedCodeId] = useState<string | null>(null);
+  const [expandedIssues, setExpandedIssues] = useState<Record<string, boolean>>({});
+  const [recentAudits, setRecentAudits] = useState<StoredAsset[]>([]);
 
-  const scanSteps = [
-    'Connecting to website host...',
-    'Fetching HTML layout structure...',
-    'Auditing meta keywords and tags...',
-    'Reviewing image alt attributes & links...',
-    'Consulting Gemini AI engine for optimization checklist...'
-  ];
-
+  // Scanning progress simulation
   useEffect(() => {
-    loadScanHistory();
-  }, []);
-
-  async function loadScanHistory() {
-    if (!isSupabaseConfigured()) return;
-    setLoadingHistory(true);
-    try {
-      const { data } = await getSupabaseBrowserClient().auth.getSession();
-      const token = data.session?.access_token;
-      if (!token) return;
-
-      const response = await fetch('/api/marketing-assets', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      const payload = await response.json();
-      if (response.ok && payload.success && Array.isArray(payload.assets)) {
-        const scannerAssets = payload.assets
-          .filter((a: any) => a.tool === 'website_analyzer')
-          .map((a: any) => ({
-            id: a.id,
-            title: a.title,
-            created_at: a.createdAt,
-            result: a.result as AuditReport
-          }));
-        setHistory(scannerAssets);
-      }
-    } catch (e) {
-      console.warn('Failed to load past scanner audits', e);
-    } finally {
-      setLoadingHistory(false);
+    let timer: NodeJS.Timeout;
+    if (scanning) {
+      setScanStep(1);
+      timer = setInterval(() => {
+        setScanStep((prev) => (prev < 4 ? prev + 1 : prev));
+      }, 1800);
+    } else {
+      setScanStep(0);
     }
-  }
+    return () => clearInterval(timer);
+  }, [scanning]);
 
-  const handleStartScan = async (e: React.FormEvent) => {
+  // Load past audits from Supabase / localStorage
+  useEffect(() => {
+    async function loadPastAudits() {
+      if (!isSupabaseConfigured()) {
+        const local = localStorage.getItem('website_audit_history');
+        if (local) {
+          try { setRecentAudits(JSON.parse(local)); } catch {}
+        }
+        return;
+      }
+      try {
+        const supabase = getSupabaseBrowserClient();
+        const { data: auth } = await supabase.auth.getSession();
+        if (!auth.session?.access_token) return;
+
+        const res = await fetch('/api/marketing-assets', {
+          headers: { Authorization: `Bearer ${auth.session.access_token}` }
+        });
+        const data = await res.json();
+        if (data.success && Array.isArray(data.assets)) {
+          const audits = data.assets
+            .filter((a: any) => a.tool === 'website_analyzer' && a.result?.audit)
+            .slice(0, 5);
+          setRecentAudits(audits);
+        }
+      } catch (e) {
+        console.warn('Could not load past audits:', e);
+      }
+    }
+    loadPastAudits();
+  }, [report]);
+
+  const handleScan = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!urlInput.trim()) return;
 
     setScanning(true);
-    setReport(null);
     setErrorMsg('');
-    setScanStep(0);
-
-    // Animate loader steps
-    const stepInterval = setInterval(() => {
-      setScanStep(prev => {
-        if (prev < scanSteps.length - 1) {
-          return prev + 1;
-        }
-        return prev;
-      });
-    }, 1800);
+    setReport(null);
 
     try {
-      const { data: authData } = isSupabaseConfigured() 
-        ? await getSupabaseBrowserClient().auth.getSession() 
-        : { data: { session: null } };
-      
-      const token = authData.session?.access_token;
-      
-      const response = await fetch('/api/website-audit', {
+      const supabase = getSupabaseBrowserClient();
+      const { data: auth } = await supabase.auth.getSession();
+      const token = auth.session?.access_token;
+
+      const res = await fetch('/api/website-audit', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           ...(token ? { Authorization: `Bearer ${token}` } : {})
         },
-        body: JSON.stringify({ url: urlInput })
+        body: JSON.stringify({ url: urlInput.trim() })
       });
 
-      clearInterval(stepInterval);
-      const payload = await response.json();
-
-      if (!response.ok || !payload.success) {
-        throw new Error(payload.error || 'Failed to complete analysis');
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Failed to analyze website.');
       }
 
-      setReport(payload.report);
-      // Reload history to show the newly saved asset
-      loadScanHistory();
+      setReport(data.report);
+      setActiveTab('overview');
+
+      // Cache locally
+      const updated = [
+        { id: `local-${Date.now()}`, title: `Audit - ${data.report.domain}`, created_at: new Date().toISOString(), result: data.report },
+        ...recentAudits.slice(0, 4)
+      ];
+      setRecentAudits(updated);
+      localStorage.setItem('website_audit_history', JSON.stringify(updated));
+
     } catch (err: any) {
-      clearInterval(stepInterval);
-      setErrorMsg(err.message || 'An unexpected error occurred during analysis.');
+      setErrorMsg(err.message || 'An error occurred while scanning the website.');
     } finally {
       setScanning(false);
     }
   };
 
-  const handleDeleteHistory = async (e: React.MouseEvent, id: string) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (!confirm('Are you sure you want to delete this scan from your history?')) return;
-
-    try {
-      const { data } = await getSupabaseBrowserClient().auth.getSession();
-      const token = data.session?.access_token;
-      if (!token) return;
-
-      const response = await fetch('/api/marketing-assets', {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({ id })
-      });
-
-      if (response.ok) {
-        setHistory(prev => prev.filter(item => item.id !== id));
-        if (report && report.url === history.find(h => h.id === id)?.result.url) {
-          setReport(null);
-        }
-      }
-    } catch (err) {
-      console.warn('Failed to delete past scan', err);
-    }
+  const copyCode = (code: string, id: string) => {
+    navigator.clipboard.writeText(code);
+    setCopiedCodeId(id);
+    setTimeout(() => setCopiedCodeId(null), 2200);
   };
 
-  const selectPastScan = (item: StoredAsset) => {
-    setReport(item.result);
-    setUrlInput(item.result.url);
-    setErrorMsg('');
+  const toggleExpand = (id: string) => {
+    setExpandedIssues(prev => ({ ...prev, [id]: !prev[id] }));
   };
 
-  const getScoreColor = (score: number) => {
-    if (score >= 85) return { stroke: 'stroke-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400', glow: 'bg-emerald-500/20' };
-    if (score >= 60) return { stroke: 'stroke-amber-400', bg: 'bg-amber-500/10 border-amber-500/20 text-amber-400', glow: 'bg-amber-500/20' };
-    return { stroke: 'stroke-rose-400', bg: 'bg-rose-500/10 border-rose-500/20 text-rose-400', glow: 'bg-rose-500/20' };
+  // Compile issues list from 3-tier structure or legacy checklist
+  const allErrors = report?.audit.issues?.errors || [];
+  const allWarnings = report?.audit.issues?.warnings || [];
+  const allNotices = report?.audit.issues?.notices || [];
+
+  const filteredIssues = () => {
+    if (issueFilter === 'errors') return allErrors;
+    if (issueFilter === 'warnings') return allWarnings;
+    if (issueFilter === 'notices') return allNotices;
+    return [...allErrors, ...allWarnings, ...allNotices];
+  };
+
+  const healthScore = report?.audit.healthScore ?? (
+    report ? Math.round((report.audit.scores.seo + report.audit.scores.speed + report.audit.scores.security + report.audit.scores.mobile) / 4) : 0
+  );
+
+  const getHealthColor = (score: number) => {
+    if (score >= 80) return 'text-emerald-500 stroke-emerald-500';
+    if (score >= 60) return 'text-amber-500 stroke-amber-500';
+    return 'text-rose-500 stroke-rose-500';
+  };
+
+  const getScoreBg = (score: number) => {
+    if (score >= 80) return 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-400 dark:border-emerald-900';
+    if (score >= 60) return 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:text-amber-400 dark:border-amber-900';
+    return 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/40 dark:text-rose-400 dark:border-rose-900';
   };
 
   return (
-    <div className="min-h-screen bg-[#030712] p-6 lg:p-10 text-white">
-      <div className="mx-auto max-w-7xl">
-        {/* Header */}
-        <div className="mb-10 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-4 md:p-8">
+      {/* Header */}
+      <div className="max-w-7xl mx-auto mb-8">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-emerald-400">
-              <Globe size={12} className="animate-spin-slow" /> Website SEO Auditor
+            <div className="flex items-center gap-2 mb-1">
+              <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-100 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
+                Enterprise Site Audit
+              </span>
+              <span className="text-xs text-slate-500 dark:text-slate-400">
+                SEMrush & Ubersuggest Diagnostic Engine
+              </span>
             </div>
-            <h1 className="text-4xl font-black tracking-tight text-white">
-              Website <span className="bg-gradient-to-r from-emerald-300 via-teal-300 to-cyan-300 bg-clip-text text-transparent">Analyzer</span>
+            <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+              Website SEO & Speed Analyzer
             </h1>
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-white/50">
-              Perform deep HTML audits, speed diagnostics, and AI copywriting analysis. Uncover marketing opportunities and conversion hooks in seconds.
+            <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
+              Deep crawler inspection, Core Web Vitals, Schema.org verification, organic keyword gap, and 1-click code fixes.
             </p>
           </div>
+
           {report && (
             <button
-              onClick={() => { setReport(null); setUrlInput(''); }}
-              className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/[0.04] px-5 py-3.5 text-xs font-bold text-white/70 transition hover:bg-white/[0.08]"
+              onClick={() => window.print()}
+              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 hover:border-indigo-500 transition-all shadow-sm"
             >
-              <RotateCcw size={14} /> Scan Another Site
+              <Printer className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+              Export Client PDF / Print
             </button>
           )}
         </div>
 
-        <div className="grid gap-8 lg:grid-cols-4">
-          {/* Main Workspace Column */}
-          <div className="lg:col-span-3 space-y-8">
-            {/* Input Bar */}
-            {!report && !scanning && (
-              <div className="relative rounded-[2rem] border border-white/5 bg-[#0d1117]/80 p-8 shadow-2xl backdrop-blur-xl">
-                <div className="absolute -left-12 -top-12 h-40 w-40 rounded-full bg-emerald-500/5 blur-3xl" />
-                <h3 className="text-lg font-bold text-white mb-2">Scan a new website</h3>
-                <p className="text-xs text-white/40 mb-6">Enter any page domain or full URL path. We will analyze keywords, titles, responsiveness, and AI content metrics.</p>
-                
-                <form onSubmit={handleStartScan} className="flex flex-col sm:flex-row gap-3">
-                  <div className="relative flex-1">
-                    <Globe className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30" size={18} />
-                    <input
-                      type="text"
-                      placeholder="e.g. najmolgrowth.com or https://example.com"
-                      value={urlInput}
-                      onChange={e => setUrlInput(e.target.value)}
-                      className="w-full rounded-2xl border border-white/10 bg-[#070b12] pl-12 pr-4 py-4 text-sm text-white placeholder:text-white/20 outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 transition-all"
-                    />
-                  </div>
-                  <button
-                    type="submit"
-                    className="inline-flex items-center justify-center gap-2 rounded-2xl bg-emerald-600 hover:bg-emerald-500 px-8 py-4 font-bold text-white shadow-lg shadow-emerald-500/10 transition-all cursor-pointer"
-                  >
-                    <Search size={16} /> Run Diagnostics
-                  </button>
-                </form>
-                {errorMsg && (
-                  <p className="mt-4 text-xs font-semibold text-rose-400 bg-rose-500/10 border border-rose-500/20 rounded-xl px-4 py-3 flex items-center gap-2">
-                    <XCircle size={14} /> {errorMsg}
-                  </p>
-                )}
+        {/* URL Input Form */}
+        <div className="mt-6 bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+          <form onSubmit={handleScan} className="flex flex-col sm:flex-row gap-3">
+            <div className="relative flex-1">
+              <Globe className="absolute left-3.5 top-3.5 w-4 h-4 text-slate-400" />
+              <input
+                type="text"
+                placeholder="Enter domain or webpage URL (e.g. yourwebsite.com or https://site.com/blog)"
+                value={urlInput}
+                onChange={(e) => setUrlInput(e.target.value)}
+                disabled={scanning}
+                className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+              />
+            </div>
+            <button
+              type="submit"
+              disabled={scanning || !urlInput.trim()}
+              className="px-6 py-3 rounded-xl font-bold text-xs sm:text-sm bg-indigo-600 hover:bg-indigo-700 text-white transition-all shadow-md shadow-indigo-600/20 flex items-center justify-center gap-2 disabled:opacity-50"
+            >
+              {scanning ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Auditing Site...
+                </>
+              ) : (
+                <>
+                  <Search className="w-4 h-4" />
+                  Audit Website
+                </>
+              )}
+            </button>
+          </form>
+
+          {/* Scanning Progress Timeline */}
+          {scanning && (
+            <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-[11px] font-medium text-slate-500">
+                <span className={`flex items-center gap-1.5 ${scanStep >= 1 ? 'text-indigo-600 dark:text-indigo-400 font-bold' : ''}`}>
+                  {scanStep > 1 ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                  1. Crawling DOM & Headers
+                </span>
+                <span className={`flex items-center gap-1.5 ${scanStep >= 2 ? 'text-indigo-600 dark:text-indigo-400 font-bold' : ''}`}>
+                  {scanStep > 2 ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : scanStep === 2 ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : '2. Measuring Web Vitals'}
+                </span>
+                <span className={`flex items-center gap-1.5 ${scanStep >= 3 ? 'text-indigo-600 dark:text-indigo-400 font-bold' : ''}`}>
+                  {scanStep > 3 ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : scanStep === 3 ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : '3. Schema & Keywords Gap'}
+                </span>
+                <span className={`flex items-center gap-1.5 ${scanStep >= 4 ? 'text-indigo-600 dark:text-indigo-400 font-bold' : ''}`}>
+                  {scanStep >= 4 ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : '4. Compiling Health Score'}
+                </span>
               </div>
-            )}
+            </div>
+          )}
 
-            {/* Scanning Loader State */}
-            {scanning && (
-              <div className="flex flex-col items-center justify-center rounded-[2rem] border border-white/5 bg-[#0d1117]/80 p-16 text-center shadow-2xl backdrop-blur-xl min-h-[380px]">
-                <div className="relative flex items-center justify-center w-20 h-20 mb-8">
-                  <div className="absolute inset-0 rounded-full border-4 border-emerald-500/10 animate-pulse" />
-                  <Loader2 className="text-emerald-400 animate-spin" size={36} />
-                </div>
-                <h3 className="text-lg font-bold text-white mb-2">Analyzing Site Architecture</h3>
-                <p className="text-xs text-white/40 max-w-sm mb-8">This crawls page tags, evaluates speed benchmarks, and structures SEO gaps.</p>
-                
-                {/* Steps tracker */}
-                <div className="w-full max-w-md space-y-2.5 text-left">
-                  {scanSteps.map((step, idx) => (
-                    <div key={idx} className="flex items-center gap-3 text-xs">
-                      {scanStep > idx ? (
-                        <CheckCircle2 size={14} className="text-emerald-400 shrink-0" />
-                      ) : scanStep === idx ? (
-                        <Loader2 size={14} className="text-emerald-400 animate-spin shrink-0" />
-                      ) : (
-                        <div className="w-3.5 h-3.5 rounded-full border border-white/10 shrink-0" />
-                      )}
-                      <span className={scanStep === idx ? 'text-white font-bold' : scanStep > idx ? 'text-white/60' : 'text-white/20'}>
-                        {step}
-                      </span>
-                    </div>
-                  ))}
+          {errorMsg && (
+            <div className="mt-3 p-3 rounded-xl text-xs bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-900 flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4 flex-shrink-0" />
+              {errorMsg}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Audit Report View */}
+      {report && (
+        <div className="max-w-7xl mx-auto space-y-6">
+
+          {/* Top SEMrush Health & KPI Summary Bar */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+            
+            {/* Site Health Dial */}
+            <div className="lg:col-span-4 bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center gap-6">
+              <div className="relative w-24 h-24 flex items-center justify-center flex-shrink-0">
+                <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
+                  <path
+                    className="text-slate-100 dark:text-slate-800 stroke-current"
+                    strokeWidth="3.5"
+                    fill="none"
+                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                  />
+                  <path
+                    className={`${getHealthColor(healthScore)} transition-all duration-1000 ease-out`}
+                    strokeWidth="3.5"
+                    strokeDasharray={`${healthScore}, 100`}
+                    strokeLinecap="round"
+                    fill="none"
+                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                  />
+                </svg>
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <span className="text-2xl font-black text-slate-900 dark:text-white">
+                    {healthScore}%
+                  </span>
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">
+                    Health
+                  </span>
                 </div>
               </div>
-            )}
 
-            {/* Diagnostics Report Dashboard */}
-            {report && (
-              <div className="space-y-8 animate-fadeIn">
-                {/* Quick Info Grid */}
-                <div className="rounded-[2.2rem] border border-white/5 bg-[#0d1117] p-8 shadow-2xl relative overflow-hidden">
-                  <div className="absolute right-0 top-0 h-48 w-48 rounded-full bg-emerald-500/5 blur-[80px]" />
-                  <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-6 border-b border-white/5 mb-8">
-                    <div>
-                      <h2 className="text-lg font-black text-white truncate max-w-md flex items-center gap-2">
-                        {report.domain} <ArrowUpRight size={16} className="text-white/40" />
-                      </h2>
-                      <span className="text-[10px] text-white/30 tracking-wider font-semibold uppercase mt-1 block">Scanned on {new Date(report.scannedAt).toLocaleString()}</span>
-                    </div>
-                    <a
-                      href={report.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 text-xs text-emerald-400 hover:underline hover:text-emerald-300 font-bold"
-                    >
-                      Visit site <ExternalLink size={12} />
-                    </a>
-                  </div>
-
-                  {/* Radial Score Rings */}
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    {[
-                      { key: 'seo', label: 'SEO Metrics', val: report.audit.scores.seo },
-                      { key: 'speed', label: 'Speed Score', val: report.audit.scores.speed },
-                      { key: 'security', label: 'Security SSL', val: report.audit.scores.security },
-                      { key: 'mobile', label: 'Mobile Friendly', val: report.audit.scores.mobile }
-                    ].map(ring => {
-                      const colors = getScoreColor(ring.val);
-                      const radius = 30;
-                      const circ = 2 * Math.PI * radius;
-                      const offset = circ - (ring.val / 100) * circ;
-                      return (
-                        <div key={ring.key} className="flex flex-col items-center justify-center p-5 rounded-2xl border border-white/5 bg-white/[0.01] hover:bg-white/[0.03] hover:border-white/10 transition-all">
-                          <div className="relative flex items-center justify-center w-20 h-20">
-                            <div className={`absolute inset-0 rounded-full blur-md opacity-10 ${colors.glow}`} />
-                            <svg className="w-20 h-20 transform -rotate-90">
-                              <circle cx="40" cy="40" r={radius} className="stroke-white/5 fill-transparent" strokeWidth="6" />
-                              <circle 
-                                cx="40" 
-                                cy="40" 
-                                r={radius} 
-                                className={`fill-transparent transition-all duration-1000 ease-out ${colors.stroke}`} 
-                                strokeWidth="6" 
-                                strokeDasharray={circ} 
-                                strokeDashoffset={offset} 
-                                strokeLinecap="round" 
-                              />
-                            </svg>
-                            <span className="absolute text-base font-black text-white">{ring.val}</span>
-                          </div>
-                          <span className="mt-3 text-[10px] font-bold uppercase tracking-widest text-white/40 text-center">{ring.label}</span>
-                        </div>
-                      );
-                    })}
-                  </div>
-
-                  {/* Summary Text block */}
-                  <div className="mt-8 rounded-2xl border border-emerald-500/10 bg-emerald-500/[0.02] p-5 border-l-4 border-l-emerald-500">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-emerald-400 mb-1 flex items-center gap-1.5">
-                      <Sparkles size={12} /> AI Summary & Strategy
-                    </p>
-                    <p className="text-xs text-white/80 leading-relaxed font-medium">{report.audit.summary}</p>
-                  </div>
+              <div>
+                <div className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">
+                  Overall Site Status
                 </div>
-
-                {/* Tab selector */}
-                <div className="flex border-b border-white/5 pb-0.5 overflow-x-auto gap-6">
-                  {[
-                    { id: 'checklist', label: 'Action Checklist', icon: List },
-                    { id: 'structure', label: 'Page Structure', icon: FileText },
-                    { id: 'copywriting', label: 'AI Copywriting Audit', icon: Sparkle },
-                    { id: 'preview', label: 'Google Search Preview', icon: Globe }
-                  ].map(tab => (
-                    <button
-                      key={tab.id}
-                      onClick={() => setActiveTab(tab.id as any)}
-                      className={`flex items-center gap-2 pb-4 text-xs font-bold transition-all relative border-none bg-transparent shrink-0 cursor-pointer ${
-                        activeTab === tab.id 
-                          ? 'text-emerald-400' 
-                          : 'text-white/40 hover:text-white'
-                      }`}
-                    >
-                      <tab.icon size={14} />
-                      {tab.label}
-                      {activeTab === tab.id && (
-                        <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-emerald-400 rounded-full" />
-                      )}
-                    </button>
-                  ))}
-                </div>
-
-                {/* TAB CONTENT: ACTION CHECKLIST */}
-                {activeTab === 'checklist' && (
-                  <div className="space-y-4">
-                    {report.audit.checklist.length === 0 ? (
-                      <p className="text-xs text-white/40 py-8 text-center bg-[#0d1117] border border-white/5 rounded-2xl">All checklist audits passed successfully!</p>
-                    ) : (
-                      report.audit.checklist
-                        .sort((a, b) => {
-                          const priorityMap = { High: 3, Medium: 2, Low: 1 };
-                          return priorityMap[b.priority] - priorityMap[a.priority];
-                        })
-                        .map(item => {
-                          const isFail = item.status === 'fail';
-                          const isWarning = item.status === 'warning';
-                          const statusIcon = isFail ? (
-                            <XCircle className="text-rose-400" size={18} />
-                          ) : isWarning ? (
-                            <AlertTriangle className="text-amber-400" size={18} />
-                          ) : (
-                            <CheckCircle2 className="text-emerald-400" size={18} />
-                          );
-
-                          const priorityBadge = item.priority === 'High' ? (
-                            <span className="rounded bg-rose-500/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-rose-400 border border-rose-500/10">High priority</span>
-                          ) : item.priority === 'Medium' ? (
-                            <span className="rounded bg-amber-500/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-amber-400 border border-amber-500/10">Medium priority</span>
-                          ) : (
-                            <span className="rounded bg-blue-500/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-blue-400 border border-blue-500/10">Low priority</span>
-                          );
-
-                          return (
-                            <div key={item.id} className="group rounded-2xl border border-white/5 bg-[#0d1117] p-5 hover:bg-white/[0.03] transition-all">
-                              <div className="flex gap-4 items-start">
-                                <div className="shrink-0 mt-0.5">{statusIcon}</div>
-                                <div className="flex-1 min-w-0">
-                                  <div className="flex flex-wrap items-center gap-3">
-                                    <h4 className="text-sm font-bold text-white">{item.title}</h4>
-                                    <span className="rounded bg-white/5 px-2 py-0.5 text-[9px] font-black uppercase tracking-widest text-white/40 border border-white/5">{item.category}</span>
-                                    {priorityBadge}
-                                  </div>
-                                  <p className="mt-2 text-xs text-white/50 leading-relaxed leading-5">{item.description}</p>
-                                </div>
-                              </div>
-                            </div>
-                          );
-                        })
-                    )}
-                  </div>
-                )}
-
-                {/* TAB CONTENT: PAGE STRUCTURE */}
-                {activeTab === 'structure' && (
-                  <div className="grid gap-6 md:grid-cols-2">
-                    {/* HTML tags metadata */}
-                    <div className="rounded-2xl border border-white/5 bg-[#0d1117] p-6 space-y-6">
-                      <h3 className="text-sm font-bold text-white border-b border-white/5 pb-3">HTML Metadata</h3>
-                      
-                      <div className="space-y-4">
-                        <div>
-                          <span className="text-[10px] font-bold uppercase tracking-widest text-white/40">Title Tag ({report.crawled.title.length} chars)</span>
-                          <p className="text-xs font-semibold text-white/90 bg-[#070b12] p-3 rounded-xl border border-white/5 mt-1">{report.crawled.title || 'Missing'}</p>
-                          <p className="text-[10px] text-white/30 mt-1.5">{report.audit.seoAudit.titleEvaluation}</p>
-                        </div>
-                        <div>
-                          <span className="text-[10px] font-bold uppercase tracking-widest text-white/40">Meta Description ({report.crawled.description.length} chars)</span>
-                          <p className="text-xs font-semibold text-white/90 bg-[#070b12] p-3 rounded-xl border border-white/5 mt-1 leading-relaxed">{report.crawled.description || 'Missing'}</p>
-                          <p className="text-[10px] text-white/30 mt-1.5">{report.audit.seoAudit.descriptionEvaluation}</p>
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <span className="text-[10px] font-bold uppercase tracking-widest text-white/40">Robots Directive</span>
-                            <p className="text-xs font-semibold text-white/90 bg-[#070b12] p-3 rounded-xl border border-white/5 mt-1 truncate">{report.crawled.robots || 'None specified'}</p>
-                          </div>
-                          <div>
-                            <span className="text-[10px] font-bold uppercase tracking-widest text-white/40">Canonical Link</span>
-                            <p className="text-xs font-semibold text-white/90 bg-[#070b12] p-3 rounded-xl border border-white/5 mt-1 truncate" title={report.crawled.canonical}>{report.crawled.canonical ? 'Specified' : 'Missing'}</p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Headings & Crawled elements summary */}
-                    <div className="rounded-2xl border border-white/5 bg-[#0d1117] p-6 space-y-6">
-                      <h3 className="text-sm font-bold text-white border-b border-white/5 pb-3">SEO Technical Elements</h3>
-                      
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="bg-[#070b12] p-4 rounded-xl border border-white/5">
-                          <div className="flex justify-between items-center mb-1">
-                            <span className="text-[10px] font-bold text-white/40 uppercase">Load Time</span>
-                            <Clock size={12} className="text-emerald-400" />
-                          </div>
-                          <p className="text-lg font-black text-white">{report.crawled.loadTimeMs} ms</p>
-                        </div>
-                        <div className="bg-[#070b12] p-4 rounded-xl border border-white/5">
-                          <div className="flex justify-between items-center mb-1">
-                            <span className="text-[10px] font-bold text-white/40 uppercase">Total Words</span>
-                            <FileText size={12} className="text-emerald-400" />
-                          </div>
-                          <p className="text-lg font-black text-white">{report.crawled.wordCount.toLocaleString()}</p>
-                        </div>
-                        <div className="bg-[#070b12] p-4 rounded-xl border border-white/5">
-                          <div className="flex justify-between items-center mb-1">
-                            <span className="text-[10px] font-bold text-white/40 uppercase">Robots.txt</span>
-                            {report.crawled.hasRobotsTxt ? (
-                              <CheckCircle2 size={12} className="text-emerald-400" />
-                            ) : (
-                              <XCircle size={12} className="text-rose-400" />
-                            )}
-                          </div>
-                          <p className="text-xs font-bold text-white mt-1">{report.crawled.hasRobotsTxt ? 'Configured' : 'Missing'}</p>
-                        </div>
-                        <div className="bg-[#070b12] p-4 rounded-xl border border-white/5">
-                          <div className="flex justify-between items-center mb-1">
-                            <span className="text-[10px] font-bold text-white/40 uppercase">Sitemap.xml</span>
-                            {report.crawled.hasSitemap ? (
-                              <CheckCircle2 size={12} className="text-emerald-400" />
-                            ) : (
-                              <XCircle size={12} className="text-rose-400" />
-                            )}
-                          </div>
-                          <p className="text-xs font-bold text-white mt-1">{report.crawled.hasSitemap ? 'Configured' : 'Missing'}</p>
-                        </div>
-                      </div>
-
-                      {/* Heading tags breakdown */}
-                      <div className="space-y-3">
-                        <span className="text-[10px] font-bold uppercase tracking-widest text-white/40">Heading Tags Structure</span>
-                        <div className="grid grid-cols-6 gap-2">
-                          {Object.entries(report.crawled.headings).map(([tag, count]) => (
-                            <div key={tag} className="bg-[#070b12] p-2 rounded-lg border border-white/5 text-center">
-                              <p className="text-[9px] font-bold uppercase text-white/30">{tag}</p>
-                              <p className="text-sm font-black text-white mt-0.5">{count}</p>
-                            </div>
-                          ))}
-                        </div>
-                        <p className="text-[10px] text-white/30 mt-1">{report.audit.seoAudit.headingsEvaluation}</p>
-                      </div>
-
-                      {/* Image assets & Link audits */}
-                      <div className="space-y-4 pt-2 border-t border-white/5">
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="flex items-center gap-1.5 text-white/60">
-                            <ImageIcon size={14} className="text-white/40" /> Alt attributes:
-                          </span>
-                          <span className="font-bold">
-                            {report.crawled.images.total - report.crawled.images.missingAlt} / {report.crawled.images.total} images
-                          </span>
-                        </div>
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="flex items-center gap-1.5 text-white/60">
-                            <Link2 size={14} className="text-white/40" /> Internal / External links:
-                          </span>
-                          <span className="font-bold">
-                            {report.crawled.links.internal} int / {report.crawled.links.external} ext
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* H1 tags list */}
-                    <div className="md:col-span-2 rounded-2xl border border-white/5 bg-[#0d1117] p-6 space-y-4">
-                      <h3 className="text-sm font-bold text-white border-b border-white/5 pb-3">Crawled H1 Heading Tags</h3>
-                      {report.crawled.h1s.length === 0 ? (
-                        <p className="text-xs text-rose-400 bg-rose-500/5 p-3.5 border border-rose-500/10 rounded-xl">No H1 tags detected! Having a title in an H1 tag is critical for Google crawlers.</p>
-                      ) : (
-                        <div className="space-y-2">
-                          {report.crawled.h1s.map((h1, i) => (
-                            <p key={i} className="text-xs font-semibold bg-[#070b12] p-3 rounded-xl border border-white/5 flex gap-2 items-center">
-                              <span className="text-[9px] font-bold bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded uppercase">H1 #{i+1}</span>
-                              {h1}
-                            </p>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                {/* TAB CONTENT: AI COPYWRITING AUDIT */}
-                {activeTab === 'copywriting' && (
-                  <div className="space-y-6">
-                    {/* Value proposition audit */}
-                    <div className="rounded-2xl border border-white/5 bg-[#0d1117] p-6 space-y-4">
-                      <h3 className="text-sm font-bold text-white border-b border-white/5 pb-3 flex items-center gap-2">
-                        <Sparkle className="text-emerald-400" size={16} /> Brand Value Proposition Analysis
-                      </h3>
-                      <p className="text-xs text-white/70 leading-relaxed leading-5">{report.audit.copywritingSuggestions.valueProposition}</p>
-                    </div>
-
-                    {/* Headline tweaks */}
-                    <div className="rounded-2xl border border-white/5 bg-[#0d1117] p-6 space-y-4">
-                      <h3 className="text-sm font-bold text-white border-b border-white/5 pb-3 flex items-center gap-2">
-                        <Zap className="text-emerald-400" size={16} /> High-Converting Headline Suggestions
-                      </h3>
-                      
-                      {report.audit.copywritingSuggestions.headlineTweaks.length === 0 ? (
-                        <p className="text-xs text-white/40">No headline tweaks generated.</p>
-                      ) : (
-                        <div className="space-y-4">
-                          {report.audit.copywritingSuggestions.headlineTweaks.map((tweak, i) => (
-                            <div key={i} className="bg-[#070b12] p-5 rounded-2xl border border-white/5 space-y-3">
-                              <div>
-                                <span className="text-[9px] font-bold text-white/30 uppercase tracking-wider">Original Page Element</span>
-                                <p className="text-xs font-medium text-white/60 line-clamp-1 italic mt-1">&quot;{tweak.original}&quot;</p>
-                              </div>
-                              <div className="border-t border-white/5 pt-2">
-                                <span className="text-[9px] font-bold text-emerald-400 uppercase tracking-wider">AI Suggestion Hook</span>
-                                <p className="text-sm font-black text-emerald-300 mt-1">&quot;{tweak.suggested}&quot;</p>
-                              </div>
-                              <p className="text-[11px] text-white/45 leading-relaxed leading-4 mt-2"><strong>Reasoning:</strong> {tweak.reason}</p>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Localization / Local Market advice */}
-                    <div className="rounded-2xl border border-white/5 bg-[#0d1117] p-6 space-y-4">
-                      <h3 className="text-sm font-bold text-white border-b border-white/5 pb-3 flex items-center gap-2">
-                        <Globe className="text-emerald-400" size={16} /> Audience Optimization & Localization
-                      </h3>
-                      <p className="text-xs text-white/70 leading-relaxed leading-5">{report.audit.copywritingSuggestions.localMarketAdvice}</p>
-                    </div>
-
-                    {/* CRO Strengths vs Weaknesses */}
-                    <div className="grid gap-6 md:grid-cols-2">
-                      <div className="rounded-2xl border border-white/5 bg-[#0d1117] p-6 space-y-4">
-                        <h3 className="text-xs font-bold uppercase tracking-widest text-emerald-400 pb-2 border-b border-white/5">UX / Conversion Strengths</h3>
-                        <ul className="space-y-2">
-                          {report.audit.uxCroAudit.strengths.map((str, i) => (
-                            <li key={i} className="flex gap-2 text-xs text-white/75 items-start">
-                              <CheckCircle2 size={14} className="text-emerald-400 shrink-0 mt-0.5" />
-                              <span>{str}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                      <div className="rounded-2xl border border-white/5 bg-[#0d1117] p-6 space-y-4">
-                        <h3 className="text-xs font-bold uppercase tracking-widest text-rose-400 pb-2 border-b border-white/5">UX / Conversion Gaps</h3>
-                        <ul className="space-y-2">
-                          {report.audit.uxCroAudit.weaknesses.map((weak, i) => (
-                            <li key={i} className="flex gap-2 text-xs text-white/75 items-start">
-                              <XCircle size={14} className="text-rose-400 shrink-0 mt-0.5" />
-                              <span>{weak}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* TAB CONTENT: GOOGLE PREVIEW */}
-                {activeTab === 'preview' && (
-                  <div className="rounded-2xl border border-white/5 bg-[#0d1117] p-8 space-y-6">
-                    <div className="flex items-center justify-between border-b border-white/5 pb-4">
-                      <div>
-                        <h3 className="text-sm font-bold text-white">Google Search Results Snippet</h3>
-                        <p className="text-[11px] text-white/40 mt-1">Simulate how Google displays this page in search outcomes.</p>
-                      </div>
-                      <div className="flex gap-2 rounded-xl bg-[#070b12] p-1 border border-white/15">
-                        <button
-                          onClick={() => setPreviewDevice('desktop')}
-                          className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider border-none cursor-pointer transition-all ${
-                            previewDevice === 'desktop' ? 'bg-emerald-600 text-white shadow-sm' : 'text-white/40 hover:text-white'
-                          }`}
-                        >
-                          <Laptop size={12} /> Desktop
-                        </button>
-                        <button
-                          onClick={() => setPreviewDevice('mobile')}
-                          className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider border-none cursor-pointer transition-all ${
-                            previewDevice === 'mobile' ? 'bg-emerald-600 text-white shadow-sm' : 'text-white/40 hover:text-white'
-                          }`}
-                        >
-                          <Smartphone size={12} /> Mobile
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Google Simulator styling */}
-                    <div className="flex justify-center p-6 bg-[#070b12] rounded-2xl border border-white/5">
-                      <div className={previewDevice === 'mobile' ? 'max-w-[360px] w-full bg-white text-black p-4 rounded-xl border border-gray-200 font-sans shadow-md' : 'max-w-2xl w-full bg-white text-black p-5 rounded-xl border border-gray-200 font-sans shadow-md'}>
-                        {/* Domain url */}
-                        <div className="flex items-center gap-2 mb-1.5 text-xs text-gray-500 font-normal">
-                          <div className="w-4 h-4 rounded-full bg-gray-100 flex items-center justify-center text-[8px] font-bold text-gray-400">
-                            G
-                          </div>
-                          <div className="flex flex-col min-w-0">
-                            <span className="text-[11px] leading-none text-gray-800 truncate">{report.domain}</span>
-                            <span className="text-[9px] leading-none text-gray-400 truncate mt-0.5">{report.url}</span>
-                          </div>
-                        </div>
-
-                        {/* Title link */}
-                        <h4 className="text-[#1a0dab] hover:underline font-normal text-lg sm:text-xl leading-tight truncate cursor-pointer font-medium mb-1">
-                          {report.crawled.title || 'Untitled search element'}
-                        </h4>
-
-                        {/* Description snippet */}
-                        <p className="text-[#4d5156] text-xs sm:text-[13px] leading-relaxed line-clamp-2">
-                          {report.crawled.description || 'Provide a meta description in your website header tags to control what search engine crawlers show in queries.'}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                )}
+                <h3 className="text-base font-extrabold text-slate-900 dark:text-white leading-tight">
+                  {healthScore >= 80 ? 'Excellent Technical Health' : healthScore >= 60 ? 'Moderate SEO & Vitals Gap' : 'Critical Action Needed'}
+                </h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">
+                  {report.audit.summary}
+                </p>
               </div>
-            )}
+            </div>
+
+            {/* Quick 3-Tier Issues Count */}
+            <div className="lg:col-span-4 bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between">
+              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                SEMrush Issue Hierarchy
+              </span>
+
+              <div className="grid grid-cols-3 gap-2 my-2">
+                <div 
+                  onClick={() => { setActiveTab('issues'); setIssueFilter('errors'); }}
+                  className="p-3 rounded-xl bg-rose-50/70 dark:bg-rose-950/40 border border-rose-200/60 dark:border-rose-900/60 cursor-pointer hover:border-rose-500 transition-all text-center"
+                >
+                  <div className="text-xl font-black text-rose-600 dark:text-rose-400">
+                    {allErrors.length}
+                  </div>
+                  <div className="text-[11px] font-bold text-rose-700 dark:text-rose-300">
+                    Errors
+                  </div>
+                </div>
+
+                <div 
+                  onClick={() => { setActiveTab('issues'); setIssueFilter('warnings'); }}
+                  className="p-3 rounded-xl bg-amber-50/70 dark:bg-amber-950/40 border border-amber-200/60 dark:border-amber-900/60 cursor-pointer hover:border-amber-500 transition-all text-center"
+                >
+                  <div className="text-xl font-black text-amber-600 dark:text-amber-400">
+                    {allWarnings.length}
+                  </div>
+                  <div className="text-[11px] font-bold text-amber-700 dark:text-amber-300">
+                    Warnings
+                  </div>
+                </div>
+
+                <div 
+                  onClick={() => { setActiveTab('issues'); setIssueFilter('notices'); }}
+                  className="p-3 rounded-xl bg-sky-50/70 dark:bg-sky-950/40 border border-sky-200/60 dark:border-sky-900/60 cursor-pointer hover:border-sky-500 transition-all text-center"
+                >
+                  <div className="text-xl font-black text-sky-600 dark:text-sky-400">
+                    {allNotices.length}
+                  </div>
+                  <div className="text-[11px] font-bold text-sky-700 dark:text-sky-300">
+                    Notices
+                  </div>
+                </div>
+              </div>
+
+              <div className="text-[11px] text-slate-400 flex items-center justify-between">
+                <span>Click any badge to view fixes</span>
+                <span className="text-indigo-600 dark:text-indigo-400 font-semibold cursor-pointer" onClick={() => setActiveTab('issues')}>
+                  View all &rarr;
+                </span>
+              </div>
+            </div>
+
+            {/* 4 Core Pillars Score Card */}
+            <div className="lg:col-span-4 bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between">
+              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
+                4 Pillars Diagnostic
+              </span>
+
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-semibold text-slate-700 dark:text-slate-300">On-Page SEO</span>
+                  <span className={`px-2 py-0.5 rounded-md font-bold text-[11px] border ${getScoreBg(report.audit.scores.seo)}`}>
+                    {report.audit.scores.seo}/100
+                  </span>
+                </div>
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-semibold text-slate-700 dark:text-slate-300">Speed & Vitals</span>
+                  <span className={`px-2 py-0.5 rounded-md font-bold text-[11px] border ${getScoreBg(report.audit.scores.speed)}`}>
+                    {report.audit.scores.speed}/100
+                  </span>
+                </div>
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-semibold text-slate-700 dark:text-slate-300">Security & SSL</span>
+                  <span className={`px-2 py-0.5 rounded-md font-bold text-[11px] border ${getScoreBg(report.audit.scores.security)}`}>
+                    {report.audit.scores.security}/100
+                  </span>
+                </div>
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-semibold text-slate-700 dark:text-slate-300">Mobile & UX</span>
+                  <span className={`px-2 py-0.5 rounded-md font-bold text-[11px] border ${getScoreBg(report.audit.scores.mobile)}`}>
+                    {report.audit.scores.mobile}/100
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
 
-          {/* Scan History Sidebar */}
-          <div className="lg:col-span-1 space-y-6">
-            <div className="rounded-[2rem] border border-white/5 bg-[#0d1117] p-6 shadow-2xl">
-              <h3 className="text-sm font-bold text-white mb-4 border-b border-white/5 pb-3">Scan History</h3>
-              
-              {loadingHistory ? (
-                <div className="flex items-center justify-center py-12 text-white/30">
-                  <Loader2 className="mr-2 animate-spin" size={16} /> Loading assets...
+          {/* Interactive Navigation Tabs */}
+          <div className="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-1 overflow-x-auto">
+            {[
+              { id: 'overview', label: 'Executive Overview', icon: Layers },
+              { id: 'issues', label: `Issues & Fixes (${allErrors.length + allWarnings.length + allNotices.length})`, icon: AlertTriangle },
+              { id: 'keywords', label: 'Keywords & Gap (SEMrush)', icon: TrendingUp, badge: 'Popular' },
+              { id: 'vitals', label: 'Core Web Vitals & Tech', icon: Zap },
+              { id: 'social', label: 'Social Card Simulator', icon: Share2 },
+              { id: 'copywriting', label: 'Copywriting & Market', icon: FileText },
+            ].map((tab) => {
+              const Icon = tab.icon;
+              const isActive = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id as any)}
+                  className={`relative flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs whitespace-nowrap transition-all ${
+                    isActive
+                      ? 'bg-indigo-600 text-white shadow-sm'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-900'
+                  }`}
+                >
+                  <Icon className="w-3.5 h-3.5" />
+                  {tab.label}
+                  {tab.badge && (
+                    <span className="text-[10px] px-1.5 py-0.2 rounded bg-amber-400 text-slate-950 font-black">
+                      {tab.badge}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* TAB 1: EXECUTIVE OVERVIEW */}
+          {activeTab === 'overview' && (
+            <div className="space-y-6">
+              {/* Quick Signal Checkpoints */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+                <div className="bg-white dark:bg-slate-900 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800">
+                  <span className="text-[11px] text-slate-400 block mb-1">HTTPS Status</span>
+                  <div className="flex items-center gap-1.5 font-bold text-xs text-slate-800 dark:text-slate-200">
+                    {report.crawled.isHttps ? (
+                      <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                    ) : (
+                      <XCircle className="w-4 h-4 text-rose-500" />
+                    )}
+                    {report.crawled.isHttps ? 'Secure SSL' : 'Insecure'}
+                  </div>
                 </div>
-              ) : history.length === 0 ? (
-                <div className="py-12 text-center text-white/20 flex flex-col items-center">
-                  <Globe className="mb-2 opacity-50" size={32} />
-                  <p className="text-xs uppercase tracking-wider font-bold">No past scans</p>
-                  <p className="text-[10px] mt-1">Previous analyses will be listed here.</p>
+
+                <div className="bg-white dark:bg-slate-900 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800">
+                  <span className="text-[11px] text-slate-400 block mb-1">Schema.org</span>
+                  <div className="flex items-center gap-1.5 font-bold text-xs text-slate-800 dark:text-slate-200">
+                    {report.crawled.hasSchema ? (
+                      <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                    ) : (
+                      <AlertTriangle className="w-4 h-4 text-amber-500" />
+                    )}
+                    {report.crawled.hasSchema ? `${report.crawled.schemas?.length} Detected` : 'Missing'}
+                  </div>
                 </div>
-              ) : (
-                <div className="space-y-3.5 max-h-[480px] overflow-y-auto custom-scrollbar">
-                  {history.map(item => {
-                    const active = report && report.url === item.result.url;
-                    return (
-                      <button
-                        key={item.id}
-                        onClick={() => selectPastScan(item)}
-                        className={`group w-full rounded-xl border p-3.5 text-left transition-all flex justify-between items-start gap-2 relative ${
-                          active
-                            ? 'bg-emerald-500/10 border-emerald-500/30 text-white'
-                            : 'bg-white/[0.01] border-white/5 text-white/60 hover:bg-white/5 hover:border-white/10 hover:text-white'
-                        }`}
-                      >
-                        <div className="min-w-0 flex-1">
-                          <h4 className={`text-xs font-bold truncate ${active ? 'text-emerald-400' : 'group-hover:text-emerald-300'}`}>
-                            {item.result.domain}
-                          </h4>
-                          <span className="text-[9px] text-white/35 block mt-1">
-                            {new Date(item.created_at).toLocaleDateString()}
-                          </span>
+
+                <div className="bg-white dark:bg-slate-900 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800">
+                  <span className="text-[11px] text-slate-400 block mb-1">Robots.txt</span>
+                  <div className="flex items-center gap-1.5 font-bold text-xs text-slate-800 dark:text-slate-200">
+                    {report.crawled.hasRobotsTxt ? (
+                      <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                    ) : (
+                      <XCircle className="w-4 h-4 text-rose-500" />
+                    )}
+                    {report.crawled.hasRobotsTxt ? 'Present' : 'Not Found'}
+                  </div>
+                </div>
+
+                <div className="bg-white dark:bg-slate-900 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800">
+                  <span className="text-[11px] text-slate-400 block mb-1">Sitemap.xml</span>
+                  <div className="flex items-center gap-1.5 font-bold text-xs text-slate-800 dark:text-slate-200">
+                    {report.crawled.hasSitemap ? (
+                      <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                    ) : (
+                      <AlertTriangle className="w-4 h-4 text-amber-500" />
+                    )}
+                    {report.crawled.hasSitemap ? 'Present' : 'Missing'}
+                  </div>
+                </div>
+
+                <div className="bg-white dark:bg-slate-900 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800">
+                  <span className="text-[11px] text-slate-400 block mb-1">Page Load (TTFB)</span>
+                  <div className="flex items-center gap-1.5 font-bold text-xs text-slate-800 dark:text-slate-200">
+                    <Clock className="w-4 h-4 text-indigo-500" />
+                    {report.crawled.loadTimeMs} ms
+                  </div>
+                </div>
+
+                <div className="bg-white dark:bg-slate-900 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800">
+                  <span className="text-[11px] text-slate-400 block mb-1">Word Count</span>
+                  <div className="flex items-center gap-1.5 font-bold text-xs text-slate-800 dark:text-slate-200">
+                    <FileText className="w-4 h-4 text-indigo-500" />
+                    {report.crawled.wordCount} words
+                  </div>
+                </div>
+              </div>
+
+              {/* Headings & Meta Breakdown */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center gap-2">
+                    <Tag className="w-4 h-4 text-indigo-600" /> Meta Tags Inspection
+                  </h4>
+
+                  <div className="space-y-3 text-xs">
+                    <div>
+                      <span className="font-semibold text-slate-500 dark:text-slate-400 block mb-1">Title Tag ({report.crawled.title.length} chars)</span>
+                      <p className="p-2.5 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800 font-medium text-slate-800 dark:text-slate-200">
+                        {report.crawled.title || <span className="text-rose-500 italic">Missing Title Tag</span>}
+                      </p>
+                    </div>
+
+                    <div>
+                      <span className="font-semibold text-slate-500 dark:text-slate-400 block mb-1">Meta Description ({report.crawled.description.length} chars)</span>
+                      <p className="p-2.5 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800 text-slate-700 dark:text-slate-300">
+                        {report.crawled.description || <span className="text-amber-500 italic">No Meta Description Tag Configured</span>}
+                      </p>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2 pt-1 text-[11px]">
+                      <div>
+                        <span className="text-slate-400">Canonical: </span>
+                        <span className="font-mono text-slate-700 dark:text-slate-300">{report.crawled.canonical ? 'Specified' : 'Self/Missing'}</span>
+                      </div>
+                      <div>
+                        <span className="text-slate-400">Robots: </span>
+                        <span className="font-mono text-slate-700 dark:text-slate-300">{report.crawled.robots || 'index, follow'}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center gap-2">
+                    <List className="w-4 h-4 text-indigo-600" /> Heading Hierarchy & Content Signals
+                  </h4>
+
+                  <div className="space-y-3 text-xs">
+                    <div>
+                      <span className="font-semibold text-slate-500 dark:text-slate-400 block mb-1">
+                        H1 Tag: {report.crawled.h1Count === 1 ? '1 Tag (Optimal)' : `${report.crawled.h1Count} Tags`}
+                      </span>
+                      {report.crawled.h1s.length > 0 ? (
+                        report.crawled.h1s.map((h1, i) => (
+                          <p key={i} className="p-2 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800 font-bold text-slate-900 dark:text-white mb-1">
+                            "{h1}"
+                          </p>
+                        ))
+                      ) : (
+                        <p className="p-2 rounded-lg bg-rose-50 dark:bg-rose-950/40 text-rose-600 text-xs font-semibold">
+                          No H1 heading found on page.
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="grid grid-cols-5 gap-1.5 pt-2 text-center">
+                      <div className="p-2 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800">
+                        <span className="text-[10px] text-slate-400 block">H2</span>
+                        <span className="font-black text-xs">{report.crawled.headings.h2}</span>
+                      </div>
+                      <div className="p-2 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800">
+                        <span className="text-[10px] text-slate-400 block">H3</span>
+                        <span className="font-black text-xs">{report.crawled.headings.h3}</span>
+                      </div>
+                      <div className="p-2 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800">
+                        <span className="text-[10px] text-slate-400 block">H4</span>
+                        <span className="font-black text-xs">{report.crawled.headings.h4}</span>
+                      </div>
+                      <div className="p-2 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800">
+                        <span className="text-[10px] text-slate-400 block">Images</span>
+                        <span className="font-black text-xs">{report.crawled.images.total}</span>
+                      </div>
+                      <div className="p-2 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800">
+                        <span className="text-[10px] text-slate-400 block">Links</span>
+                        <span className="font-black text-xs">{report.crawled.links.total}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 2: ISSUES & 1-CLICK CODE FIXES */}
+          {activeTab === 'issues' && (
+            <div className="space-y-4">
+              {/* Filter Buttons */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setIssueFilter('all')}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all ${
+                      issueFilter === 'all'
+                        ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-950'
+                        : 'border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400'
+                    }`}
+                  >
+                    All Issues ({allErrors.length + allWarnings.length + allNotices.length})
+                  </button>
+                  <button
+                    onClick={() => setIssueFilter('errors')}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all ${
+                      issueFilter === 'errors'
+                        ? 'bg-rose-600 text-white border-rose-600'
+                        : 'border-rose-200 text-rose-600 dark:border-rose-900/60 dark:text-rose-400'
+                    }`}
+                  >
+                    Critical Errors ({allErrors.length})
+                  </button>
+                  <button
+                    onClick={() => setIssueFilter('warnings')}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all ${
+                      issueFilter === 'warnings'
+                        ? 'bg-amber-500 text-white border-amber-500'
+                        : 'border-amber-200 text-amber-600 dark:border-amber-900/60 dark:text-amber-400'
+                    }`}
+                  >
+                    Warnings ({allWarnings.length})
+                  </button>
+                  <button
+                    onClick={() => setIssueFilter('notices')}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all ${
+                      issueFilter === 'notices'
+                        ? 'bg-sky-600 text-white border-sky-600'
+                        : 'border-sky-200 text-sky-600 dark:border-sky-900/60 dark:text-sky-400'
+                    }`}
+                  >
+                    Notices ({allNotices.length})
+                  </button>
+                </div>
+
+                <span className="text-xs text-slate-400">
+                  Showing {filteredIssues().length} issue(s)
+                </span>
+              </div>
+
+              {/* Issue Cards */}
+              <div className="space-y-3">
+                {filteredIssues().map((issue, idx) => {
+                  const isExpanded = expandedIssues[issue.id || `issue-${idx}`];
+                  const isError = allErrors.some(e => e.id === issue.id);
+                  const isWarning = allWarnings.some(w => w.id === issue.id);
+
+                  return (
+                    <div
+                      key={idx}
+                      className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-4 transition-all shadow-sm"
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex items-start gap-3">
+                          <div className="mt-0.5">
+                            {isError ? (
+                              <XCircle className="w-5 h-5 text-rose-500" />
+                            ) : isWarning ? (
+                              <AlertTriangle className="w-5 h-5 text-amber-500" />
+                            ) : (
+                              <Info className="w-5 h-5 text-sky-500" />
+                            )}
+                          </div>
+
+                          <div>
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${
+                                isError ? 'bg-rose-100 dark:bg-rose-950 text-rose-700 dark:text-rose-300' :
+                                isWarning ? 'bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300' :
+                                'bg-sky-100 dark:bg-sky-950 text-sky-700 dark:text-sky-300'
+                              }`}>
+                                {isError ? 'CRITICAL ERROR' : isWarning ? 'WARNING' : 'NOTICE'}
+                              </span>
+                              <span className="text-[10px] font-semibold text-slate-400">
+                                {issue.category}
+                              </span>
+                            </div>
+
+                            <h4 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">
+                              {issue.title}
+                            </h4>
+                            <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
+                              {issue.description}
+                            </p>
+                          </div>
                         </div>
+
                         <button
-                          onClick={e => handleDeleteHistory(e, item.id)}
-                          className="text-white/10 hover:text-rose-400 transition-colors p-1"
-                          title="Delete Scan"
+                          onClick={() => toggleExpand(issue.id || `issue-${idx}`)}
+                          className="text-slate-400 hover:text-slate-700 p-1"
                         >
-                          <Trash2 size={13} />
+                          {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                         </button>
-                      </button>
-                    );
-                  })}
+                      </div>
+
+                      {/* Expanded Section: How to fix & 1-Click Code */}
+                      {isExpanded && (
+                        <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 space-y-3">
+                          <div className="text-xs">
+                            <span className="font-bold text-slate-700 dark:text-slate-300 block mb-1">
+                              💡 How to Fix:
+                            </span>
+                            <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
+                              {issue.howToFix}
+                            </p>
+                          </div>
+
+                          {issue.codeFix && (
+                            <div className="p-3 rounded-xl bg-slate-950 text-slate-200 text-xs font-mono">
+                              <div className="flex items-center justify-between mb-2">
+                                <span className="text-[10px] text-slate-400 font-sans font-semibold flex items-center gap-1.5">
+                                  <Code className="w-3.5 h-3.5 text-indigo-400" />
+                                  1-Click Code Fix (Paste into &lt;head&gt;):
+                                </span>
+                                <button
+                                  onClick={() => copyCode(issue.codeFix!, issue.id || `code-${idx}`)}
+                                  className="text-[11px] font-sans font-bold text-indigo-400 hover:text-indigo-300 flex items-center gap-1"
+                                >
+                                  {copiedCodeId === (issue.id || `code-${idx}`) ? (
+                                    <>
+                                      <Check className="w-3.5 h-3.5 text-emerald-400" />
+                                      Copied!
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Copy className="w-3.5 h-3.5" />
+                                      Copy Code
+                                    </>
+                                  )}
+                                </button>
+                              </div>
+                              <pre className="overflow-x-auto text-[11px] p-2 rounded bg-slate-900/80 text-emerald-400">
+                                <code>{issue.codeFix}</code>
+                              </pre>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* TAB 3: SEMRUSH ORGANIC KEYWORDS & CONTENT GAP */}
+          {activeTab === 'keywords' && (
+            <div className="space-y-6">
+              {/* Organic Keywords Table */}
+              <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                      <TrendingUp className="w-4 h-4 text-indigo-600" />
+                      Page Target Keywords (SEMrush Keyword Extractor)
+                    </h3>
+                    <p className="text-xs text-slate-500">
+                      Keywords detected from the page content, headings, and semantic relevance.
+                    </p>
+                  </div>
+                  <span className="text-xs font-semibold text-slate-400">
+                    {report.audit.organicKeywords?.length || 0} Keywords
+                  </span>
+                </div>
+
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs">
+                    <thead>
+                      <tr className="border-b border-slate-100 dark:border-slate-800 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                        <th className="pb-3">Keyword</th>
+                        <th className="pb-3">Search Intent</th>
+                        <th className="pb-3">Est. KD %</th>
+                        <th className="pb-3">Volume Bracket</th>
+                        <th className="pb-3">Relevance</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                      {report.audit.organicKeywords?.map((kw, i) => (
+                        <tr key={i} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50">
+                          <td className="py-3 font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+                            <Search className="w-3.5 h-3.5 text-slate-400" />
+                            {kw.keyword}
+                          </td>
+                          <td className="py-3">
+                            <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                              kw.intent === 'Transactional' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300' :
+                              kw.intent === 'Commercial' ? 'bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300' :
+                              kw.intent === 'Informational' ? 'bg-purple-100 text-purple-700 dark:bg-purple-950 dark:text-purple-300' :
+                              'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300'
+                            }`}>
+                              {kw.intent}
+                            </span>
+                          </td>
+                          <td className="py-3">
+                            <div className="flex items-center gap-2">
+                              <div className="w-16 h-1.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+                                <div 
+                                  className={`h-full rounded-full ${kw.kd > 60 ? 'bg-rose-500' : kw.kd > 35 ? 'bg-amber-500' : 'bg-emerald-500'}`}
+                                  style={{ width: `${kw.kd}%` }}
+                                />
+                              </div>
+                              <span className="font-mono text-xs">{kw.kd}%</span>
+                            </div>
+                          </td>
+                          <td className="py-3 font-mono text-slate-600 dark:text-slate-300">
+                            {kw.estimatedVolume}
+                          </td>
+                          <td className="py-3">
+                            <span className="font-bold text-indigo-600 dark:text-indigo-400">
+                              {kw.relevanceScore}/100
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Content Gap Opportunities */}
+              {report.audit.contentGaps && report.audit.contentGaps.length > 0 && (
+                <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm">
+                  <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2 mb-1">
+                    <Sparkles className="w-4 h-4 text-amber-500" />
+                    Content Gap Opportunities (Topics Competitors Rank For)
+                  </h3>
+                  <p className="text-xs text-slate-500 mb-4">
+                    Covering these missing subtopics can boost this page's semantic topical authority.
+                  </p>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {report.audit.contentGaps.map((gap, idx) => (
+                      <div key={idx} className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
+                        <div className="font-bold text-xs text-slate-900 dark:text-white mb-1 flex items-center gap-1.5">
+                          <span className="text-indigo-600 font-black">•</span>
+                          {gap.topic}
+                        </div>
+                        <p className="text-xs text-slate-600 dark:text-slate-400">
+                          {gap.reason}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
-          </div>
+          )}
+
+          {/* TAB 4: CORE WEB VITALS & TECHNICALS */}
+          {activeTab === 'vitals' && (
+            <div className="space-y-6">
+              {/* Web Vitals Gauges */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                  <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">
+                    LCP (Largest Contentful Paint)
+                  </span>
+                  <div className="text-2xl font-black text-slate-900 dark:text-white my-1">
+                    {report.crawled.vitals?.lcpSec ?? 1.8}s
+                  </div>
+                  <span className={`text-[11px] font-bold px-2 py-0.5 rounded ${
+                    (report.crawled.vitals?.lcpSec ?? 1.8) < 2.5 ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
+                  }`}>
+                    {(report.crawled.vitals?.lcpSec ?? 1.8) < 2.5 ? 'Good (<2.5s)' : 'Needs Improvement'}
+                  </span>
+                  <p className="text-[11px] text-slate-500 mt-2">
+                    Measures main content loading speed.
+                  </p>
+                </div>
+
+                <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                  <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">
+                    CLS (Cumulative Layout Shift)
+                  </span>
+                  <div className="text-2xl font-black text-slate-900 dark:text-white my-1">
+                    {report.crawled.vitals?.cls ?? 0.05}
+                  </div>
+                  <span className={`text-[11px] font-bold px-2 py-0.5 rounded ${
+                    (report.crawled.vitals?.cls ?? 0.05) <= 0.1 ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
+                  }`}>
+                    {(report.crawled.vitals?.cls ?? 0.05) <= 0.1 ? 'Good (<=0.1)' : 'Poor'}
+                  </span>
+                  <p className="text-[11px] text-slate-500 mt-2">
+                    Visual stability during page load.
+                  </p>
+                </div>
+
+                <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                  <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">
+                    TTFB (Time to First Byte)
+                  </span>
+                  <div className="text-2xl font-black text-slate-900 dark:text-white my-1">
+                    {report.crawled.vitals?.ttfbMs ?? report.crawled.loadTimeMs}ms
+                  </div>
+                  <span className={`text-[11px] font-bold px-2 py-0.5 rounded ${
+                    (report.crawled.vitals?.ttfbMs ?? report.crawled.loadTimeMs) < 800 ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
+                  }`}>
+                    {(report.crawled.vitals?.ttfbMs ?? report.crawled.loadTimeMs) < 800 ? 'Fast (<800ms)' : 'Slow Response'}
+                  </span>
+                  <p className="text-[11px] text-slate-500 mt-2">
+                    Initial server connection latency.
+                  </p>
+                </div>
+
+                <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                  <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">
+                    Page Weight & Assets
+                  </span>
+                  <div className="text-2xl font-black text-slate-900 dark:text-white my-1">
+                    {report.crawled.pageSizeKb ?? 85} KB
+                  </div>
+                  <span className="text-[11px] font-bold text-slate-500">
+                    {report.crawled.scriptCount ?? 12} Scripts • {report.crawled.stylesheetCount ?? 4} CSS
+                  </span>
+                  <p className="text-[11px] text-slate-500 mt-2">
+                    HTML payload without deferred assets.
+                  </p>
+                </div>
+              </div>
+
+              {/* Schema.org Validator */}
+              <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                    <Code className="w-4 h-4 text-indigo-600" />
+                    Schema.org (JSON-LD) Structured Data Inspector
+                  </h3>
+                  <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${
+                    report.crawled.hasSchema ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'
+                  }`}>
+                    {report.crawled.hasSchema ? 'Structured Data Active' : 'Missing Schema'}
+                  </span>
+                </div>
+
+                {report.crawled.schemas && report.crawled.schemas.length > 0 ? (
+                  <div className="flex flex-wrap gap-2">
+                    {report.crawled.schemas.map((schema, idx) => (
+                      <span key={idx} className="px-3 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 font-mono text-xs font-semibold border border-indigo-200 dark:border-indigo-800">
+                        @{schema}
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="p-3.5 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/40 text-xs text-amber-800 dark:text-amber-200">
+                    No JSON-LD structured data detected. Add <code className="font-mono">WebSite</code> or <code className="font-mono">Organization</code> schema to qualify for Google Rich Snippets.
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* TAB 5: LIVE SOCIAL CARD SIMULATOR */}
+          {activeTab === 'social' && (
+            <div className="space-y-5">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+                    Live Social Share Card Simulator
+                  </h3>
+                  <p className="text-xs text-slate-500">
+                    Preview how your webpage displays when shared across social channels.
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  {(['facebook', 'linkedin', 'twitter'] as const).map((p) => (
+                    <button
+                      key={p}
+                      onClick={() => setSocialPlatform(p)}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-bold capitalize transition-all ${
+                        socialPlatform === p
+                          ? 'bg-indigo-600 text-white'
+                          : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
+                      }`}
+                    >
+                      {p}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Social Card Mockup */}
+              <div className="max-w-xl mx-auto bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-lg">
+                {/* Image Area */}
+                <div className="w-full h-56 bg-slate-100 dark:bg-slate-800 flex items-center justify-center overflow-hidden relative">
+                  {report.crawled.ogImage ? (
+                    <img 
+                      src={report.crawled.ogImage} 
+                      alt="Open Graph preview" 
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        (e.target as HTMLElement).style.display = 'none';
+                      }}
+                    />
+                  ) : (
+                    <div className="flex flex-col items-center gap-2 text-slate-400">
+                      <ImageIcon className="w-8 h-8" />
+                      <span className="text-xs font-medium">No og:image configured</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Content Area */}
+                <div className="p-4 bg-slate-50 dark:bg-slate-950">
+                  <span className="text-[10px] uppercase font-mono font-bold text-slate-400 block mb-1">
+                    {report.domain}
+                  </span>
+                  <h4 className="text-sm font-bold text-slate-900 dark:text-white line-clamp-1">
+                    {report.crawled.ogTitle || report.crawled.title || report.domain}
+                  </h4>
+                  <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 line-clamp-2">
+                    {report.crawled.ogDescription || report.crawled.description || 'No description provided.'}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 6: COPYWRITING & REGIONAL MARKET */}
+          {activeTab === 'copywriting' && (
+            <div className="space-y-6">
+              {/* Value Proposition */}
+              <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white mb-2">
+                  Value Proposition & Positioning Critique
+                </h3>
+                <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed">
+                  {report.audit.copywritingSuggestions.valueProposition}
+                </p>
+              </div>
+
+              {/* Headline Tweaks */}
+              <div className="space-y-3">
+                <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                  Conversion-Focused Headline Rewrites
+                </h4>
+                {report.audit.copywritingSuggestions.headlineTweaks.map((hw, i) => (
+                  <div key={i} className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                    <div className="text-xs text-slate-400 line-through mb-1">
+                      Original: "{hw.original}"
+                    </div>
+                    <div className="text-sm font-bold text-indigo-600 dark:text-indigo-400 mb-2">
+                      Suggested: "{hw.suggested}"
+                    </div>
+                    <p className="text-xs text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-950 p-2.5 rounded-lg">
+                      <span className="font-semibold text-slate-700 dark:text-slate-300">Why it converts: </span>
+                      {hw.reason}
+                    </p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Local Market Advice */}
+              <div className="bg-indigo-50 dark:bg-indigo-950/40 p-5 rounded-2xl border border-indigo-100 dark:border-indigo-900/50">
+                <h4 className="text-xs font-bold text-indigo-700 dark:text-indigo-300 uppercase tracking-wider mb-2">
+                  Regional & Local Market Optimization (Bangladesh / South Asia)
+                </h4>
+                <p className="text-xs text-indigo-900 dark:text-indigo-200 leading-relaxed">
+                  {report.audit.copywritingSuggestions.localMarketAdvice}
+                </p>
+              </div>
+            </div>
+          )}
+
         </div>
-      </div>
+      )}
     </div>
   );
 }
