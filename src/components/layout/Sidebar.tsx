@@ -59,6 +59,7 @@ const menuGroups = [
     title: 'GROWTH SUITE',
     items: [
       { icon: Brain, label: 'Brand Brain', href: '/dashboard/brand' },
+      { icon: Sparkles, label: 'Social Workspace', href: '/dashboard/social-media', tag: 'Hot' },
       { icon: Target, label: 'Strategy Audit', href: '/dashboard/marketing/strategy_audit', tag: 'Core' },
       { icon: Rocket, label: 'Launch Pack', href: '/dashboard/marketing/launch_pack', tag: 'New' },
       { icon: ClipboardList, label: 'Campaign Planner', href: '/dashboard/marketing/campaign_planner' },
