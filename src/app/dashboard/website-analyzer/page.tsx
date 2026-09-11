@@ -37,7 +37,14 @@ import {
   ChevronDown,
   ChevronUp,
   SlidersHorizontal,
-  Info
+  Info,
+  Swords,
+  Network,
+  Download,
+  FileCode,
+  Trophy,
+  ArrowRight,
+  RefreshCw
 } from 'lucide-react';
 import { getSupabaseBrowserClient, isSupabaseConfigured } from '@/lib/supabase';
 import Link from 'next/link';
@@ -63,6 +70,80 @@ interface OrganicKeyword {
 interface ContentGapItem {
   topic: string;
   reason: string;
+}
+
+interface PageAuditSummary {
+  url: string;
+  status: number;
+  title: string;
+  hasH1: boolean;
+  metaDescription: string;
+  loadTimeMs: number;
+  score: number;
+  issues: string[];
+}
+
+interface SitemapScanResult {
+  foundSitemap: boolean;
+  sitemapUrl: string;
+  totalPagesDiscovered: number;
+  sampleSize: number;
+  overallScore: number;
+  totalIssuesCount: number;
+  pages: PageAuditSummary[];
+}
+
+interface CompetitorComparisonResult {
+  target: {
+    url: string;
+    domain: string;
+    loadTimeMs: number;
+    title: string;
+    description: string;
+    h1Count: number;
+    h1Text: string;
+    h2Count: number;
+    h3Count: number;
+    hasSchema: boolean;
+    schemaCount: number;
+    wordCount: number;
+  };
+  competitor: {
+    url: string;
+    domain: string;
+    loadTimeMs: number;
+    title: string;
+    description: string;
+    h1Count: number;
+    h1Text: string;
+    h2Count: number;
+    h3Count: number;
+    hasSchema: boolean;
+    schemaCount: number;
+    wordCount: number;
+  };
+  analysis: {
+    targetHealthScore: number;
+    competitorHealthScore: number;
+    overallVerdict: string;
+    winners: {
+      speed: 'target' | 'competitor' | 'tie';
+      seo: 'target' | 'competitor' | 'tie';
+      content: 'target' | 'competitor' | 'tie';
+      technical: 'target' | 'competitor' | 'tie';
+    };
+    contentGap: Array<{
+      topic: string;
+      competitorAngle: string;
+      actionForTarget: string;
+    }>;
+    outrankBlueprint: Array<{
+      priority: string;
+      title: string;
+      details: string;
+      impact: string;
+    }>;
+  };
 }
 
 interface AuditReport {
@@ -177,6 +258,94 @@ export default function WebsiteAnalyzerPage() {
   const [copiedCodeId, setCopiedCodeId] = useState<string | null>(null);
   const [expandedIssues, setExpandedIssues] = useState<Record<string, boolean>>({});
   const [recentAudits, setRecentAudits] = useState<StoredAsset[]>([]);
+
+  // Mode Switcher: single | compare | sitemap
+  const [auditMode, setAuditMode] = useState<'single' | 'compare' | 'sitemap'>('single');
+
+  // Competitor Comparison state
+  const [competitorUrlInput, setCompetitorUrlInput] = useState('');
+  const [comparing, setComparing] = useState(false);
+  const [comparisonResult, setComparisonResult] = useState<CompetitorComparisonResult | null>(null);
+
+  // Sitemap Deep Scan state
+  const [sitemapScanning, setSitemapScanning] = useState(false);
+  const [sitemapResult, setSitemapResult] = useState<SitemapScanResult | null>(null);
+
+  // Robots.txt generator modal/state
+  const [showRobotsModal, setShowRobotsModal] = useState(false);
+  const [customSitemapPath, setCustomSitemapPath] = useState('');
+  const [disallowedPaths, setDisallowedPaths] = useState('/admin/\n/wp-admin/\n/private/');
+
+  // Historical score delta calculation
+  const getScoreDelta = () => {
+    if (!report || recentAudits.length < 2) return null;
+    const previous = recentAudits.find(a => a.result?.domain === report.domain && a.result?.scannedAt !== report.scannedAt);
+    if (!previous || !previous.result?.audit) return null;
+    const prevScore = previous.result.audit.healthScore ?? 
+      Math.round((previous.result.audit.scores.seo + previous.result.audit.scores.speed + previous.result.audit.scores.security + previous.result.audit.scores.mobile) / 4);
+    const currentScore = report.audit.healthScore ?? 
+      Math.round((report.audit.scores.seo + report.audit.scores.speed + report.audit.scores.security + report.audit.scores.mobile) / 4);
+    return currentScore - prevScore;
+  };
+
+  // Handle Competitor Comparison Scan
+  const handleCompare = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!urlInput.trim() || !competitorUrlInput.trim()) return;
+
+    setComparing(true);
+    setErrorMsg('');
+    setComparisonResult(null);
+
+    try {
+      const res = await fetch('/api/website-audit/compare', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          targetUrl: urlInput.trim(),
+          competitorUrl: competitorUrlInput.trim()
+        })
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Failed to compare competitor.');
+      }
+      setComparisonResult(data.comparison);
+    } catch (err: any) {
+      setErrorMsg(err.message || 'Error occurred during competitor comparison.');
+    } finally {
+      setComparing(false);
+    }
+  };
+
+  // Handle Sitemap Deep Scan
+  const handleSitemapScan = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!urlInput.trim()) return;
+
+    setSitemapScanning(true);
+    setErrorMsg('');
+    setSitemapResult(null);
+
+    try {
+      const res = await fetch('/api/website-audit/sitemap-scan', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: urlInput.trim() })
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Failed to scan sitemap.');
+      }
+      setSitemapResult(data);
+    } catch (err: any) {
+      setErrorMsg(err.message || 'Error occurred during sitemap deep scan.');
+    } finally {
+      setSitemapScanning(false);
+    }
+  };
 
   // Scanning progress simulation
   useEffect(() => {
@@ -329,49 +498,192 @@ export default function WebsiteAnalyzerPage() {
             </p>
           </div>
 
-          {report && (
+          <div className="flex items-center gap-3">
             <button
-              onClick={() => window.print()}
+              onClick={() => setShowRobotsModal(true)}
               className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 hover:border-indigo-500 transition-all shadow-sm"
             >
-              <Printer className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
-              Export Client PDF / Print
+              <FileCode className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+              Robots.txt Generator
             </button>
-          )}
+
+            {report && (
+              <button
+                onClick={() => window.print()}
+                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 hover:border-indigo-500 transition-all shadow-sm"
+              >
+                <Printer className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                Export Client PDF / Print
+              </button>
+            )}
+          </div>
         </div>
 
-        {/* URL Input Form */}
-        <div className="mt-6 bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
-          <form onSubmit={handleScan} className="flex flex-col sm:flex-row gap-3">
-            <div className="relative flex-1">
-              <Globe className="absolute left-3.5 top-3.5 w-4 h-4 text-slate-400" />
-              <input
-                type="text"
-                placeholder="Enter domain or webpage URL (e.g. yourwebsite.com or https://site.com/blog)"
-                value={urlInput}
-                onChange={(e) => setUrlInput(e.target.value)}
-                disabled={scanning}
-                className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
-              />
-            </div>
-            <button
-              type="submit"
-              disabled={scanning || !urlInput.trim()}
-              className="px-6 py-3 rounded-xl font-bold text-xs sm:text-sm bg-indigo-600 hover:bg-indigo-700 text-white transition-all shadow-md shadow-indigo-600/20 flex items-center justify-center gap-2 disabled:opacity-50"
-            >
-              {scanning ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  Auditing Site...
-                </>
-              ) : (
-                <>
-                  <Search className="w-4 h-4" />
-                  Audit Website
-                </>
-              )}
-            </button>
-          </form>
+        {/* Phase 2 Mode Switcher */}
+        <div className="mt-6 flex items-center gap-2 p-1.5 bg-slate-200/70 dark:bg-slate-900/80 rounded-2xl w-fit border border-slate-300/60 dark:border-slate-800 shadow-inner">
+          <button
+            onClick={() => setAuditMode('single')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-xs transition-all ${
+              auditMode === 'single'
+                ? 'bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 shadow-sm'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+            }`}
+          >
+            <Globe className="w-4 h-4" />
+            Single URL Audit
+          </button>
+
+          <button
+            onClick={() => setAuditMode('compare')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-xs transition-all ${
+              auditMode === 'compare'
+                ? 'bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 shadow-sm'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+            }`}
+          >
+            <Swords className="w-4 h-4 text-rose-500" />
+            🥊 Competitor Head-to-Head
+            <span className="px-1.5 py-0.5 rounded text-[10px] bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 font-extrabold">
+              Battle
+            </span>
+          </button>
+
+          <button
+            onClick={() => setAuditMode('sitemap')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-xs transition-all ${
+              auditMode === 'sitemap'
+                ? 'bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 shadow-sm'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+            }`}
+          >
+            <Network className="w-4 h-4 text-sky-500" />
+            🗺️ Sitemap Deep Scan
+            <span className="px-1.5 py-0.5 rounded text-[10px] bg-sky-100 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 font-extrabold">
+              Multi-Page
+            </span>
+          </button>
+        </div>
+
+        {/* Input Form Containers */}
+        <div className="mt-4 bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+          {/* MODE 1: SINGLE URL AUDIT */}
+          {auditMode === 'single' && (
+            <form onSubmit={handleScan} className="flex flex-col sm:flex-row gap-3">
+              <div className="relative flex-1">
+                <Globe className="absolute left-3.5 top-3.5 w-4 h-4 text-slate-400" />
+                <input
+                  type="text"
+                  placeholder="Enter domain or webpage URL (e.g. yourwebsite.com or https://site.com/blog)"
+                  value={urlInput}
+                  onChange={(e) => setUrlInput(e.target.value)}
+                  disabled={scanning}
+                  className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={scanning || !urlInput.trim()}
+                className="px-6 py-3 rounded-xl font-bold text-xs sm:text-sm bg-indigo-600 hover:bg-indigo-700 text-white transition-all shadow-md shadow-indigo-600/20 flex items-center justify-center gap-2 disabled:opacity-50"
+              >
+                {scanning ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Auditing Site...
+                  </>
+                ) : (
+                  <>
+                    <Search className="w-4 h-4" />
+                    Audit Website
+                  </>
+                )}
+              </button>
+            </form>
+          )}
+
+          {/* MODE 2: COMPETITOR HEAD-TO-HEAD */}
+          {auditMode === 'compare' && (
+            <form onSubmit={handleCompare} className="flex flex-col md:flex-row items-center gap-3">
+              <div className="relative flex-1 w-full">
+                <Globe className="absolute left-3.5 top-3.5 w-4 h-4 text-indigo-500" />
+                <input
+                  type="text"
+                  placeholder="Your Website URL (e.g. yourbrand.com)"
+                  value={urlInput}
+                  onChange={(e) => setUrlInput(e.target.value)}
+                  disabled={comparing}
+                  className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                />
+              </div>
+
+              <div className="hidden md:flex items-center justify-center w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-xs font-black text-slate-400">
+                VS
+              </div>
+
+              <div className="relative flex-1 w-full">
+                <Swords className="absolute left-3.5 top-3.5 w-4 h-4 text-rose-500" />
+                <input
+                  type="text"
+                  placeholder="Competitor URL (e.g. competitor.com)"
+                  value={competitorUrlInput}
+                  onChange={(e) => setCompetitorUrlInput(e.target.value)}
+                  disabled={comparing}
+                  className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500"
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={comparing || !urlInput.trim() || !competitorUrlInput.trim()}
+                className="w-full md:w-auto px-6 py-3 rounded-xl font-bold text-xs sm:text-sm bg-gradient-to-r from-indigo-600 to-rose-600 hover:from-indigo-700 hover:to-rose-700 text-white transition-all shadow-md flex items-center justify-center gap-2 disabled:opacity-50"
+              >
+                {comparing ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Simulating Battle...
+                  </>
+                ) : (
+                  <>
+                    <Swords className="w-4 h-4" />
+                    Launch Battle
+                  </>
+                )}
+              </button>
+            </form>
+          )}
+
+          {/* MODE 3: SITEMAP DEEP SCAN */}
+          {auditMode === 'sitemap' && (
+            <form onSubmit={handleSitemapScan} className="flex flex-col sm:flex-row gap-3">
+              <div className="relative flex-1">
+                <Network className="absolute left-3.5 top-3.5 w-4 h-4 text-sky-500" />
+                <input
+                  type="text"
+                  placeholder="Enter domain for full sitemap crawl (e.g. yourwebsite.com)"
+                  value={urlInput}
+                  onChange={(e) => setUrlInput(e.target.value)}
+                  disabled={sitemapScanning}
+                  className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500"
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={sitemapScanning || !urlInput.trim()}
+                className="px-6 py-3 rounded-xl font-bold text-xs sm:text-sm bg-sky-600 hover:bg-sky-700 text-white transition-all shadow-md shadow-sky-600/20 flex items-center justify-center gap-2 disabled:opacity-50"
+              >
+                {sitemapScanning ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Crawling Sitemap...
+                  </>
+                ) : (
+                  <>
+                    <Network className="w-4 h-4" />
+                    Deep Scan Sitemap
+                  </>
+                )}
+              </button>
+            </form>
+          )}
 
           {/* Scanning Progress Timeline */}
           {scanning && (
@@ -440,8 +752,22 @@ export default function WebsiteAnalyzerPage() {
               </div>
 
               <div>
-                <div className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">
-                  Overall Site Status
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                    Overall Site Status
+                  </span>
+                  {(() => {
+                    const delta = getScoreDelta();
+                    if (delta === null) return null;
+                    const isPositive = delta >= 0;
+                    return (
+                      <span className={`inline-flex items-center text-[10px] font-extrabold px-1.5 py-0.5 rounded ${
+                        isPositive ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400' : 'bg-rose-100 text-rose-700 dark:bg-rose-950/60 dark:text-rose-400'
+                      }`}>
+                        {isPositive ? `+${delta}%` : `${delta}%`} vs prev scan
+                      </span>
+                    );
+                  })()}
                 </div>
                 <h3 className="text-base font-extrabold text-slate-900 dark:text-white leading-tight">
                   {healthScore >= 80 ? 'Excellent Technical Health' : healthScore >= 60 ? 'Moderate SEO & Vitals Gap' : 'Critical Action Needed'}
@@ -1206,6 +1532,345 @@ export default function WebsiteAnalyzerPage() {
             </div>
           )}
 
+        </div>
+      )}
+
+      {/* MODE 2 VIEW: COMPETITOR HEAD-TO-HEAD BATTLE BOARD */}
+      {auditMode === 'compare' && comparisonResult && (
+        <div className="max-w-7xl mx-auto space-y-6 mt-6">
+          {/* Battle Header */}
+          <div className="bg-gradient-to-r from-indigo-900 via-slate-900 to-rose-950 p-6 rounded-3xl border border-slate-800 text-white shadow-xl">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div>
+                <span className="px-3 py-1 rounded-full text-xs font-black bg-rose-500 text-white uppercase tracking-wider">
+                  🥊 SEO Battle Arena
+                </span>
+                <h2 className="text-2xl font-black mt-2">
+                  {comparisonResult.target.domain} <span className="text-slate-400 font-light">vs</span> {comparisonResult.competitor.domain}
+                </h2>
+                <p className="text-xs text-slate-300 mt-1 max-w-2xl">
+                  {comparisonResult.analysis.overallVerdict}
+                </p>
+              </div>
+
+              {/* Head to Head Health Dials */}
+              <div className="flex items-center gap-6">
+                <div className="text-center">
+                  <div className="text-xs font-bold text-indigo-300 mb-1 truncate max-w-[120px]">
+                    {comparisonResult.target.domain}
+                  </div>
+                  <div className="text-3xl font-black text-indigo-400">
+                    {comparisonResult.analysis.targetHealthScore}%
+                  </div>
+                  <div className="text-[10px] uppercase font-bold text-slate-400">Health</div>
+                </div>
+
+                <div className="text-xl font-black text-slate-500">VS</div>
+
+                <div className="text-center">
+                  <div className="text-xs font-bold text-rose-300 mb-1 truncate max-w-[120px]">
+                    {comparisonResult.competitor.domain}
+                  </div>
+                  <div className="text-3xl font-black text-rose-400">
+                    {comparisonResult.analysis.competitorHealthScore}%
+                  </div>
+                  <div className="text-[10px] uppercase font-bold text-slate-400">Health</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Category Winners Matrix */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {[
+              { category: 'Speed & Latency', key: 'speed', icon: Zap },
+              { category: 'On-Page SEO', key: 'seo', icon: Search },
+              { category: 'Content Depth', key: 'content', icon: FileText },
+              { category: 'Schema Markup', key: 'technical', icon: Code },
+            ].map((cat) => {
+              const Icon = cat.icon;
+              const winner = comparisonResult.analysis.winners[cat.key as keyof typeof comparisonResult.analysis.winners];
+              const isTargetWinner = winner === 'target';
+              const isTie = winner === 'tie';
+
+              return (
+                <div key={cat.key} className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                  <div className="flex items-center justify-between text-xs text-slate-400 mb-2">
+                    <span className="font-semibold flex items-center gap-1.5">
+                      <Icon className="w-3.5 h-3.5" />
+                      {cat.category}
+                    </span>
+                    <Trophy className={`w-3.5 h-3.5 ${isTargetWinner ? 'text-indigo-500' : isTie ? 'text-amber-500' : 'text-rose-500'}`} />
+                  </div>
+                  <div className="text-sm font-extrabold text-slate-900 dark:text-white capitalize">
+                    {isTie ? 'Draw / Tie' : isTargetWinner ? `🏆 ${comparisonResult.target.domain}` : `🏆 ${comparisonResult.competitor.domain}`}
+                  </div>
+                  <div className="text-[11px] text-slate-500 mt-1">
+                    {cat.key === 'speed' && `${comparisonResult.target.loadTimeMs}ms vs ${comparisonResult.competitor.loadTimeMs}ms`}
+                    {cat.key === 'content' && `${comparisonResult.target.wordCount} words vs ${comparisonResult.competitor.wordCount} words`}
+                    {cat.key === 'seo' && `H1: ${comparisonResult.target.h1Count} vs ${comparisonResult.competitor.h1Count}`}
+                    {cat.key === 'technical' && `Schema: ${comparisonResult.target.hasSchema ? 'Yes' : 'No'} vs ${comparisonResult.competitor.hasSchema ? 'Yes' : 'No'}`}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Keyword & Content Gap Analysis */}
+          <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+            <h3 className="text-base font-bold text-slate-900 dark:text-white mb-2 flex items-center gap-2">
+              <TrendingUp className="w-4 h-4 text-indigo-600" />
+              Content & Keyword Gap (Competitor Advantage)
+            </h3>
+            <p className="text-xs text-slate-500 mb-4">
+              Topics and search intents your competitor is capitalizing on that your page currently misses:
+            </p>
+
+            <div className="space-y-3">
+              {comparisonResult.analysis.contentGap.map((gap, i) => (
+                <div key={i} className="p-4 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
+                    <span className="font-bold text-sm text-slate-900 dark:text-white">
+                      {gap.topic}
+                    </span>
+                    <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 w-fit">
+                      Gap Opportunity
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-600 dark:text-slate-400 mb-2">
+                    <span className="font-semibold text-slate-700 dark:text-slate-300">Competitor Strategy: </span>
+                    {gap.competitorAngle}
+                  </p>
+                  <p className="text-xs text-indigo-600 dark:text-indigo-400 font-medium">
+                    <span className="font-semibold">Counter-Action: </span>
+                    {gap.actionForTarget}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* How to Outrank This Competitor Roadmap */}
+          <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+            <h3 className="text-base font-bold text-slate-900 dark:text-white mb-2 flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-amber-500" />
+              "How to Outrank This Competitor" Tactical Action Plan
+            </h3>
+            <p className="text-xs text-slate-500 mb-4">
+              Prioritized high-leverage steps designed to overtake this competitor in organic search results:
+            </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {comparisonResult.analysis.outrankBlueprint.map((plan, i) => (
+                <div key={i} className="p-4 rounded-xl bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-100 dark:border-indigo-900/50 flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-center justify-between gap-2 mb-2">
+                      <span className="text-[10px] font-extrabold px-2 py-0.5 rounded bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300">
+                        {plan.priority} Priority
+                      </span>
+                      <span className="text-[10px] font-extrabold text-emerald-600 dark:text-emerald-400">
+                        {plan.impact}
+                      </span>
+                    </div>
+                    <h4 className="text-sm font-bold text-slate-900 dark:text-white mb-2">
+                      {plan.title}
+                    </h4>
+                    <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                      {plan.details}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODE 3 VIEW: SITEMAP DEEP SCAN RESULTS */}
+      {auditMode === 'sitemap' && sitemapResult && (
+        <div className="max-w-7xl mx-auto space-y-6 mt-6">
+          <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-slate-100 dark:border-slate-800">
+              <div>
+                <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-sky-100 dark:bg-sky-950/80 text-sky-700 dark:text-sky-300">
+                  🗺️ Multi-Page Sitemap Crawl
+                </span>
+                <h2 className="text-xl font-extrabold text-slate-900 dark:text-white mt-1">
+                  Discovered {sitemapResult.totalPagesDiscovered} URLs across {sitemapResult.sitemapUrl}
+                </h2>
+                <p className="text-xs text-slate-500 mt-1">
+                  Sampled top {sitemapResult.sampleSize} core pages concurrently for technical SEO signals.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-6">
+                <div className="text-center">
+                  <div className="text-3xl font-black text-indigo-600 dark:text-indigo-400">
+                    {sitemapResult.overallScore}%
+                  </div>
+                  <div className="text-[10px] font-bold text-slate-400 uppercase">Avg Site Score</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-3xl font-black text-rose-500">
+                    {sitemapResult.totalIssuesCount}
+                  </div>
+                  <div className="text-[10px] font-bold text-slate-400 uppercase">Total Issues Found</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Sitemap Multi-Page Table */}
+            <div className="overflow-x-auto mt-6">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-slate-200 dark:border-slate-800 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                    <th className="pb-3 px-3">Page URL</th>
+                    <th className="pb-3 px-3">Status</th>
+                    <th className="pb-3 px-3">Title Tag</th>
+                    <th className="pb-3 px-3">H1 Heading</th>
+                    <th className="pb-3 px-3">Load Time</th>
+                    <th className="pb-3 px-3">Score</th>
+                    <th className="pb-3 px-3">Detected Issues</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-xs">
+                  {sitemapResult.pages.map((p, idx) => (
+                    <tr key={idx} className="hover:bg-slate-50 dark:hover:bg-slate-950/50">
+                      <td className="py-3 px-3 max-w-[200px] truncate font-medium text-slate-900 dark:text-white">
+                        <a href={p.url} target="_blank" rel="noopener noreferrer" className="hover:underline flex items-center gap-1 text-indigo-600 dark:text-indigo-400">
+                          {p.url.replace(/^https?:\/\//, '')}
+                          <ExternalLink className="w-3 h-3 flex-shrink-0" />
+                        </a>
+                      </td>
+                      <td className="py-3 px-3">
+                        <span className={`px-2 py-0.5 rounded text-[11px] font-bold ${
+                          p.status === 200 ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400' : 'bg-rose-100 text-rose-700 dark:bg-rose-950/60 dark:text-rose-400'
+                        }`}>
+                          {p.status}
+                        </span>
+                      </td>
+                      <td className="py-3 px-3 max-w-[220px] truncate text-slate-600 dark:text-slate-300">
+                        {p.title}
+                      </td>
+                      <td className="py-3 px-3">
+                        {p.hasH1 ? (
+                          <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                        ) : (
+                          <XCircle className="w-4 h-4 text-rose-500" />
+                        )}
+                      </td>
+                      <td className="py-3 px-3 font-mono text-[11px] text-slate-500">
+                        {p.loadTimeMs}ms
+                      </td>
+                      <td className="py-3 px-3">
+                        <span className={`px-2 py-0.5 rounded-md font-bold text-[11px] border ${getScoreBg(p.score)}`}>
+                          {p.score}%
+                        </span>
+                      </td>
+                      <td className="py-3 px-3">
+                        {p.issues.length === 0 ? (
+                          <span className="text-emerald-600 dark:text-emerald-400 font-semibold text-[11px]">Clean</span>
+                        ) : (
+                          <div className="flex flex-wrap gap-1">
+                            {p.issues.slice(0, 2).map((iss, iIdx) => (
+                              <span key={iIdx} className="px-1.5 py-0.5 rounded text-[10px] bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-900">
+                                {iss}
+                              </span>
+                            ))}
+                            {p.issues.length > 2 && (
+                              <span className="text-[10px] text-slate-400">+{p.issues.length - 2}</span>
+                            )}
+                          </div>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 1-CLICK ROBOTS.TXT GENERATOR MODAL */}
+      {showRobotsModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 max-w-xl w-full p-6 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+              <div className="flex items-center gap-2">
+                <FileCode className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+                <h3 className="font-extrabold text-base text-slate-900 dark:text-white">
+                  Technical SEO: 1-Click Robots.txt Generator
+                </h3>
+              </div>
+              <button
+                onClick={() => setShowRobotsModal(false)}
+                className="text-slate-400 hover:text-slate-600 dark:hover:text-white text-lg font-bold"
+              >
+                ✕
+              </button>
+            </div>
+
+            <p className="text-xs text-slate-600 dark:text-slate-400">
+              Generate an optimized, search-engine-friendly <code className="text-indigo-600">robots.txt</code> file tailored for your domain to stop search crawlers from wasting crawl budget on private paths.
+            </p>
+
+            <div className="space-y-3 text-xs">
+              <div>
+                <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">
+                  Sitemap URL:
+                </label>
+                <input
+                  type="text"
+                  placeholder="https://yourdomain.com/sitemap.xml"
+                  value={customSitemapPath || (report?.domain ? `https://${report.domain}/sitemap.xml` : '')}
+                  onChange={(e) => setCustomSitemapPath(e.target.value)}
+                  className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 font-mono text-xs"
+                />
+              </div>
+
+              <div>
+                <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">
+                  Disallowed Paths (one per line):
+                </label>
+                <textarea
+                  rows={3}
+                  value={disallowedPaths}
+                  onChange={(e) => setDisallowedPaths(e.target.value)}
+                  className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 font-mono text-xs"
+                />
+              </div>
+
+              <div>
+                <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">
+                  Generated Output:
+                </label>
+                <pre className="p-3 rounded-xl bg-slate-950 text-emerald-400 font-mono text-xs overflow-x-auto">
+{`User-agent: *
+${disallowedPaths.split('\n').filter(Boolean).map(p => `Disallow: ${p.trim()}`).join('\n')}
+Allow: /
+
+Sitemap: ${customSitemapPath || (report?.domain ? `https://${report.domain}/sitemap.xml` : 'https://example.com/sitemap.xml')}
+`}
+                </pre>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+              <button
+                onClick={() => {
+                  const sitemap = customSitemapPath || (report?.domain ? `https://${report.domain}/sitemap.xml` : 'https://example.com/sitemap.xml');
+                  const content = `User-agent: *\n${disallowedPaths.split('\n').filter(Boolean).map(p => `Disallow: ${p.trim()}`).join('\n')}\nAllow: /\n\nSitemap: ${sitemap}\n`;
+                  navigator.clipboard.writeText(content);
+                  alert('Robots.txt content copied to clipboard!');
+                }}
+                className="px-4 py-2 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white transition-all shadow-md flex items-center gap-1.5"
+              >
+                <Copy className="w-3.5 h-3.5" />
+                Copy Robots.txt
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
