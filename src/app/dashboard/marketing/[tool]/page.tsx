@@ -610,116 +610,123 @@ function ToolWorkspaceContent() {
 
             {fullOutput && !loading && (
               <div className="space-y-5">
-                <ResultCard title="Executive Summary" body={result.executiveSummary} />
-                <ResultCard title="Strategy" items={result.strategy} />
-
                 {/* REAL EXECUTION STUDIOS */}
-                {toolId === 'email_campaign' && (
+                {toolId === 'email_campaign' ? (
                   <EmailExecutionStudio
                     primaryOutput={result.primaryOutput}
                     businessName={brandProfile.businessName}
+                    result={result}
                   />
-                )}
-
-                {toolId === 'sms_campaign' && (
-                  <SmsExecutionStudio
-                    primaryOutput={result.primaryOutput}
-                  />
-                )}
-
-                {toolId === 'product_copy' && (
-                  <ProductCopyStudio
-                    primaryOutput={result.primaryOutput}
-                    productName={inputs.product || inputs.productName || brandProfile.productService || 'Product'}
-                  />
-                )}
-
-                {toolId === 'social_campaign' && (
-                  <SocialCampaignStudio
-                    primaryOutput={result.primaryOutput}
-                  />
-                )}
-
-                <ResultCard title="Primary Draft Output" body={result.primaryOutput} large />
-                
-                {toolId === 'product_photography' && (
-                  <section className="rounded-2xl border border-fuchsia-400/20 bg-fuchsia-500/5 p-5">
-                    <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-                      <div>
-                        <h3 className="text-[11px] font-black uppercase tracking-widest text-fuchsia-200/80">
-                          Product Image Generator
-                        </h3>
-                        <p className="mt-2 text-xs leading-5 text-white/55">
-                          Generate dynamic ecommerce assets, lifestyle frames, or ad visuals from this brief.
-                        </p>
-                      </div>
-                      <div className="flex flex-col gap-2 sm:flex-row">
-                        <select
-                          value={imageAspectRatio}
-                          onChange={event => setImageAspectRatio(event.target.value)}
-                          className="rounded-2xl border border-white/10 bg-[#0d1117] px-4 py-3 text-xs font-black text-white outline-none cursor-pointer"
-                        >
-                          <option value="1:1">Square 1:1</option>
-                          <option value="4:3">Landscape 4:3</option>
-                          <option value="3:4">Portrait 3:4</option>
-                          <option value="16:9">Wide 16:9</option>
-                          <option value="9:16">Story 9:16</option>
-                        </select>
-                        <button
-                          type="button"
-                          onClick={generateProductImages}
-                          disabled={imageLoading}
-                          className="inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-fuchsia-600 to-blue-600 px-5 py-3 text-xs font-black text-white shadow-lg shadow-fuchsia-500/20 transition hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer"
-                        >
-                          {imageLoading ? <Loader2 className="animate-spin" size={16} /> : <Sparkles size={16} />}
-                          {imageLoading ? 'Generating Images...' : 'Generate Product Images'}
-                        </button>
-                      </div>
-                    </div>
-
-                    {imageError && (
-                      <p className="mt-4 rounded-2xl border border-red-500/20 bg-red-500/10 p-4 text-sm leading-6 text-red-100">
-                        {imageError}
-                      </p>
-                    )}
-
-                    {generatedImages.length > 0 && (
-                      <div className="mt-5 grid gap-4 md:grid-cols-2">
-                        {generatedImages.map(image => (
-                          <div key={image.id} className="overflow-hidden rounded-2xl border border-white/10 bg-[#0d1117]">
-                            <Image
-                              src={image.dataUrl}
-                              alt={image.label}
-                              width={1024}
-                              height={1024}
-                              unoptimized
-                              className="aspect-square w-full object-cover"
-                            />
-                            <div className="p-4">
-                              <div className="flex items-center justify-between gap-3">
-                                <h4 className="text-sm font-black text-white">{image.label}</h4>
-                                <button
-                                  type="button"
-                                  onClick={() => downloadGeneratedImage(image)}
-                                  className="rounded-xl bg-white/5 px-3 py-2 text-xs font-black text-white/65 transition hover:bg-white/10 hover:text-white cursor-pointer"
-                                >
-                                  Download
-                                </button>
-                              </div>
-                              <p className="mt-3 line-clamp-3 text-xs leading-5 text-white/35">{image.prompt}</p>
-                            </div>
+                ) : toolId === 'sms_campaign' ? (
+                  <div className="space-y-5">
+                    <ResultCard title="Executive Summary" body={result.executiveSummary} />
+                    <SmsExecutionStudio primaryOutput={result.primaryOutput} />
+                    <ResultCard title="Strategy" items={result.strategy} />
+                    <ResultCard title="Variations" items={result.variations} />
+                  </div>
+                ) : toolId === 'product_copy' ? (
+                  <div className="space-y-5">
+                    <ResultCard title="Executive Summary" body={result.executiveSummary} />
+                    <ProductCopyStudio
+                      primaryOutput={result.primaryOutput}
+                      productName={inputs.product || inputs.productName || brandProfile.productService || 'Product'}
+                    />
+                    <ResultCard title="Strategy" items={result.strategy} />
+                    <ResultCard title="Variations" items={result.variations} />
+                  </div>
+                ) : toolId === 'social_campaign' ? (
+                  <div className="space-y-5">
+                    <ResultCard title="Executive Summary" body={result.executiveSummary} />
+                    <SocialCampaignStudio primaryOutput={result.primaryOutput} />
+                    <ResultCard title="Strategy" items={result.strategy} />
+                    <ResultCard title="Variations" items={result.variations} />
+                  </div>
+                ) : (
+                  <>
+                    <ResultCard title="Executive Summary" body={result.executiveSummary} />
+                    <ResultCard title="Strategy" items={result.strategy} />
+                    <ResultCard title="Primary Output" body={result.primaryOutput} large />
+                    
+                    {toolId === 'product_photography' && (
+                      <section className="rounded-2xl border border-fuchsia-400/20 bg-fuchsia-500/5 p-5">
+                        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                          <div>
+                            <h3 className="text-[11px] font-black uppercase tracking-widest text-fuchsia-200/80">
+                              Product Image Generator
+                            </h3>
+                            <p className="mt-2 text-xs leading-5 text-white/55">
+                              Generate dynamic ecommerce assets, lifestyle frames, or ad visuals from this brief.
+                            </p>
                           </div>
-                        ))}
-                      </div>
+                          <div className="flex flex-col gap-2 sm:flex-row">
+                            <select
+                              value={imageAspectRatio}
+                              onChange={event => setImageAspectRatio(event.target.value)}
+                              className="rounded-2xl border border-white/10 bg-[#0d1117] px-4 py-3 text-xs font-black text-white outline-none cursor-pointer"
+                            >
+                              <option value="1:1">Square 1:1</option>
+                              <option value="4:3">Landscape 4:3</option>
+                              <option value="3:4">Portrait 3:4</option>
+                              <option value="16:9">Wide 16:9</option>
+                              <option value="9:16">Story 9:16</option>
+                            </select>
+                            <button
+                              type="button"
+                              onClick={generateProductImages}
+                              disabled={imageLoading}
+                              className="inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-fuchsia-600 to-blue-600 px-5 py-3 text-xs font-black text-white shadow-lg shadow-fuchsia-500/20 transition hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer"
+                            >
+                              {imageLoading ? <Loader2 className="animate-spin" size={16} /> : <Sparkles size={16} />}
+                              {imageLoading ? 'Generating Images...' : 'Generate Product Images'}
+                            </button>
+                          </div>
+                        </div>
+
+                        {imageError && (
+                          <p className="mt-4 rounded-2xl border border-red-500/20 bg-red-500/10 p-4 text-sm leading-6 text-red-100">
+                            {imageError}
+                          </p>
+                        )}
+
+                        {generatedImages.length > 0 && (
+                          <div className="mt-5 grid gap-4 md:grid-cols-2">
+                            {generatedImages.map(image => (
+                              <div key={image.id} className="overflow-hidden rounded-2xl border border-white/10 bg-[#0d1117]">
+                                <Image
+                                  src={image.dataUrl}
+                                  alt={image.label}
+                                  width={1024}
+                                  height={1024}
+                                  unoptimized
+                                  className="aspect-square w-full object-cover"
+                                />
+                                <div className="p-4">
+                                  <div className="flex items-center justify-between gap-3">
+                                    <h4 className="text-sm font-black text-white">{image.label}</h4>
+                                    <button
+                                      type="button"
+                                      onClick={() => downloadGeneratedImage(image)}
+                                      className="rounded-xl bg-white/5 px-3 py-2 text-xs font-black text-white/65 transition hover:bg-white/10 hover:text-white cursor-pointer"
+                                    >
+                                      Download
+                                    </button>
+                                  </div>
+                                  <p className="mt-3 line-clamp-3 text-xs leading-5 text-white/35">{image.prompt}</p>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </section>
                     )}
-                  </section>
+                    
+                    <ResultCard title="Variations" items={result.variations} />
+                    <ResultCard title="Quality Checklist" items={result.checklist} />
+                    <ResultCard title="Assumptions" items={result.assumptions} />
+                    <ResultCard title="Missing Inputs That Would Improve It" items={result.missingInputs} />
+                    <ResultCard title="Next Best Actions" items={result.nextBestActions} />
+                  </>
                 )}
-                
-                <ResultCard title="Variations" items={result.variations} />
-                <ResultCard title="Quality Checklist" items={result.checklist} />
-                <ResultCard title="Assumptions" items={result.assumptions} />
-                <ResultCard title="Missing Inputs That Would Improve It" items={result.missingInputs} />
-                <ResultCard title="Next Best Actions" items={result.nextBestActions} />
               </div>
             )}
           </div>

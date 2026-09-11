@@ -25,6 +25,8 @@ import {
   X,
   Layers,
   HelpCircle,
+  Users,
+  Monitor,
 } from 'lucide-react';
 import { copyTextSafely } from '@/lib/clipboard';
 
@@ -63,9 +65,19 @@ const DEFAULT_EMAIL_SETTINGS: EmailGatewaySettings = {
 export function EmailExecutionStudio({
   primaryOutput,
   businessName = 'My Business',
+  result,
 }: {
   primaryOutput: string;
   businessName?: string;
+  result?: {
+    executiveSummary?: string;
+    strategy?: string[];
+    variations?: string[];
+    checklist?: string[];
+    assumptions?: string[];
+    missingInputs?: string[];
+    nextBestActions?: string[];
+  };
 }) {
   // Extract Subject & Preheader if available
   const parsedSubject = primaryOutput.match(/Subject:\s*([^\n\r]+)/i)?.[1]?.trim() || 'Exclusive Update for You';
@@ -75,14 +87,18 @@ export function EmailExecutionStudio({
     .replace(/Preheader:\s*[^\n\r]+/gi, '')
     .trim();
 
+  const [activeTab, setActiveTab] = useState<'compose' | 'audience' | 'strategy' | 'logs'>('compose');
   const [subject, setSubject] = useState(parsedSubject);
   const [preheader, setPreheader] = useState(parsedPreheader);
   const [bodyHtml, setBodyHtml] = useState(cleanedBody);
-  const [previewMode, setPreviewMode] = useState<'desktop' | 'mobile'>('desktop');
+  const [viewLayout, setViewLayout] = useState<'split' | 'editor' | 'preview'>('split');
+  const [previewDevice, setPreviewDevice] = useState<'desktop' | 'mobile'>('desktop');
+  
   const [recipientsText, setRecipientsText] = useState('');
   const [testEmail, setTestEmail] = useState('');
   const [sendingTest, setSendingTest] = useState(false);
   const [testResult, setTestResult] = useState<{ success: boolean; message: string } | null>(null);
+  const [showTestModal, setShowTestModal] = useState(false);
 
   // Settings modal
   const [showSettings, setShowSettings] = useState(false);
@@ -136,6 +152,11 @@ export function EmailExecutionStudio({
 
   const parsedList = parseRecipients(recipientsText);
 
+  // Quick insert tag into body
+  const insertTag = (tag: string) => {
+    setBodyHtml(prev => `${prev} ${tag}`);
+  };
+
   // Handle CSV file upload
   const handleCsvUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -151,7 +172,7 @@ export function EmailExecutionStudio({
 
       lines.forEach((line, index) => {
         if (index === 0 && (line.toLowerCase().includes('email') || line.toLowerCase().includes('name'))) {
-          return; // Skip header
+          return;
         }
         const parts = line.split(',');
         const emailPart = parts.find(p => p.includes('@'));
@@ -206,9 +227,12 @@ export function EmailExecutionStudio({
           url: settings.webhookUrl,
         },
         subject,
-        htmlContent: `<div style="font-family: sans-serif; line-height: 1.6; color: #333;">
-          <div style="font-size: 11px; color: #888; margin-bottom: 12px;">${preheader}</div>
-          ${bodyHtml.replace(/\n/g, '<br/>')}
+        htmlContent: `<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; color: #1e293b; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <div style="font-size: 12px; color: #64748b; margin-bottom: 16px; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px;">${preheader}</div>
+          <div style="font-size: 15px; color: #0f172a;">${bodyHtml.replace(/\n/g, '<br/>')}</div>
+          <div style="margin-top: 32px; padding-top: 16px; border-top: 1px solid #e2e8f0; font-size: 11px; color: #94a3b8; text-align: center;">
+            Sent by ${settings.fromName || businessName} • <a href="#" style="color: #6366f1;">Unsubscribe</a>
+          </div>
         </div>`,
         plainText: bodyHtml,
         recipients: [{ email: testEmail.trim(), name: 'Tester' }],
@@ -271,9 +295,12 @@ export function EmailExecutionStudio({
           url: settings.webhookUrl,
         },
         subject,
-        htmlContent: `<div style="font-family: sans-serif; line-height: 1.6; color: #111;">
-          <div style="font-size: 11px; color: #777; margin-bottom: 12px;">${preheader}</div>
-          ${bodyHtml.replace(/\n/g, '<br/>')}
+        htmlContent: `<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; color: #1e293b; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <div style="font-size: 12px; color: #64748b; margin-bottom: 16px; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px;">${preheader}</div>
+          <div style="font-size: 15px; color: #0f172a;">${bodyHtml.replace(/\n/g, '<br/>')}</div>
+          <div style="margin-top: 32px; padding-top: 16px; border-top: 1px solid #e2e8f0; font-size: 11px; color: #94a3b8; text-align: center;">
+            Sent by ${settings.fromName || businessName} • <a href="#" style="color: #6366f1;">Unsubscribe</a>
+          </div>
         </div>`,
         plainText: bodyHtml,
         recipients: parsedList,
@@ -300,6 +327,7 @@ export function EmailExecutionStudio({
         sent: data.totalSent || 0,
         failed: data.failedCount || 0,
       });
+      setActiveTab('logs');
     } catch (err) {
       setCampaignLogs([
         { email: 'Campaign System', status: 'failed', error: (err as Error).message },
@@ -311,219 +339,621 @@ export function EmailExecutionStudio({
 
   return (
     <div className="space-y-6">
-      {/* Action Header Banner */}
-      <div className="rounded-2xl border border-indigo-500/20 bg-gradient-to-r from-indigo-950/60 to-purple-950/40 p-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-          <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 mb-2">
-            <Mail size={12} /> Real Campaign Execution Hub
+      {/* 1. TOP EXECUTIVE COMMAND BAR */}
+      <div className="rounded-2xl border border-white/10 bg-slate-900/90 p-5 backdrop-blur shadow-xl">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400">
+              <Mail size={20} />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="text-base font-bold text-white">Email Campaign Execution Studio</h3>
+                <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider ${
+                  parsedList.length > 0
+                    ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                    : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                }`}>
+                  {parsedList.length > 0 ? `${parsedList.length} Contacts Queued` : 'Draft Ready'}
+                </span>
+              </div>
+              <p className="text-xs text-slate-400 mt-0.5">
+                {settings.fromEmail ? (
+                  <span className="text-emerald-400 font-semibold flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                    Sender: {settings.fromName || 'Brand'} &lt;{settings.fromEmail}&gt; ({settings.provider.toUpperCase()})
+                  </span>
+                ) : (
+                  <span className="text-amber-400 font-medium">
+                    ⚠️ No email sender connected yet. Configure your SMTP or ESP below.
+                  </span>
+                )}
+              </p>
+            </div>
           </div>
-          <h3 className="text-lg font-black text-white">Interactive Email Studio &amp; Dispatcher</h3>
-          <p className="text-xs text-white/50">
-            Preview formatted HTML, personalize tags with <code className="text-indigo-300">{'{{name}}'}</code>, send a live test email, or blast to your contact list.
-          </p>
+
+          <div className="flex flex-wrap items-center gap-2.5">
+            <button
+              type="button"
+              onClick={() => setShowSettings(true)}
+              className="px-3.5 py-2 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-xs font-bold text-slate-200 hover:text-white transition-all flex items-center gap-2 shadow-sm cursor-pointer"
+            >
+              <Settings size={14} className="text-indigo-400" />
+              {settings.fromEmail ? 'ESP Settings' : 'Connect Sender'}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setShowTestModal(true)}
+              className="px-3.5 py-2 rounded-xl border border-indigo-500/30 bg-indigo-950/40 hover:bg-indigo-900/50 text-xs font-bold text-indigo-300 transition-all flex items-center gap-2 shadow-sm cursor-pointer"
+            >
+              <Send size={14} className="text-indigo-400" />
+              Send Test Email
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setShowRunModal(true)}
+              className="px-5 py-2 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-xs font-black text-white shadow-lg shadow-indigo-600/30 transition-all flex items-center gap-2 cursor-pointer"
+            >
+              <Play size={14} />
+              RUN CAMPAIGN
+            </button>
+          </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        {/* 2. SEGMENTED NAVIGATION TABS */}
+        <div className="mt-5 pt-4 border-t border-white/5 flex flex-wrap items-center gap-2">
           <button
             type="button"
-            onClick={() => setShowSettings(true)}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-xs font-black text-white transition-all cursor-pointer"
+            onClick={() => setActiveTab('compose')}
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+              activeTab === 'compose'
+                ? 'bg-indigo-600 text-white shadow-md'
+                : 'text-slate-400 hover:text-white hover:bg-white/5'
+            }`}
           >
-            <Settings size={14} className="text-indigo-400" />
-            {settings.fromEmail ? 'Sender Configured' : 'Configure Sender (SMTP/ESP)'}
+            <Mail size={14} /> Compose &amp; Live Preview
           </button>
 
           <button
             type="button"
-            onClick={() => setShowRunModal(true)}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-xs font-black text-white shadow-lg shadow-indigo-600/30 transition-all cursor-pointer"
+            onClick={() => setActiveTab('audience')}
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+              activeTab === 'audience'
+                ? 'bg-indigo-600 text-white shadow-md'
+                : 'text-slate-400 hover:text-white hover:bg-white/5'
+            }`}
           >
-            <Play size={14} /> RUN LIVE CAMPAIGN
+            <Users size={14} />
+            Audience &amp; Contacts
+            <span className="px-1.5 py-0.2 rounded-full text-[10px] font-black bg-black/40 text-indigo-200 ml-1">
+              {parsedList.length}
+            </span>
+          </button>
+
+          {result && (
+            <button
+              type="button"
+              onClick={() => setActiveTab('strategy')}
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+                activeTab === 'strategy'
+                  ? 'bg-indigo-600 text-white shadow-md'
+                  : 'text-slate-400 hover:text-white hover:bg-white/5'
+              }`}
+            >
+              <Sparkles size={14} /> AI Strategy &amp; Review
+            </button>
+          )}
+
+          <button
+            type="button"
+            onClick={() => setActiveTab('logs')}
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+              activeTab === 'logs'
+                ? 'bg-indigo-600 text-white shadow-md'
+                : 'text-slate-400 hover:text-white hover:bg-white/5'
+            }`}
+          >
+            <Play size={14} /> Broadcast &amp; Logs {campaignLogs.length > 0 ? `(${campaignLogs.length})` : ''}
           </button>
         </div>
       </div>
 
-      {/* Main Studio Grid: Editor & Preview */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left: Email Template Controls */}
-        <div className="lg:col-span-6 space-y-4">
-          <div className="rounded-2xl border border-white/10 bg-[#0d1117] p-4 space-y-3">
-            <div>
-              <label className="block text-[11px] font-bold uppercase tracking-wider text-white/40 mb-1">
-                Subject Line
-              </label>
-              <input
-                type="text"
-                value={subject}
-                onChange={e => setSubject(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-white/10 bg-white/[0.03] text-sm text-white focus:outline-none focus:border-indigo-500 font-medium"
-                placeholder="Subject line..."
-              />
-            </div>
-
-            <div>
-              <label className="block text-[11px] font-bold uppercase tracking-wider text-white/40 mb-1">
-                Preheader (Preview Text)
-              </label>
-              <input
-                type="text"
-                value={preheader}
-                onChange={e => setPreheader(e.target.value)}
-                className="w-full px-3.5 py-2 rounded-xl border border-white/10 bg-white/[0.03] text-xs text-white/80 focus:outline-none focus:border-indigo-500"
-                placeholder="Preview snippet seen before opening..."
-              />
-            </div>
-
-            <div>
-              <div className="flex items-center justify-between mb-1">
-                <label className="text-[11px] font-bold uppercase tracking-wider text-white/40">
-                  Email Body (Markdown / Text)
-                </label>
-                <div className="text-[10px] text-indigo-300/80 font-mono">
-                  Tags: {'{{name}}'}, {'{{company}}'}
+      {/* 3. TAB 1: COMPOSE & LIVE PREVIEW */}
+      {activeTab === 'compose' && (
+        <div className="space-y-5">
+          {/* Metadata Bar (Subject & Preheader) */}
+          <div className="rounded-2xl border border-white/10 bg-slate-900/60 p-5 space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="text-xs font-bold uppercase tracking-wider text-slate-300">
+                    Subject Line
+                  </label>
+                  <span className={`text-[10px] font-bold ${subject.length > 60 ? 'text-amber-400' : 'text-emerald-400'}`}>
+                    {subject.length} chars (Recommended: 30-60)
+                  </span>
                 </div>
+                <input
+                  type="text"
+                  value={subject}
+                  onChange={e => setSubject(e.target.value)}
+                  placeholder="Enter compelling subject line..."
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-700/80 bg-slate-950 text-sm font-semibold text-white focus:outline-none focus:border-indigo-500 transition-colors"
+                />
               </div>
-              <textarea
-                rows={10}
-                value={bodyHtml}
-                onChange={e => setBodyHtml(e.target.value)}
-                className="w-full p-3.5 rounded-xl border border-white/10 bg-white/[0.03] text-xs leading-5 text-white focus:outline-none focus:border-indigo-500 font-sans"
-              />
+
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="text-xs font-bold uppercase tracking-wider text-slate-300">
+                    Preheader (Preview Snippet)
+                  </label>
+                  <span className="text-[10px] text-slate-500 font-medium">Visible in mobile inbox preview</span>
+                </div>
+                <input
+                  type="text"
+                  value={preheader}
+                  onChange={e => setPreheader(e.target.value)}
+                  placeholder="Secondary teaser text..."
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-700/80 bg-slate-950 text-sm font-medium text-slate-300 focus:outline-none focus:border-indigo-500 transition-colors"
+                />
+              </div>
+            </div>
+
+            {/* Quick Variable Tag Insertion Bar */}
+            <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-white/5">
+              <span className="text-[11px] font-bold text-slate-400 mr-1">Insert Dynamic Tags:</span>
+              <button
+                type="button"
+                onClick={() => insertTag('{{name}}')}
+                className="px-2.5 py-1 rounded-lg text-xs font-bold bg-indigo-950/60 text-indigo-300 border border-indigo-500/30 hover:bg-indigo-900/60 transition cursor-pointer"
+              >
+                + Full Name ({'{{name}}'})
+              </button>
+              <button
+                type="button"
+                onClick={() => insertTag('{{first_name}}')}
+                className="px-2.5 py-1 rounded-lg text-xs font-bold bg-indigo-950/60 text-indigo-300 border border-indigo-500/30 hover:bg-indigo-900/60 transition cursor-pointer"
+              >
+                + First Name ({'{{first_name}}'})
+              </button>
+              <button
+                type="button"
+                onClick={() => insertTag('{{company}}')}
+                className="px-2.5 py-1 rounded-lg text-xs font-bold bg-indigo-950/60 text-indigo-300 border border-indigo-500/30 hover:bg-indigo-900/60 transition cursor-pointer"
+              >
+                + Company ({'{{company}}'})
+              </button>
             </div>
           </div>
 
-          {/* Recipient Audience & Test Box */}
-          <div className="rounded-2xl border border-white/10 bg-[#0d1117] p-4 space-y-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <h4 className="text-xs font-black text-white flex items-center gap-1.5">
-                  <Mail size={13} className="text-indigo-400" /> Recipients &amp; Audience List
-                </h4>
-                <p className="text-[11px] text-white/40">Paste emails or upload CSV</p>
-              </div>
-              <label className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 text-[11px] font-bold text-white cursor-pointer">
-                <Upload size={12} /> Upload CSV
-                <input type="file" accept=".csv,.txt" onChange={handleCsvUpload} className="hidden" />
-              </label>
-            </div>
-
-            <textarea
-              rows={3}
-              value={recipientsText}
-              onChange={e => setRecipientsText(e.target.value)}
-              placeholder="Paste email addresses (e.g. john@example.com, Sarah <sarah@company.com>)"
-              className="w-full p-2.5 rounded-xl border border-white/10 bg-white/[0.03] text-xs text-white placeholder:text-white/20 focus:outline-none focus:border-indigo-500"
-            />
-
-            <div className="flex items-center justify-between pt-1">
-              <span className="text-[11px] font-bold text-indigo-300">
-                {parsedList.length} valid recipient{parsedList.length === 1 ? '' : 's'} ready
-              </span>
-
-              {/* Instant Test Email Box */}
-              <div className="flex items-center gap-2">
-                <input
-                  type="email"
-                  placeholder="test@yourinbox.com"
-                  value={testEmail}
-                  onChange={e => setTestEmail(e.target.value)}
-                  className="w-44 px-2.5 py-1.5 rounded-lg border border-white/10 bg-white/[0.03] text-[11px] text-white focus:outline-none focus:border-indigo-500"
-                />
+          {/* View Mode Controls */}
+          <div className="flex items-center justify-between px-1">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
+              Workspace Canvas
+            </span>
+            <div className="flex items-center gap-3">
+              {/* Layout Switcher */}
+              <div className="bg-slate-900 border border-slate-800 rounded-xl p-0.5 flex items-center">
                 <button
                   type="button"
-                  onClick={sendTest}
-                  disabled={sendingTest || !testEmail}
-                  className="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-[11px] font-bold text-white transition-all disabled:opacity-50 flex items-center gap-1 cursor-pointer"
+                  onClick={() => setViewLayout('split')}
+                  className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
+                    viewLayout === 'split' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white'
+                  }`}
                 >
-                  {sendingTest ? <Loader2 size={12} className="animate-spin" /> : <Send size={12} />}
-                  Send Test
+                  Split View
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setViewLayout('editor')}
+                  className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
+                    viewLayout === 'editor' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  Editor Only
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setViewLayout('preview')}
+                  className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
+                    viewLayout === 'preview' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  Preview Only
                 </button>
               </div>
-            </div>
 
-            {testResult && (
-              <div
-                className={`p-2.5 rounded-xl text-xs flex items-center gap-2 ${
-                  testResult.success
-                    ? 'bg-emerald-500/10 text-emerald-300 border border-emerald-500/20'
-                    : 'bg-rose-500/10 text-rose-300 border border-rose-500/20'
-                }`}
-              >
-                {testResult.success ? <CheckCircle2 size={14} /> : <AlertCircle size={14} />}
-                <span>{testResult.message}</span>
+              {/* Device Preview Switcher */}
+              {(viewLayout === 'split' || viewLayout === 'preview') && (
+                <div className="bg-slate-900 border border-slate-800 rounded-xl p-0.5 flex items-center">
+                  <button
+                    type="button"
+                    onClick={() => setPreviewDevice('desktop')}
+                    className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
+                      previewDevice === 'desktop' ? 'bg-slate-800 text-white' : 'text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    <Monitor size={13} /> Desktop
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPreviewDevice('mobile')}
+                    className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
+                      previewDevice === 'mobile' ? 'bg-slate-800 text-white' : 'text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    <Smartphone size={13} /> Mobile
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Main Side-by-Side Canvas */}
+          <div className="grid grid-cols-1 xl:grid-cols-12 gap-5 items-start">
+            {/* Left: Email Text Editor */}
+            {(viewLayout === 'split' || viewLayout === 'editor') && (
+              <div className={`${viewLayout === 'split' ? 'xl:col-span-6' : 'xl:col-span-12'} rounded-2xl border border-white/10 bg-slate-900/60 p-5 space-y-3`}>
+                <div className="flex items-center justify-between pb-2 border-b border-white/5">
+                  <span className="text-xs font-bold text-slate-300">Email Body Editor</span>
+                  <span className="text-[11px] text-slate-500 font-mono">HTML / Markdown</span>
+                </div>
+                <textarea
+                  rows={18}
+                  value={bodyHtml}
+                  onChange={e => setBodyHtml(e.target.value)}
+                  className="w-full p-4 rounded-xl border border-slate-800 bg-slate-950 text-sm leading-relaxed text-slate-100 font-mono focus:outline-none focus:border-indigo-500 transition-colors resize-y"
+                  placeholder="Write your email body here..."
+                />
+              </div>
+            )}
+
+            {/* Right: Realistic Email Client Simulation */}
+            {(viewLayout === 'split' || viewLayout === 'preview') && (
+              <div className={`${viewLayout === 'split' ? 'xl:col-span-6' : 'xl:col-span-12'} flex flex-col items-center`}>
+                <div className={`w-full rounded-2xl border border-slate-800 bg-slate-950 shadow-2xl overflow-hidden transition-all duration-300 ${
+                  previewDevice === 'mobile' ? 'max-w-[390px] border-4 border-slate-700' : 'w-full'
+                }`}>
+                  {/* macOS / Apple Mail Client Header */}
+                  <div className="bg-slate-900 px-4 py-3 border-b border-slate-800 flex items-center justify-between">
+                    <div className="flex items-center gap-1.5">
+                      <span className="w-3 h-3 rounded-full bg-rose-500/80 inline-block" />
+                      <span className="w-3 h-3 rounded-full bg-amber-500/80 inline-block" />
+                      <span className="w-3 h-3 rounded-full bg-emerald-500/80 inline-block" />
+                    </div>
+                    <div className="text-[11px] font-bold text-slate-400 truncate max-w-[200px]">
+                      {subject || 'Untitled Email'}
+                    </div>
+                    <div className="text-[10px] text-slate-500 uppercase font-mono">
+                      {previewDevice === 'mobile' ? 'iOS Mail' : 'Inbox'}
+                    </div>
+                  </div>
+
+                  {/* Envelope Header inside Client */}
+                  <div className="bg-slate-900/50 p-4 border-b border-slate-800 space-y-2">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-xs font-bold text-white uppercase">
+                          {(settings.fromName || businessName).slice(0, 2)}
+                        </div>
+                        <div>
+                          <div className="text-xs font-bold text-white leading-tight">
+                            {settings.fromName || businessName}
+                          </div>
+                          <div className="text-[11px] text-slate-400">
+                            &lt;{settings.fromEmail || 'marketing@brand.com'}&gt;
+                          </div>
+                        </div>
+                      </div>
+                      <span className="text-[10px] text-slate-500">Today at 10:45 AM</span>
+                    </div>
+
+                    <div className="text-xs text-slate-400 pt-1">
+                      <span className="font-semibold text-slate-300">To:</span> John Doe &lt;john@example.com&gt;
+                    </div>
+
+                    <div className="pt-1">
+                      <h4 className="text-sm font-bold text-white">{subject}</h4>
+                      {preheader && (
+                        <div className="text-[11px] text-slate-400 italic line-clamp-1 mt-0.5">
+                          {preheader}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Email Body Canvas (Rendered paper) */}
+                  <div className="bg-white p-6 min-h-[380px] max-h-[520px] overflow-y-auto text-slate-900 font-sans selection:bg-indigo-100">
+                    <div className="text-sm leading-relaxed whitespace-pre-wrap">
+                      {bodyHtml || <span className="text-slate-400 italic">Email content will render here...</span>}
+                    </div>
+
+                    {/* Standard Marketing Footer */}
+                    <div className="mt-8 pt-4 border-t border-slate-200 text-center text-[11px] text-slate-400 space-y-1">
+                      <p>© {new Date().getFullYear()} {settings.fromName || businessName}. All rights reserved.</p>
+                      <p>
+                        You are receiving this email because you opted in via our website.
+                        <a href="#unsubscribe" className="text-indigo-600 underline ml-1">Unsubscribe</a>
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
           </div>
         </div>
+      )}
 
-        {/* Right: Live Responsive Email Preview Canvas */}
-        <div className="lg:col-span-6 space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-white/50 uppercase tracking-wider flex items-center gap-1.5">
-              <Eye size={13} className="text-indigo-400" /> Live Render Preview
-            </span>
-            <div className="flex items-center bg-white/5 rounded-lg p-0.5 border border-white/10">
-              <button
-                type="button"
-                onClick={() => setPreviewMode('desktop')}
-                className={`px-3 py-1 rounded-md text-xs font-bold transition-all ${
-                  previewMode === 'desktop' ? 'bg-indigo-600 text-white' : 'text-white/50 hover:text-white'
-                }`}
-              >
-                Desktop
-              </button>
-              <button
-                type="button"
-                onClick={() => setPreviewMode('mobile')}
-                className={`px-3 py-1 rounded-md text-xs font-bold transition-all ${
-                  previewMode === 'mobile' ? 'bg-indigo-600 text-white' : 'text-white/50 hover:text-white'
-                }`}
-              >
-                Mobile
-              </button>
+      {/* 4. TAB 2: AUDIENCE & CONTACTS */}
+      {activeTab === 'audience' && (
+        <div className="space-y-6">
+          {/* Audience Summary Metrics */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="rounded-2xl border border-white/10 bg-slate-900/60 p-4">
+              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Recipients</span>
+              <div className="text-2xl font-black text-white mt-1">{parsedList.length}</div>
+              <p className="text-[11px] text-slate-500 mt-1">Ready for live campaign dispatch</p>
+            </div>
+
+            <div className="rounded-2xl border border-white/10 bg-slate-900/60 p-4">
+              <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider">Valid Syntax</span>
+              <div className="text-2xl font-black text-emerald-400 mt-1">{parsedList.length}</div>
+              <p className="text-[11px] text-slate-500 mt-1">100% deliverable format</p>
+            </div>
+
+            <div className="rounded-2xl border border-white/10 bg-slate-900/60 p-4">
+              <span className="text-xs font-bold text-indigo-400 uppercase tracking-wider">Estimated Batches</span>
+              <div className="text-2xl font-black text-indigo-400 mt-1">{Math.ceil(parsedList.length / 25) || 1}</div>
+              <p className="text-[11px] text-slate-500 mt-1">Controlled safe throttling</p>
             </div>
           </div>
 
-          <div
-            className={`mx-auto rounded-2xl border border-white/10 bg-slate-950 p-1 shadow-2xl transition-all ${
-              previewMode === 'mobile' ? 'max-w-[360px]' : 'w-full'
-            }`}
-          >
-            {/* Email Client Top Bar */}
-            <div className="rounded-t-xl bg-slate-900 px-4 py-3 border-b border-white/10 text-xs text-white/70 space-y-1">
-              <div className="flex items-center justify-between">
-                <span className="font-bold text-white text-xs truncate">
-                  {settings.fromName || businessName}
-                </span>
-                <span className="text-[10px] text-white/40">Inbox Preview</span>
+          {/* Import & Input Card */}
+          <div className="rounded-2xl border border-white/10 bg-slate-900/60 p-6 space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b border-white/5">
+              <div>
+                <h4 className="text-sm font-bold text-white">Recipient Contact List</h4>
+                <p className="text-xs text-slate-400">Paste emails or upload a CSV / TXT contact export</p>
               </div>
-              <div className="text-white text-xs font-bold truncate">{subject || 'No Subject'}</div>
-              <div className="text-[11px] text-white/40 truncate">{preheader}</div>
+
+              <label className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 border border-indigo-500/30 text-xs font-bold transition cursor-pointer">
+                <Upload size={14} /> Upload CSV / TXT File
+                <input type="file" accept=".csv,.txt" onChange={handleCsvUpload} className="hidden" />
+              </label>
             </div>
 
-            {/* Email Body Canvas */}
-            <div className="bg-white text-slate-900 p-6 min-h-[340px] rounded-b-xl text-sm leading-relaxed whitespace-pre-wrap font-sans">
-              {bodyHtml || <span className="text-slate-400 italic">Email body preview will appear here...</span>}
+            <div>
+              <label className="block text-xs font-bold text-slate-300 mb-2">
+                Paste Emails (Format: <code className="text-indigo-400">name &lt;email@example.com&gt;</code> or <code className="text-indigo-400">email@example.com</code>)
+              </label>
+              <textarea
+                rows={6}
+                value={recipientsText}
+                onChange={e => setRecipientsText(e.target.value)}
+                placeholder="john@example.com&#10;Sarah Miller <sarah@company.com>&#10;alex.chen@techstartup.io"
+                className="w-full p-4 rounded-xl border border-slate-800 bg-slate-950 text-xs font-mono text-slate-200 focus:outline-none focus:border-indigo-500 leading-relaxed"
+              />
+            </div>
+
+            {/* Parsed List Preview Table */}
+            {parsedList.length > 0 && (
+              <div className="space-y-2 pt-2">
+                <span className="text-xs font-bold text-slate-400">Parsed Contacts ({parsedList.length}):</span>
+                <div className="max-h-60 overflow-y-auto rounded-xl border border-slate-800 bg-slate-950/80 divide-y divide-slate-800/60">
+                  {parsedList.map((rec, i) => (
+                    <div key={i} className="px-4 py-2.5 flex items-center justify-between text-xs">
+                      <div className="flex items-center gap-2">
+                        <span className="text-slate-500 font-mono text-[11px]">{i + 1}.</span>
+                        <span className="font-semibold text-white">{rec.name || 'Anonymous'}</span>
+                        <span className="text-slate-400">&lt;{rec.email}&gt;</span>
+                      </div>
+                      <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-950/60 text-emerald-400 border border-emerald-800/60">
+                        Ready
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* 5. TAB 3: AI STRATEGY & REVIEW */}
+      {activeTab === 'strategy' && result && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          {result.executiveSummary && (
+            <div className="rounded-2xl border border-white/10 bg-slate-900/60 p-5 space-y-2">
+              <span className="text-xs font-bold uppercase tracking-wider text-indigo-400">Executive Summary</span>
+              <p className="text-sm leading-relaxed text-slate-200">{result.executiveSummary}</p>
+            </div>
+          )}
+
+          {result.strategy && result.strategy.length > 0 && (
+            <div className="rounded-2xl border border-white/10 bg-slate-900/60 p-5 space-y-3">
+              <span className="text-xs font-bold uppercase tracking-wider text-indigo-400">Strategic Angle</span>
+              <ul className="space-y-2 text-xs leading-relaxed text-slate-300">
+                {result.strategy.map((item, idx) => (
+                  <li key={idx} className="flex items-start gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 mt-1.5 flex-shrink-0" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {result.checklist && result.checklist.length > 0 && (
+            <div className="rounded-2xl border border-white/10 bg-slate-900/60 p-5 space-y-3">
+              <span className="text-xs font-bold uppercase tracking-wider text-emerald-400">Quality Checklist</span>
+              <ul className="space-y-2 text-xs leading-relaxed text-slate-300">
+                {result.checklist.map((item, idx) => (
+                  <li key={idx} className="flex items-center gap-2">
+                    <CheckCircle2 size={14} className="text-emerald-400 flex-shrink-0" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {result.variations && result.variations.length > 0 && (
+            <div className="rounded-2xl border border-white/10 bg-slate-900/60 p-5 space-y-3">
+              <span className="text-xs font-bold uppercase tracking-wider text-amber-400">Alternative Angles</span>
+              <ul className="space-y-2 text-xs leading-relaxed text-slate-300">
+                {result.variations.map((item, idx) => (
+                  <li key={idx} className="flex items-start gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-amber-400 mt-1.5 flex-shrink-0" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* 6. TAB 4: BROADCAST & LOGS */}
+      {activeTab === 'logs' && (
+        <div className="space-y-5">
+          <div className="rounded-2xl border border-white/10 bg-slate-900/60 p-6 space-y-5">
+            <div className="flex items-center justify-between">
+              <div>
+                <h4 className="text-base font-bold text-white">Broadcast Command Center</h4>
+                <p className="text-xs text-slate-400">Real-time status and delivery verification</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowRunModal(true)}
+                className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-xs font-bold text-white shadow-lg flex items-center gap-2 cursor-pointer"
+              >
+                <Play size={14} /> Launch Live Broadcast
+              </button>
+            </div>
+
+            {campaignSummary ? (
+              <div className="grid grid-cols-3 gap-4 p-4 rounded-xl bg-slate-950 border border-slate-800 text-center">
+                <div>
+                  <div className="text-xs font-bold text-slate-400">TOTAL RECIPIENTS</div>
+                  <div className="text-2xl font-black text-white mt-1">{campaignSummary.total}</div>
+                </div>
+                <div>
+                  <div className="text-xs font-bold text-emerald-400">DELIVERED</div>
+                  <div className="text-2xl font-black text-emerald-400 mt-1">{campaignSummary.sent}</div>
+                </div>
+                <div>
+                  <div className="text-xs font-bold text-rose-400">FAILED</div>
+                  <div className="text-2xl font-black text-rose-400 mt-1">{campaignSummary.failed}</div>
+                </div>
+              </div>
+            ) : (
+              <div className="p-8 rounded-xl border border-dashed border-slate-800 text-center text-slate-400 text-xs space-y-2">
+                <Mail size={32} className="mx-auto text-slate-600" />
+                <p>No live campaign broadcast has been initiated yet.</p>
+                <p className="text-slate-500">Click &quot;Launch Live Broadcast&quot; above to begin dispatching.</p>
+              </div>
+            )}
+
+            {/* Log Table */}
+            {campaignLogs.length > 0 && (
+              <div className="space-y-2">
+                <span className="text-xs font-bold text-slate-400">Delivery Log History:</span>
+                <div className="max-h-72 overflow-y-auto rounded-xl border border-slate-800 bg-slate-950 font-mono text-xs divide-y divide-slate-800/60">
+                  {campaignLogs.map((log, i) => (
+                    <div key={i} className="px-4 py-2.5 flex items-center justify-between">
+                      <span className="text-slate-300">{log.email}</span>
+                      <span className={log.status === 'sent' ? 'text-emerald-400 font-bold' : 'text-rose-400 font-bold'}>
+                        {log.status === 'sent' ? '✓ Delivered' : `✗ Failed: ${log.error || 'Error'}`}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* QUICK SEND TEST MODAL */}
+      {showTestModal && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="max-w-md w-full rounded-3xl border border-white/10 bg-slate-900 p-6 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-white/10 pb-3">
+              <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                <Send size={16} className="text-indigo-400" /> Send Test Email
+              </h3>
+              <button
+                type="button"
+                onClick={() => setShowTestModal(false)}
+                className="p-1 rounded text-slate-400 hover:text-white"
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            <p className="text-xs text-slate-400">
+              Send a real sample of this email campaign to your personal inbox to verify formatting and deliverability.
+            </p>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-300 mb-1.5">Your Test Email</label>
+              <input
+                type="email"
+                placeholder="name@example.com"
+                value={testEmail}
+                onChange={e => setTestEmail(e.target.value)}
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-800 bg-slate-950 text-xs text-white focus:outline-none focus:border-indigo-500"
+              />
+            </div>
+
+            {testResult && (
+              <div className={`p-3 rounded-xl text-xs flex items-center gap-2 ${
+                testResult.success ? 'bg-emerald-500/10 text-emerald-300 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-300 border border-rose-500/20'
+              }`}>
+                {testResult.success ? <CheckCircle2 size={14} /> : <AlertCircle size={14} />}
+                <span>{testResult.message}</span>
+              </div>
+            )}
+
+            <div className="flex items-center justify-end gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => setShowTestModal(false)}
+                className="px-4 py-2 rounded-xl text-xs font-bold text-slate-400 hover:text-white"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={sendingTest || !testEmail}
+                onClick={sendTest}
+                className="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-xs font-bold text-white flex items-center gap-1.5 disabled:opacity-50"
+              >
+                {sendingTest ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
+                {sendingTest ? 'Sending...' : 'Dispatch Test'}
+              </button>
             </div>
           </div>
         </div>
-      </div>
+      )}
 
-      {/* Settings Modal (SMTP / Resend / SendGrid / Webhook) */}
+      {/* SENDER SETTINGS MODAL */}
       {showSettings && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="max-w-xl w-full rounded-3xl border border-white/10 bg-[#0d1117] p-6 shadow-2xl space-y-5">
+          <div className="max-w-xl w-full rounded-3xl border border-white/10 bg-slate-900 p-6 shadow-2xl space-y-5">
             <div className="flex items-center justify-between border-b border-white/10 pb-4">
               <div>
                 <h3 className="text-base font-black text-white flex items-center gap-2">
                   <Settings size={18} className="text-indigo-400" /> Sender &amp; ESP Integration
                 </h3>
-                <p className="text-xs text-white/40">Saved securely in your browser for 1-click dispatch</p>
+                <p className="text-xs text-slate-400">Configure SMTP, Resend, or SendGrid for live broadcasts</p>
               </div>
               <button
                 type="button"
                 onClick={() => setShowSettings(false)}
-                className="p-1.5 rounded-lg text-white/40 hover:text-white"
+                className="p-1.5 rounded-lg text-slate-400 hover:text-white"
               >
                 <X size={18} />
               </button>
@@ -531,85 +961,85 @@ export function EmailExecutionStudio({
 
             <form onSubmit={saveSettings} className="space-y-4 text-xs">
               <div>
-                <label className="block font-bold text-white/60 mb-1">Sending Provider</label>
+                <label className="block font-bold text-slate-300 mb-1">Sending Provider</label>
                 <select
                   value={settings.provider}
                   onChange={e => setSettings({ ...settings, provider: e.target.value as any })}
-                  className="w-full px-3 py-2 rounded-xl border border-white/10 bg-white/5 text-white font-bold"
+                  className="w-full px-3 py-2.5 rounded-xl border border-slate-800 bg-slate-950 text-white font-bold"
                 >
-                  <option value="smtp">Direct SMTP (Gmail, Workspace, SendGrid SMTP, CPanel)</option>
-                  <option value="resend">Resend API (Recommended for modern deliverability)</option>
+                  <option value="smtp">Direct SMTP (Gmail, Google Workspace, Custom Domain, SendGrid SMTP)</option>
+                  <option value="resend">Resend API (Modern deliverability)</option>
                   <option value="sendgrid">SendGrid API</option>
-                  <option value="webhook">Custom Webhook (Zapier, Make, n8n)</option>
+                  <option value="webhook">Custom Webhook (Zapier, Make.com, n8n)</option>
                 </select>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-bold text-white/60 mb-1">Sender Email</label>
+                  <label className="block font-bold text-slate-300 mb-1">Sender Email</label>
                   <input
                     type="email"
                     required
                     placeholder="marketing@yourdomain.com"
                     value={settings.fromEmail}
                     onChange={e => setSettings({ ...settings, fromEmail: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl border border-white/10 bg-white/5 text-white"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-800 bg-slate-950 text-white"
                   />
                 </div>
                 <div>
-                  <label className="block font-bold text-white/60 mb-1">Sender Name</label>
+                  <label className="block font-bold text-slate-300 mb-1">Sender Name</label>
                   <input
                     type="text"
                     placeholder="e.g. Najmol from GrowthPilot"
                     value={settings.fromName}
                     onChange={e => setSettings({ ...settings, fromName: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl border border-white/10 bg-white/5 text-white"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-800 bg-slate-950 text-white"
                   />
                 </div>
               </div>
 
               {settings.provider === 'smtp' && (
-                <div className="space-y-3 p-3 rounded-2xl bg-white/[0.02] border border-white/5">
+                <div className="space-y-3 p-3.5 rounded-2xl bg-slate-950 border border-slate-800">
                   <div className="grid grid-cols-3 gap-2">
                     <div className="col-span-2">
-                      <label className="block font-bold text-white/60 mb-1">SMTP Host</label>
+                      <label className="block font-bold text-slate-300 mb-1">SMTP Host</label>
                       <input
                         type="text"
-                        placeholder="smtp.gmail.com or mail.site.com"
+                        placeholder="smtp.gmail.com or mail.yourdomain.com"
                         value={settings.smtpHost}
                         onChange={e => setSettings({ ...settings, smtpHost: e.target.value })}
-                        className="w-full px-3 py-2 rounded-xl border border-white/10 bg-white/5 text-white"
+                        className="w-full px-3 py-2 rounded-xl border border-slate-800 bg-slate-900 text-white"
                       />
                     </div>
                     <div>
-                      <label className="block font-bold text-white/60 mb-1">Port</label>
+                      <label className="block font-bold text-slate-300 mb-1">Port</label>
                       <input
                         type="number"
                         value={settings.smtpPort}
                         onChange={e => setSettings({ ...settings, smtpPort: Number(e.target.value) })}
-                        className="w-full px-3 py-2 rounded-xl border border-white/10 bg-white/5 text-white"
+                        className="w-full px-3 py-2 rounded-xl border border-slate-800 bg-slate-900 text-white"
                       />
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-2">
                     <div>
-                      <label className="block font-bold text-white/60 mb-1">Username</label>
+                      <label className="block font-bold text-slate-300 mb-1">Username</label>
                       <input
                         type="text"
                         placeholder="SMTP Username"
                         value={settings.smtpUser}
                         onChange={e => setSettings({ ...settings, smtpUser: e.target.value })}
-                        className="w-full px-3 py-2 rounded-xl border border-white/10 bg-white/5 text-white"
+                        className="w-full px-3 py-2 rounded-xl border border-slate-800 bg-slate-900 text-white"
                       />
                     </div>
                     <div>
-                      <label className="block font-bold text-white/60 mb-1">Password / App Key</label>
+                      <label className="block font-bold text-slate-300 mb-1">Password / App Key</label>
                       <input
                         type="password"
                         placeholder="••••••••••••"
                         value={settings.smtpPass}
                         onChange={e => setSettings({ ...settings, smtpPass: e.target.value })}
-                        className="w-full px-3 py-2 rounded-xl border border-white/10 bg-white/5 text-white"
+                        className="w-full px-3 py-2 rounded-xl border border-slate-800 bg-slate-900 text-white"
                       />
                     </div>
                   </div>
@@ -618,39 +1048,39 @@ export function EmailExecutionStudio({
 
               {settings.provider === 'resend' && (
                 <div>
-                  <label className="block font-bold text-white/60 mb-1">Resend API Key</label>
+                  <label className="block font-bold text-slate-300 mb-1">Resend API Key</label>
                   <input
                     type="password"
                     placeholder="re_••••••••"
                     value={settings.resendApiKey}
                     onChange={e => setSettings({ ...settings, resendApiKey: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl border border-white/10 bg-white/5 text-white"
+                    className="w-full px-3 py-2.5 rounded-xl border border-slate-800 bg-slate-950 text-white"
                   />
                 </div>
               )}
 
               {settings.provider === 'sendgrid' && (
                 <div>
-                  <label className="block font-bold text-white/60 mb-1">SendGrid API Key</label>
+                  <label className="block font-bold text-slate-300 mb-1">SendGrid API Key</label>
                   <input
                     type="password"
                     placeholder="SG.••••••••"
                     value={settings.sendgridApiKey}
                     onChange={e => setSettings({ ...settings, sendgridApiKey: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl border border-white/10 bg-white/5 text-white"
+                    className="w-full px-3 py-2.5 rounded-xl border border-slate-800 bg-slate-950 text-white"
                   />
                 </div>
               )}
 
               {settings.provider === 'webhook' && (
                 <div>
-                  <label className="block font-bold text-white/60 mb-1">Webhook Endpoint URL</label>
+                  <label className="block font-bold text-slate-300 mb-1">Webhook Endpoint URL</label>
                   <input
                     type="url"
                     placeholder="https://hooks.zapier.com/hooks/catch/..."
                     value={settings.webhookUrl}
                     onChange={e => setSettings({ ...settings, webhookUrl: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl border border-white/10 bg-white/5 text-white"
+                    className="w-full px-3 py-2.5 rounded-xl border border-slate-800 bg-slate-950 text-white"
                   />
                 </div>
               )}
@@ -659,7 +1089,7 @@ export function EmailExecutionStudio({
                 <button
                   type="button"
                   onClick={() => setShowSettings(false)}
-                  className="px-4 py-2 rounded-xl border border-white/10 text-white/60 hover:text-white"
+                  className="px-4 py-2 rounded-xl border border-white/10 text-slate-400 hover:text-white"
                 >
                   Cancel
                 </button>
@@ -676,46 +1106,44 @@ export function EmailExecutionStudio({
         </div>
       )}
 
-      {/* Live Campaign Execution Modal */}
+      {/* LIVE CAMPAIGN BROADCAST MODAL */}
       {showRunModal && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="max-w-2xl w-full rounded-3xl border border-indigo-500/30 bg-[#0d1117] p-6 shadow-2xl space-y-5">
+          <div className="max-w-2xl w-full rounded-3xl border border-indigo-500/30 bg-slate-900 p-6 shadow-2xl space-y-5">
             <div className="flex items-center justify-between border-b border-white/10 pb-4">
               <div>
-                <h3 className="text-lg font-black text-white flex items-center gap-2">
-                  <Play size={18} className="text-indigo-400" /> Execute Live Email Broadcast
+                <h3 className="text-base font-black text-white flex items-center gap-2">
+                  <Play size={18} className="text-indigo-400" /> Confirm &amp; Launch Email Broadcast
                 </h3>
-                <p className="text-xs text-white/50">
-                  Target: <span className="font-bold text-white">{parsedList.length} verified recipients</span>
+                <p className="text-xs text-slate-400">
+                  Target: <span className="font-bold text-white">{parsedList.length} verified contacts</span>
                 </p>
               </div>
               {!runningCampaign && (
                 <button
                   type="button"
                   onClick={() => setShowRunModal(false)}
-                  className="p-1.5 rounded-lg text-white/40 hover:text-white"
+                  className="p-1.5 rounded-lg text-slate-400 hover:text-white"
                 >
                   <X size={18} />
                 </button>
               )}
             </div>
 
-            {/* Warning / Ready State */}
             {!campaignSummary && !runningCampaign && (
               <div className="rounded-2xl border border-amber-500/20 bg-amber-500/10 p-4 text-xs text-amber-200 leading-relaxed space-y-2">
                 <div className="font-bold flex items-center gap-1.5">
-                  <AlertCircle size={14} /> Pre-Flight Checklist:
+                  <AlertCircle size={14} /> Ready to send:
                 </div>
                 <ul className="list-disc pl-5 space-y-1">
                   <li>Provider: <span className="font-bold uppercase text-white">{settings.provider}</span></li>
                   <li>Sender: <span className="font-bold text-white">{settings.fromEmail || 'Not configured'}</span></li>
                   <li>Subject: <span className="font-bold text-white">{subject}</span></li>
-                  <li>Recipients: <span className="font-bold text-white">{parsedList.length} contact(s)</span></li>
+                  <li>Total Recipients: <span className="font-bold text-white">{parsedList.length}</span></li>
                 </ul>
               </div>
             )}
 
-            {/* Progress Bar */}
             {runningCampaign && (
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-xs text-white font-bold">
@@ -725,7 +1153,7 @@ export function EmailExecutionStudio({
                   </span>
                   <span>{campaignProgress}%</span>
                 </div>
-                <div className="w-full h-2 rounded-full bg-white/10 overflow-hidden">
+                <div className="w-full h-2 rounded-full bg-slate-800 overflow-hidden">
                   <div
                     className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 transition-all duration-300"
                     style={{ width: `${campaignProgress}%` }}
@@ -734,11 +1162,10 @@ export function EmailExecutionStudio({
               </div>
             )}
 
-            {/* Summary Report */}
             {campaignSummary && (
-              <div className="grid grid-cols-3 gap-3 p-4 rounded-2xl bg-white/[0.02] border border-white/10 text-center">
+              <div className="grid grid-cols-3 gap-3 p-4 rounded-2xl bg-slate-950 border border-slate-800 text-center">
                 <div>
-                  <div className="text-[10px] uppercase font-bold text-white/40">Total</div>
+                  <div className="text-[10px] uppercase font-bold text-slate-400">Total</div>
                   <div className="text-xl font-black text-white">{campaignSummary.total}</div>
                 </div>
                 <div>
@@ -752,29 +1179,12 @@ export function EmailExecutionStudio({
               </div>
             )}
 
-            {/* Delivery Logs */}
-            {campaignLogs.length > 0 && (
-              <div className="max-h-48 overflow-y-auto space-y-1.5 p-3 rounded-2xl bg-black/40 border border-white/5 font-mono text-[11px]">
-                {campaignLogs.map((log, idx) => (
-                  <div
-                    key={idx}
-                    className={`flex items-center justify-between py-1 px-2 rounded ${
-                      log.status === 'sent' ? 'text-emerald-400 bg-emerald-950/20' : 'text-rose-400 bg-rose-950/20'
-                    }`}
-                  >
-                    <span>{log.email}</span>
-                    <span>{log.status === 'sent' ? '✓ Sent' : `✗ Failed: ${log.error || 'Error'}`}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-
             <div className="flex items-center justify-end gap-3 pt-2">
               <button
                 type="button"
                 disabled={runningCampaign}
                 onClick={() => setShowRunModal(false)}
-                className="px-4 py-2.5 rounded-xl border border-white/10 text-xs font-bold text-white/60 hover:text-white"
+                className="px-4 py-2.5 rounded-xl border border-white/10 text-xs font-bold text-slate-400 hover:text-white"
               >
                 Close
               </button>
@@ -786,7 +1196,7 @@ export function EmailExecutionStudio({
                   className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-xs font-black text-white shadow-lg flex items-center gap-2 cursor-pointer disabled:opacity-50"
                 >
                   {runningCampaign ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
-                  Confirm &amp; Send to All ({parsedList.length})
+                  Confirm &amp; Dispatch to All ({parsedList.length})
                 </button>
               )}
             </div>
