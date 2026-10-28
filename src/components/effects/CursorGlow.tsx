@@ -10,23 +10,21 @@ export default function CursorGlow() {
   const mouseX = useMotionValue(-1000);
   const mouseY = useMotionValue(-1000);
 
-  // Fade in / out opacity motion value with smooth spring
+  // Fade in / out opacity with smooth spring
   const opacityRaw = useMotionValue(0);
   const opacity = useSpring(opacityRaw, { damping: 25, stiffness: 220 });
 
-  // Scale motion value (reacts to clicks)
+  // Scale motion value (tactile reaction on click)
   const scaleRaw = useMotionValue(1);
-  const scale = useSpring(scaleRaw, { damping: 20, stiffness: 300 });
+  const scale = useSpring(scaleRaw, { damping: 22, stiffness: 350 });
 
-  // Smooth trailing spring physics for the wide ambient aura (lazy & fluid)
-  const springConfigAura = { damping: 28, stiffness: 200, mass: 0.5 };
-  const smoothX = useSpring(mouseX, springConfigAura);
-  const smoothY = useSpring(mouseY, springConfigAura);
+  // Responsive, fluid follower spring physics (keeps mouse exactly in center without lagging far behind)
+  const springConfig = { damping: 28, stiffness: 420, mass: 0.12 };
+  const smoothX = useSpring(mouseX, springConfig);
+  const smoothY = useSpring(mouseY, springConfig);
 
-  // Snappier spring physics for the inner glow core (tracks cursor closely)
-  const springConfigCore = { damping: 22, stiffness: 380, mass: 0.2 };
-  const coreX = useSpring(mouseX, springConfigCore);
-  const coreY = useSpring(mouseY, springConfigCore);
+  // Single light diameter
+  const LIGHT_SIZE = 440;
 
   useEffect(() => {
     // Only enable on devices that have a mouse / trackpad (ignore touch devices)
@@ -54,7 +52,7 @@ export default function CursorGlow() {
     };
 
     const handleMouseDown = () => {
-      scaleRaw.set(0.9);
+      scaleRaw.set(0.92);
     };
 
     const handleMouseUp = () => {
@@ -85,40 +83,31 @@ export default function CursorGlow() {
       className="pointer-events-none fixed inset-0 z-30 overflow-hidden select-none"
       style={{ opacity }}
     >
-      {/* ── Layer 1: Ambient Trailing Brand Aura (Wide, soft, buttery trail) ── */}
+      {/* ── Single Smooth Brand Light Follower (Mouse cursor is EXACTLY in the center) ── */}
       <motion.div
-        className="absolute top-0 left-0 -translate-x-1/2 -translate-y-1/2 rounded-full pointer-events-none will-change-transform"
+        className="absolute top-0 left-0 pointer-events-none will-change-transform"
         style={{
           x: smoothX,
           y: smoothY,
-          scale,
-          width: 520,
-          height: 520,
         }}
       >
-        {/* Dark Mode Ambient Glow */}
-        <div className="hidden dark:block w-full h-full rounded-full bg-[radial-gradient(circle,rgba(255,85,51,0.24)_0%,rgba(255,106,61,0.14)_35%,rgba(255,138,0,0.05)_60%,transparent_75%)] blur-[45px]" />
-        
-        {/* Light Mode Ambient Glow */}
-        <div className="dark:hidden w-full h-full rounded-full bg-[radial-gradient(circle,rgba(255,85,51,0.12)_0%,rgba(255,110,46,0.07)_35%,rgba(255,138,0,0.03)_60%,transparent_75%)] blur-[35px]" />
-      </motion.div>
+        <motion.div
+          data-cursor-glow="true"
+          style={{
+            scale,
+            width: LIGHT_SIZE,
+            height: LIGHT_SIZE,
+            marginLeft: -LIGHT_SIZE / 2,
+            marginTop: -LIGHT_SIZE / 2,
+          }}
+          className="rounded-full pointer-events-none"
+        >
+          {/* Dark Mode: Vibrant, smooth, continuous radial blend of brand flame orange */}
+          <div className="hidden dark:block w-full h-full rounded-full bg-[radial-gradient(circle,rgba(255,85,51,0.26)_0%,rgba(255,106,61,0.15)_25%,rgba(255,138,0,0.06)_50%,transparent_72%)] blur-[38px]" />
 
-      {/* ── Layer 2: Tight Responsive Brand Core (Follows cursor closely with rich warm color) ── */}
-      <motion.div
-        className="absolute top-0 left-0 -translate-x-1/2 -translate-y-1/2 rounded-full pointer-events-none will-change-transform"
-        style={{
-          x: coreX,
-          y: coreY,
-          scale,
-          width: 240,
-          height: 240,
-        }}
-      >
-        {/* Dark Mode Core */}
-        <div className="hidden dark:block w-full h-full rounded-full bg-[radial-gradient(circle,rgba(255,85,51,0.35)_0%,rgba(255,138,0,0.18)_45%,transparent_70%)] blur-[22px]" />
-
-        {/* Light Mode Core */}
-        <div className="dark:hidden w-full h-full rounded-full bg-[radial-gradient(circle,rgba(255,85,51,0.18)_0%,rgba(255,138,0,0.08)_50%,transparent_70%)] blur-[18px]" />
+          {/* Light Mode: Soft, warm, elegant terracotta glow */}
+          <div className="dark:hidden w-full h-full rounded-full bg-[radial-gradient(circle,rgba(255,85,51,0.13)_0%,rgba(255,110,46,0.07)_28%,rgba(255,138,0,0.03)_50%,transparent_70%)] blur-[30px]" />
+        </motion.div>
       </motion.div>
     </motion.div>
   );
