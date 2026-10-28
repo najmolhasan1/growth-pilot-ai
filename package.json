@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "icons:generate": "node scripts/generate-assets.js",
     "cap:sync": "cap sync android",
     "cap:build": "powershell -File ./build-apk.ps1",
     "cap:open": "cap open android"

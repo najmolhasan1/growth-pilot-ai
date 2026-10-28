@@ -6,6 +6,17 @@ import CursorGlow from "@/components/effects/CursorGlow";
 export const metadata: Metadata = {
   title: "GrowthPilot AI - AI Growth Workspace",
   description: "AI workspace for SEO content, keyword research, trend intelligence, video creator kits, and marketing campaigns.",
+  icons: {
+    icon: [
+      { url: "/favicon.ico" },
+      { url: "/images/favicon.png", type: "image/png" },
+      { url: "/icon.png", type: "image/png" },
+    ],
+    apple: [
+      { url: "/apple-icon.png", sizes: "180x180", type: "image/png" },
+    ],
+    shortcut: "/favicon.ico",
+  },
 };
 
 export const viewport: Viewport = {
