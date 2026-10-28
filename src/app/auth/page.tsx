@@ -7,6 +7,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, Loader2, Sparkles, Mail, KeyRound, User } from 'lucide-react';
 import { getSupabaseBrowserClient, isSupabaseConfigured } from '@/lib/supabase';
 import BrandLogo from '@/components/layout/BrandLogo';
+import PublicNavbar from '@/components/layout/PublicNavbar';
+import PublicFooter from '@/components/layout/PublicFooter';
 
 function GoogleIcon({ className = "w-4 h-4" }: { className?: string }) {
   return (
@@ -170,209 +172,214 @@ function AuthContent() {
   };
 
   return (
-    <div className="min-h-screen overflow-hidden bg-background text-foreground transition-colors duration-300 bg-grid-pattern relative flex items-center justify-center py-12 px-6">
-      {/* Background spotlights */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute left-1/2 top-[-100px] h-[500px] w-[700px] -translate-x-1/2 rounded-full bg-[#FF5533]/10 dark:bg-[#FF5533]/15 blur-[120px]" />
-        <div className="absolute bottom-[-100px] left-[-50px] h-[350px] w-[350px] rounded-full bg-[#FF8A00]/10 dark:bg-[#FF8A00]/12 blur-[100px]" />
-        <div className="absolute bottom-0 right-0 h-[300px] w-[300px] rounded-full bg-[#FF4D42]/8 dark:bg-[#FF4D42]/10 blur-[90px]" />
-      </div>
+    <div className="min-h-screen bg-background text-foreground transition-colors duration-300 flex flex-col justify-between">
+      {/* Universal Public Navbar */}
+      <PublicNavbar />
 
-      <motion.div 
-        initial={{ opacity: 0, scale: 0.96, y: 15 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-        className="relative z-10 mx-auto w-full max-w-5xl overflow-hidden rounded-[2.5rem] border border-border bg-card/65 shadow-2xl backdrop-blur-xl lg:grid lg:grid-cols-[1.05fr_0.95fr]"
-      >
-        {/* Left branding panel */}
-        <div className="relative hidden overflow-hidden border-r border-border p-12 lg:block bg-muted/20">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,85,51,0.12),transparent_40%),radial-gradient(circle_at_bottom_right,rgba(255,138,0,0.1),transparent_40%)]" />
-          <div className="relative h-full flex flex-col justify-start">
-            <div className="mb-16">
-              <BrandLogo href="/" imgClassName="h-10 w-auto" />
-            </div>
-
-            <div className="max-w-lg mt-8">
-              <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-3.5 py-1 text-[10px] font-black uppercase tracking-widest text-[#FF5533] dark:text-[#FF7A45] shadow-xs">
-                <Sparkles size={12} className="animate-pulse text-[#FF6A3D]" /> Your AI growth workspace
-              </div>
-              <h1 className="text-4xl font-black leading-tight tracking-tight text-foreground">
-                Plan, create, and package marketing assets from one focused workspace.
-              </h1>
-              <p className="mt-6 text-sm leading-7 text-muted-foreground">
-                Use GrowthPilot AI for SEO content, keyword research, trend ideas, video creator kits, social campaigns, and launch assets.
-              </p>
-            </div>
-          </div>
+      {/* Main Form Center Stage */}
+      <main className="relative flex-1 flex items-center justify-center pt-24 sm:pt-32 pb-16 px-4 sm:px-6 overflow-hidden bg-grid-pattern">
+        {/* Background spotlights */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute left-1/2 top-[-100px] h-[500px] w-[700px] -translate-x-1/2 rounded-full bg-[#FF5533]/10 dark:bg-[#FF5533]/15 blur-[120px]" />
+          <div className="absolute bottom-[-100px] left-[-50px] h-[350px] w-[350px] rounded-full bg-[#FF8A00]/10 dark:bg-[#FF8A00]/12 blur-[100px]" />
+          <div className="absolute bottom-0 right-0 h-[300px] w-[300px] rounded-full bg-[#FF4D42]/8 dark:bg-[#FF4D42]/10 blur-[90px]" />
         </div>
 
-        {/* Right Form panel */}
-        <div className="p-8 sm:p-12 flex flex-col justify-center">
-          <div className="mb-8 lg:hidden">
-            <BrandLogo href="/" imgClassName="h-8 w-auto" />
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.96, y: 15 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          className="relative z-10 mx-auto w-full max-w-5xl overflow-hidden rounded-[2.5rem] border border-border bg-card/65 shadow-2xl backdrop-blur-xl lg:grid lg:grid-cols-[1.05fr_0.95fr]"
+        >
+          {/* Left branding panel */}
+          <div className="relative hidden overflow-hidden border-r border-border p-12 lg:block bg-muted/20">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,85,51,0.12),transparent_40%),radial-gradient(circle_at_bottom_right,rgba(255,138,0,0.1),transparent_40%)]" />
+            <div className="relative h-full flex flex-col justify-start">
+              <div className="mb-16">
+                <BrandLogo href="/" imgClassName="h-10 w-auto" />
+              </div>
+
+              <div className="max-w-lg mt-8">
+                <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-3.5 py-1 text-[10px] font-black uppercase tracking-widest text-[#FF5533] dark:text-[#FF7A45] shadow-xs">
+                  <Sparkles size={12} className="animate-pulse text-[#FF6A3D]" /> Your AI growth workspace
+                </div>
+                <h1 className="text-4xl font-black leading-tight tracking-tight text-foreground">
+                  Plan, create, and package marketing assets from one focused workspace.
+                </h1>
+                <p className="mt-6 text-sm leading-7 text-muted-foreground">
+                  Use GrowthPilot AI for SEO content, keyword research, trend ideas, video creator kits, social campaigns, and launch assets.
+                </p>
+              </div>
+            </div>
           </div>
 
-          <div className="mb-6">
-            <h2 className="text-2xl font-black tracking-tight text-foreground sm:text-3xl">
-              {mode === 'register' ? 'Create your account' : 'Welcome back'}
-            </h2>
-          </div>
+          {/* Right Form panel */}
+          <div className="p-8 sm:p-12 flex flex-col justify-center">
+            <div className="mb-6">
+              <h2 className="text-2xl font-black tracking-tight text-foreground sm:text-3xl">
+                {mode === 'register' ? 'Create your account' : 'Welcome back'}
+              </h2>
+            </div>
 
-          {/* Toggle pill selector */}
-          <div className="mb-6 grid grid-cols-2 rounded-2xl border border-border bg-muted/30 p-1 relative overflow-hidden">
-            <button
-              type="button"
-              onClick={() => setMode('register')}
-              className={`relative z-10 rounded-xl py-2.5 text-xs font-black uppercase tracking-wider transition-colors duration-300 cursor-pointer ${mode === 'register' ? 'text-white' : 'text-muted-foreground hover:text-foreground'}`}
-            >
-              Register
-            </button>
-            <button
-              type="button"
-              onClick={() => setMode('login')}
-              className={`relative z-10 rounded-xl py-2.5 text-xs font-black uppercase tracking-wider transition-colors duration-300 cursor-pointer ${mode === 'login' ? 'text-white' : 'text-muted-foreground hover:text-foreground'}`}
-            >
-              Login
-            </button>
-            <motion.div
-              layout
-              transition={{ type: 'spring', stiffness: 350, damping: 30 }}
-              className="absolute inset-y-1 rounded-xl bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] shadow-sm"
-              style={{
-                left: mode === 'register' ? '4px' : '50%',
-                right: mode === 'register' ? '50%' : '4px',
-              }}
-            />
-          </div>
+            {/* Toggle pill selector */}
+            <div className="mb-6 grid grid-cols-2 rounded-2xl border border-border bg-muted/30 p-1 relative overflow-hidden">
+              <button
+                type="button"
+                onClick={() => setMode('register')}
+                className={`relative z-10 rounded-xl py-2.5 text-xs font-black uppercase tracking-wider transition-colors duration-300 cursor-pointer ${mode === 'register' ? 'text-white' : 'text-muted-foreground hover:text-foreground'}`}
+              >
+                Register
+              </button>
+              <button
+                type="button"
+                onClick={() => setMode('login')}
+                className={`relative z-10 rounded-xl py-2.5 text-xs font-black uppercase tracking-wider transition-colors duration-300 cursor-pointer ${mode === 'login' ? 'text-white' : 'text-muted-foreground hover:text-foreground'}`}
+              >
+                Login
+              </button>
+              <motion.div
+                layout
+                transition={{ type: 'spring', stiffness: 350, damping: 30 }}
+                className="absolute inset-y-1 rounded-xl bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] shadow-sm"
+                style={{
+                  left: mode === 'register' ? '4px' : '50%',
+                  right: mode === 'register' ? '50%' : '4px',
+                }}
+              />
+            </div>
 
-          <form onSubmit={submit} className="space-y-4">
-            <AnimatePresence initial={false}>
-              {mode === 'register' && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0, marginBottom: 0 }}
-                  animate={{ height: 'auto', opacity: 1, marginBottom: 16 }}
-                  exit={{ height: 0, opacity: 0, marginBottom: 0 }}
-                  transition={{ duration: 0.25, ease: 'easeInOut' }}
-                  className="overflow-hidden"
+            <form onSubmit={submit} className="space-y-4">
+              <AnimatePresence initial={false}>
+                {mode === 'register' && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0, marginBottom: 0 }}
+                    animate={{ height: 'auto', opacity: 1, marginBottom: 16 }}
+                    exit={{ height: 0, opacity: 0, marginBottom: 0 }}
+                    transition={{ duration: 0.25, ease: 'easeInOut' }}
+                    className="overflow-hidden"
+                  >
+                    <label className="mb-2 block text-xs font-black uppercase tracking-wider text-muted-foreground">Name</label>
+                    <div className="relative">
+                      <User size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground/60" />
+                      <input
+                        value={name}
+                        onChange={event => setName(event.target.value)}
+                        className="w-full rounded-2xl border border-neutral-200 dark:border-neutral-800/80 bg-white dark:bg-[#0f172a] pl-11 pr-4 py-3.5 text-sm outline-none transition-all focus:border-[#FF5533] focus:bg-white dark:focus:bg-neutral-950 focus:ring-2 focus:ring-[#FF5533]/15 text-foreground placeholder:text-muted-foreground/50"
+                        placeholder="Your name"
+                      />
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              <div>
+                <label className="mb-2 block text-xs font-black uppercase tracking-wider text-muted-foreground">Email</label>
+                <div className="relative">
+                  <Mail size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground/60" />
+                  <input
+                    type="email"
+                    required
+                    value={email}
+                    onChange={event => setEmail(event.target.value)}
+                    className="w-full rounded-2xl border border-neutral-200 dark:border-neutral-800/80 bg-white dark:bg-[#0f172a] pl-11 pr-4 py-3.5 text-sm outline-none transition-all focus:border-[#FF5533] focus:bg-white dark:focus:bg-neutral-950 focus:ring-2 focus:ring-[#FF5533]/15 text-foreground placeholder:text-muted-foreground/50"
+                    placeholder="you@company.com"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="mb-2 block text-xs font-black uppercase tracking-wider text-muted-foreground">Password</label>
+                <div className="relative">
+                  <KeyRound size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground/60" />
+                  <input
+                    type="password"
+                    required
+                    value={password}
+                    onChange={event => setPassword(event.target.value)}
+                    className="w-full rounded-2xl border border-neutral-200 dark:border-neutral-800/80 bg-white dark:bg-[#0f172a] pl-11 pr-4 py-3.5 text-sm outline-none transition-all focus:border-[#FF5533] focus:bg-white dark:focus:bg-neutral-950 focus:ring-2 focus:ring-[#FF5533]/15 text-foreground placeholder:text-muted-foreground/50"
+                    placeholder="At least 6 characters"
+                  />
+                </div>
+              </div>
+
+              {error && (
+                <motion.p 
+                  initial={{ opacity: 0, y: -5 }} 
+                  animate={{ opacity: 1, y: 0 }} 
+                  className="rounded-2xl border border-red-500/20 bg-red-500/5 px-4 py-3 text-xs leading-relaxed text-red-600 dark:text-red-300 font-semibold"
                 >
-                  <label className="mb-2 block text-xs font-black uppercase tracking-wider text-muted-foreground">Name</label>
-                  <div className="relative">
-                    <User size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground/60" />
-                    <input
-                      value={name}
-                      onChange={event => setName(event.target.value)}
-                      className="w-full rounded-2xl border border-neutral-200 dark:border-neutral-800/80 bg-white dark:bg-[#0f172a] pl-11 pr-4 py-3.5 text-sm outline-none transition-all focus:border-[#FF5533] focus:bg-white dark:focus:bg-neutral-950 focus:ring-2 focus:ring-[#FF5533]/15 text-foreground placeholder:text-muted-foreground/50"
-                      placeholder="Your name"
-                    />
-                  </div>
-                </motion.div>
+                  {error}
+                </motion.p>
               )}
-            </AnimatePresence>
+              
+              {message && (
+                <motion.p 
+                  initial={{ opacity: 0, y: -5 }} 
+                  animate={{ opacity: 1, y: 0 }} 
+                  className="rounded-2xl border border-emerald-500/20 bg-emerald-500/5 px-4 py-3 text-xs leading-relaxed text-emerald-600 dark:text-emerald-300 font-semibold"
+                >
+                  {message}
+                </motion.p>
+              )}
 
-            <div>
-              <label className="mb-2 block text-xs font-black uppercase tracking-wider text-muted-foreground">Email</label>
-              <div className="relative">
-                <Mail size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground/60" />
-                <input
-                  type="email"
-                  required
-                  value={email}
-                  onChange={event => setEmail(event.target.value)}
-                  className="w-full rounded-2xl border border-neutral-200 dark:border-neutral-800/80 bg-white dark:bg-[#0f172a] pl-11 pr-4 py-3.5 text-sm outline-none transition-all focus:border-[#FF5533] focus:bg-white dark:focus:bg-neutral-950 focus:ring-2 focus:ring-[#FF5533]/15 text-foreground placeholder:text-muted-foreground/50"
-                  placeholder="you@company.com"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="mb-2 block text-xs font-black uppercase tracking-wider text-muted-foreground">Password</label>
-              <div className="relative">
-                <KeyRound size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground/60" />
-                <input
-                  type="password"
-                  required
-                  value={password}
-                  onChange={event => setPassword(event.target.value)}
-                  className="w-full rounded-2xl border border-neutral-200 dark:border-neutral-800/80 bg-white dark:bg-[#0f172a] pl-11 pr-4 py-3.5 text-sm outline-none transition-all focus:border-[#FF5533] focus:bg-white dark:focus:bg-neutral-950 focus:ring-2 focus:ring-[#FF5533]/15 text-foreground placeholder:text-muted-foreground/50"
-                  placeholder="At least 6 characters"
-                />
-              </div>
-            </div>
-
-            {error && (
-              <motion.p 
-                initial={{ opacity: 0, y: -5 }} 
-                animate={{ opacity: 1, y: 0 }} 
-                className="rounded-2xl border border-red-500/20 bg-red-500/5 px-4 py-3 text-xs leading-relaxed text-red-600 dark:text-red-300 font-semibold"
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                disabled={loading || oauthLoading !== null}
+                className="flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] hover:from-[#FF5547] hover:to-[#FF9036] px-5 py-4 text-sm font-black text-white shadow-lg shadow-[#FF5533]/25 disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer"
               >
-                {error}
-              </motion.p>
-            )}
-            
-            {message && (
-              <motion.p 
-                initial={{ opacity: 0, y: -5 }} 
-                animate={{ opacity: 1, y: 0 }} 
-                className="rounded-2xl border border-emerald-500/20 bg-emerald-500/5 px-4 py-3 text-xs leading-relaxed text-emerald-600 dark:text-emerald-300 font-semibold"
-              >
-                {message}
-              </motion.p>
-            )}
+                {loading && <Loader2 className="animate-spin" size={16} />}
+                {mode === 'register' ? 'Start Free Trial' : 'Go to Dashboard'}
+                {!loading && <ArrowRight size={16} />}
+              </motion.button>
+            </form>
 
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              disabled={loading || oauthLoading !== null}
-              className="flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] hover:from-[#FF5547] hover:to-[#FF9036] px-5 py-4 text-sm font-black text-white shadow-lg shadow-[#FF5533]/25 disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer"
-            >
-              {loading && <Loader2 className="animate-spin" size={16} />}
-              {mode === 'register' ? 'Start Free Trial' : 'Go to Dashboard'}
-              {!loading && <ArrowRight size={16} />}
-            </motion.button>
-          </form>
-
-          {/* Divider */}
-          <div className="relative my-6 flex items-center justify-center">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-border/80" />
+            {/* Divider */}
+            <div className="relative my-6 flex items-center justify-center">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-border/80" />
+              </div>
+              <span className="relative bg-card px-3 text-[10px] font-black uppercase tracking-wider text-muted-foreground/60">
+                Or continue with
+              </span>
             </div>
-            <span className="relative bg-card px-3 text-[10px] font-black uppercase tracking-wider text-muted-foreground/60">
-              Or continue with
-            </span>
-          </div>
 
-          {/* Social OAuth Buttons with Logos below Start Free Trial button */}
-          <div className="grid grid-cols-2 gap-3">
-            <button
-              type="button"
-              onClick={() => handleOAuthSignIn('google')}
-              disabled={loading || oauthLoading !== null}
-              className="flex items-center justify-center gap-2.5 rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white/80 dark:bg-[#0f172a]/80 hover:bg-neutral-100 dark:hover:bg-neutral-800/80 px-4 py-3 text-xs font-bold text-foreground transition-all duration-200 hover:border-neutral-300 dark:hover:border-neutral-700 shadow-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {oauthLoading === 'google' ? (
-                <Loader2 className="h-4 w-4 animate-spin text-[#FF5533]" />
-              ) : (
-                <GoogleIcon className="h-4 w-4 shrink-0" />
-              )}
-              <span>Google</span>
-            </button>
+            {/* Social OAuth Buttons with Logos below Start Free Trial button */}
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => handleOAuthSignIn('google')}
+                disabled={loading || oauthLoading !== null}
+                className="flex items-center justify-center gap-2.5 rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white/80 dark:bg-[#0f172a]/80 hover:bg-neutral-100 dark:hover:bg-neutral-800/80 px-4 py-3 text-xs font-bold text-foreground transition-all duration-200 hover:border-neutral-300 dark:hover:border-neutral-700 shadow-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {oauthLoading === 'google' ? (
+                  <Loader2 className="h-4 w-4 animate-spin text-[#FF5533]" />
+                ) : (
+                  <GoogleIcon className="h-4 w-4 shrink-0" />
+                )}
+                <span>Google</span>
+              </button>
 
-            <button
-              type="button"
-              onClick={() => handleOAuthSignIn('github')}
-              disabled={loading || oauthLoading !== null}
-              className="flex items-center justify-center gap-2.5 rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white/80 dark:bg-[#0f172a]/80 hover:bg-neutral-100 dark:hover:bg-neutral-800/80 px-4 py-3 text-xs font-bold text-foreground transition-all duration-200 hover:border-neutral-300 dark:hover:border-neutral-700 shadow-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {oauthLoading === 'github' ? (
-                <Loader2 className="h-4 w-4 animate-spin text-[#FF5533]" />
-              ) : (
-                <GithubIcon className="h-4 w-4 shrink-0" />
-              )}
-              <span>GitHub</span>
-            </button>
+              <button
+                type="button"
+                onClick={() => handleOAuthSignIn('github')}
+                disabled={loading || oauthLoading !== null}
+                className="flex items-center justify-center gap-2.5 rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white/80 dark:bg-[#0f172a]/80 hover:bg-neutral-100 dark:hover:bg-neutral-800/80 px-4 py-3 text-xs font-bold text-foreground transition-all duration-200 hover:border-neutral-300 dark:hover:border-neutral-700 shadow-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {oauthLoading === 'github' ? (
+                  <Loader2 className="h-4 w-4 animate-spin text-[#FF5533]" />
+                ) : (
+                  <GithubIcon className="h-4 w-4 shrink-0" />
+                )}
+                <span>GitHub</span>
+              </button>
+            </div>
           </div>
-        </div>
-      </motion.div>
+        </motion.div>
+      </main>
+
+      {/* Universal Public Footer */}
+      <PublicFooter />
     </div>
   );
 }

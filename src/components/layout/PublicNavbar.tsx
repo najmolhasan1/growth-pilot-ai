@@ -1,20 +1,23 @@
 'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, ArrowRight } from 'lucide-react';
+import { Menu, X, ArrowRight, ArrowLeft } from 'lucide-react';
 import ThemeToggle from '@/components/layout/ThemeToggle';
 import BrandLogo from '@/components/layout/BrandLogo';
 
 export default function PublicNavbar() {
+  const pathname = usePathname();
+  const isAuthPage = pathname === '/auth';
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navItems = [
-    { label: 'Features', href: '#features' },
-    { label: 'Workflow', href: '#process' },
-    { label: 'Pricing', href: '#pricing' },
-    { label: 'FAQ', href: '#faq' },
+    { label: 'Features', href: '/#features' },
+    { label: 'Workflow', href: '/#process' },
+    { label: 'Pricing', href: '/#pricing' },
+    { label: 'FAQ', href: '/#faq' },
   ];
 
   // Prevent background scroll when mobile menu is open
@@ -58,20 +61,32 @@ export default function PublicNavbar() {
         <div className="flex items-center gap-2 sm:gap-3.5">
           <ThemeToggle />
           
-          <Link 
-            href="/auth?next=/dashboard" 
-            className="hidden text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground sm:block"
-          >
-            Login
-          </Link>
-
-          <Link href="/auth?next=/dashboard">
-            <button
-              className="relative inline-flex h-9 sm:h-10 items-center justify-center overflow-hidden rounded-full bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] px-3.5 sm:px-6 text-xs sm:text-sm font-bold text-white shadow-md shadow-orange-500/25 hover:shadow-orange-500/40 hover:scale-[1.03] active:scale-[0.98] transition-all duration-300 cursor-pointer"
+          {isAuthPage ? (
+            <Link 
+              href="/" 
+              className="inline-flex items-center gap-1.5 rounded-full border border-border/80 bg-muted/40 hover:bg-muted px-3.5 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold text-foreground transition-all duration-200 shadow-xs cursor-pointer"
             >
-              <span>Start Free Trial</span>
-            </button>
-          </Link>
+              <ArrowLeft size={14} />
+              <span>Back to Home</span>
+            </Link>
+          ) : (
+            <>
+              <Link 
+                href="/auth?next=/dashboard" 
+                className="hidden text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground sm:block"
+              >
+                Login
+              </Link>
+
+              <Link href="/auth?next=/dashboard">
+                <button
+                  className="relative inline-flex h-9 sm:h-10 items-center justify-center overflow-hidden rounded-full bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] px-3.5 sm:px-6 text-xs sm:text-sm font-bold text-white shadow-md shadow-orange-500/25 hover:shadow-orange-500/40 hover:scale-[1.03] active:scale-[0.98] transition-all duration-300 cursor-pointer"
+                >
+                  <span>Start Free Trial</span>
+                </button>
+              </Link>
+            </>
+          )}
 
           {/* Mobile Hamburger Toggle Button */}
           <button
@@ -109,23 +124,38 @@ export default function PublicNavbar() {
             </div>
 
             <div className="pt-3 border-t border-border/40 dark:border-white/[0.06] flex flex-col gap-2">
-              <Link
-                href="/auth?next=/dashboard"
-                onClick={() => setMobileMenuOpen(false)}
-                className="w-full text-center py-2 text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors"
-              >
-                Log in to Account
-              </Link>
-              <Link
-                href="/auth?next=/dashboard"
-                onClick={() => setMobileMenuOpen(false)}
-                className="w-full"
-              >
-                <button className="w-full h-10 flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] text-white font-bold text-sm shadow-md shadow-orange-500/30">
-                  <span>Start Free Trial</span>
-                  <ArrowRight size={15} />
-                </button>
-              </Link>
+              {isAuthPage ? (
+                <Link
+                  href="/"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="w-full"
+                >
+                  <button className="w-full h-10 flex items-center justify-center gap-2 rounded-xl border border-border/70 bg-muted/50 text-foreground font-semibold text-sm">
+                    <ArrowLeft size={15} />
+                    <span>Back to Home</span>
+                  </button>
+                </Link>
+              ) : (
+                <>
+                  <Link
+                    href="/auth?next=/dashboard"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="w-full text-center py-2 text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    Log in to Account
+                  </Link>
+                  <Link
+                    href="/auth?next=/dashboard"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="w-full"
+                  >
+                    <button className="w-full h-10 flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] text-white font-bold text-sm shadow-md shadow-orange-500/30">
+                      <span>Start Free Trial</span>
+                      <ArrowRight size={15} />
+                    </button>
+                  </Link>
+                </>
+              )}
             </div>
           </motion.div>
         )}
