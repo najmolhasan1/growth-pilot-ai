@@ -111,15 +111,15 @@ export default function VideoKitPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#030712] p-6 lg:p-10">
+    <div className="min-h-screen bg-[#030303] p-6 lg:p-10">
       <div className="mx-auto max-w-7xl">
         <div className="mb-8 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-cyan-500/20 bg-cyan-500/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-cyan-300">
+            <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-[#FF5533]">
               <Video size={12} /> Separate Video Workflow
             </div>
             <h1 className="text-4xl font-black tracking-tight text-white">
-              Video <span className="bg-gradient-to-r from-cyan-300 to-indigo-300 bg-clip-text text-transparent">Content Kit</span>
+              Video <span className="bg-gradient-to-r from-[#FF4D42] via-[#FF6A3D] to-[#FF8A00] bg-clip-text text-transparent">Content Kit</span>
             </h1>
             <p className="mt-3 max-w-2xl text-sm leading-6 text-white/50">
               Paste a YouTube link, public Google Drive video/audio file, or direct MP4/MP3 link. The app transcribes the media first, then uses that transcript as the brain for every title, timestamp, short-form idea, tag, and description.
@@ -137,15 +137,15 @@ export default function VideoKitPage() {
                 type="file"
                 accept="audio/*,video/*,.mp3,.wav,.m4a,.aac,.ogg,.mp4,.mov,.webm,.m4v"
                 onChange={event => setMediaFile(event.target.files?.[0] || null)}
-                className="w-full rounded-2xl border border-white/10 bg-[#0d1117] px-4 py-3 text-sm text-white file:mr-4 file:rounded-xl file:border-0 file:bg-cyan-500/15 file:px-4 file:py-2 file:text-xs file:font-black file:text-cyan-200"
+                className="w-full rounded-2xl border border-white/10 bg-[#0d0d0f] px-4 py-3 text-sm text-white file:mr-4 file:rounded-xl file:border-0 file:bg-orange-500/15 file:px-4 file:py-2 file:text-xs file:font-black file:text-[#FF7A45]"
               />
               <p className="mt-2 text-xs leading-5 text-white/35">
                 Best option for accuracy. Upload MP3, WAV, M4A, MP4, MOV, or WebM under 90MB. This bypasses YouTube bot blocking.
               </p>
               {mediaFile && (
-                <div className="mt-3 flex items-center justify-between gap-3 rounded-2xl border border-cyan-500/20 bg-cyan-500/10 px-4 py-3 text-xs text-cyan-100">
+                <div className="mt-3 flex items-center justify-between gap-3 rounded-2xl border border-orange-500/20 bg-orange-500/10 px-4 py-3 text-xs text-[#FF7A45]">
                   <span className="truncate">{mediaFile.name} ({(mediaFile.size / 1024 / 1024).toFixed(1)} MB)</span>
-                  <button type="button" onClick={() => setMediaFile(null)} className="font-black text-cyan-200 hover:text-white">
+                  <button type="button" onClick={() => setMediaFile(null)} className="font-black text-[#FF5533] hover:text-white">
                     Remove
                   </button>
                 </div>
@@ -160,7 +160,7 @@ export default function VideoKitPage() {
                 value={sourceLink}
                 onChange={event => setSourceLink(event.target.value)}
                 placeholder="YouTube, public Drive file, or direct MP4/MP3 link"
-                className="w-full rounded-2xl border border-white/10 bg-[#0d1117] px-4 py-3 text-sm text-white outline-none transition placeholder:text-white/20 focus:border-cyan-400/70"
+                className="w-full rounded-2xl border border-white/10 bg-[#0d0d0f] px-4 py-3 text-sm text-white outline-none transition placeholder:text-white/20 focus:border-[#FF5533]/60 focus:ring-1 focus:ring-[#FF5533]/20"
               />
               <p className="mt-2 text-xs leading-5 text-white/35">
                 Link fallback supports YouTube captions, public Drive files, and direct MP4/MP3 URLs. Direct upload is more reliable than YouTube links.
@@ -175,7 +175,7 @@ export default function VideoKitPage() {
                 value={audience}
                 onChange={event => setAudience(event.target.value)}
                 placeholder="Optional: class 2 students, parents, developers, founders"
-                className="w-full rounded-2xl border border-white/10 bg-[#0d1117] px-4 py-3 text-sm text-white outline-none transition placeholder:text-white/20 focus:border-cyan-400/70"
+                className="w-full rounded-2xl border border-white/10 bg-[#0d0d0f] px-4 py-3 text-sm text-white outline-none transition placeholder:text-white/20 focus:border-[#FF5533]/60 focus:ring-1 focus:ring-[#FF5533]/20"
               />
             </div>
 
@@ -187,7 +187,7 @@ export default function VideoKitPage() {
                 value={goal}
                 onChange={event => setGoal(event.target.value)}
                 placeholder="Optional: views, students, course leads, subscribers"
-                className="w-full rounded-2xl border border-white/10 bg-[#0d1117] px-4 py-3 text-sm text-white outline-none transition placeholder:text-white/20 focus:border-cyan-400/70"
+                className="w-full rounded-2xl border border-white/10 bg-[#0d0d0f] px-4 py-3 text-sm text-white outline-none transition placeholder:text-white/20 focus:border-[#FF5533]/60 focus:ring-1 focus:ring-[#FF5533]/20"
               />
             </div>
 
@@ -200,7 +200,7 @@ export default function VideoKitPage() {
                 onChange={event => setNotes(event.target.value)}
                 placeholder="Optional fallback only. Paste transcript, summary, or lesson notes if the video link is private or cannot be read."
                 rows={7}
-                className="w-full resize-y rounded-2xl border border-white/10 bg-[#0d1117] px-4 py-3 text-sm leading-6 text-white outline-none transition placeholder:text-white/20 focus:border-cyan-400/70"
+                className="w-full resize-y rounded-2xl border border-white/10 bg-[#0d0d0f] px-4 py-3 text-sm leading-6 text-white outline-none transition placeholder:text-white/20 focus:border-[#FF5533]/60 focus:ring-1 focus:ring-[#FF5533]/20"
               />
             </div>
 
@@ -211,7 +211,7 @@ export default function VideoKitPage() {
               <select
                 value={language}
                 onChange={event => setLanguage(event.target.value)}
-                className="w-full rounded-2xl border border-white/10 bg-[#0d1117] px-4 py-3 text-sm text-white outline-none"
+                className="w-full rounded-2xl border border-white/10 bg-[#0d0d0f] px-4 py-3 text-sm text-white outline-none"
               >
                 <option>English</option>
                 <option>Bengali</option>
@@ -221,7 +221,7 @@ export default function VideoKitPage() {
 
             <button
               disabled={loading}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-cyan-600 px-6 py-4 text-sm font-black text-white shadow-xl shadow-cyan-500/20 transition hover:bg-cyan-500 disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] px-6 py-4 text-sm font-black text-white shadow-xl shadow-[#FF5533]/25 transition hover:from-[#FF5547] hover:to-[#FF9036] disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer"
             >
               {loading ? <Loader2 className="animate-spin" size={18} /> : <Wand2 size={18} />}
               {loading ? 'Transcribing media and building kit...' : 'Transcribe & Generate Kit'}
@@ -266,8 +266,8 @@ export default function VideoKitPage() {
             </div>
 
             {!result && !loading && (
-              <div className="flex min-h-[500px] flex-col items-center justify-center rounded-3xl border border-dashed border-white/10 bg-[#0d1117]/60 p-8 text-center">
-                <Video size={36} className="mb-4 text-cyan-300" />
+              <div className="flex min-h-[500px] flex-col items-center justify-center rounded-3xl border border-dashed border-white/10 bg-[#0d0d0f]/60 p-8 text-center">
+                <Video size={36} className="mb-4 text-[#FF5533]" />
                 <h3 className="text-xl font-black text-white">Video first, transcript based</h3>
                 <p className="mt-2 max-w-md text-sm leading-6 text-white/40">
                   No more generic video output. The app reads the video/audio first and builds the kit from the actual transcript.
@@ -276,8 +276,8 @@ export default function VideoKitPage() {
             )}
 
             {loading && (
-              <div className="flex min-h-[500px] flex-col items-center justify-center rounded-3xl border border-white/10 bg-[#0d1117]/60 p-8 text-center">
-                <Loader2 className="mb-4 animate-spin text-cyan-300" size={36} />
+              <div className="flex min-h-[500px] flex-col items-center justify-center rounded-3xl border border-white/10 bg-[#0d0d0f]/60 p-8 text-center">
+                <Loader2 className="mb-4 animate-spin text-[#FF5533]" size={36} />
                 <h3 className="text-xl font-black text-white">Reading the video first...</h3>
                 <p className="mt-2 max-w-md text-sm leading-6 text-white/40">
                   Transcribing the uploaded file or source link first, then generating titles, timestamps, reels ideas, description, tags, and 3-5 minute video ideas.
@@ -287,16 +287,16 @@ export default function VideoKitPage() {
 
             {result && !loading && (
               <div className="space-y-5">
-                <section className="rounded-2xl border border-cyan-500/20 bg-cyan-500/10 p-5">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-cyan-200/70">Transcript Source</p>
+                <section className="rounded-2xl border border-orange-500/20 bg-orange-500/10 p-5">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-[#FF7A45]">Transcript Source</p>
                   <h3 className="mt-2 text-lg font-black text-white">{result.sourceTitle}</h3>
-                  <p className="mt-1 text-xs text-cyan-100/70">{result.transcriptSource}</p>
+                  <p className="mt-1 text-xs text-[#FF8A00]">{result.transcriptSource}</p>
                   <p className="mt-4 max-h-40 overflow-y-auto whitespace-pre-wrap text-xs leading-5 text-white/45">
                     {result.transcriptPreview}
                   </p>
                 </section>
 
-                <section className="rounded-2xl border border-white/10 bg-[#0d1117] p-5">
+                <section className="rounded-2xl border border-white/10 bg-[#0d0d0f] p-5">
                   <div className="whitespace-pre-wrap text-sm leading-7 text-white/80">
                     {result.output}
                   </div>

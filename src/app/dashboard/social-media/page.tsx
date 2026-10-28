@@ -255,13 +255,13 @@ export default function SocialMediaWorkspacePage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-4 md:p-8">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#030303] p-4 md:p-8">
       {/* Header */}
       <div className="max-w-7xl mx-auto mb-8">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-100 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
+              <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-orange-500/10 text-[#FF5533] border border-orange-500/30">
                 AI Social Suite
               </span>
               <span className="text-xs text-slate-500 dark:text-slate-400">
@@ -279,10 +279,10 @@ export default function SocialMediaWorkspacePage() {
           <div className="flex items-center gap-3">
             <button
               onClick={handleAutofillBrand}
-              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 hover:border-indigo-500 transition-all shadow-sm"
+              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold bg-white dark:bg-[#0d0d0f] border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-200 hover:border-[#FF5533]/50 transition-all shadow-sm"
               title="Pull audience, tone and offer from Brand Brain"
             >
-              <Brain className={`w-4 h-4 text-indigo-600 dark:text-indigo-400 ${isSyncingBrand ? 'animate-spin' : ''}`} />
+              <Brain className={`w-4 h-4 text-[#FF5533] dark:text-[#FF7A45] ${isSyncingBrand ? 'animate-spin' : ''}`} />
               Sync Brand Brain
             </button>
           </div>
@@ -303,8 +303,8 @@ export default function SocialMediaWorkspacePage() {
                 }}
                 className={`relative flex flex-col items-start p-3.5 rounded-2xl border text-left transition-all ${
                   isActive
-                    ? 'bg-white dark:bg-slate-900 border-indigo-600 dark:border-indigo-500 shadow-md shadow-indigo-500/5 ring-2 ring-indigo-500/20'
-                    : 'bg-white/60 dark:bg-slate-900/60 border-slate-200 dark:border-slate-800/80 hover:bg-white dark:hover:bg-slate-900 text-slate-600 dark:text-slate-400'
+                    ? 'bg-white dark:bg-[#0d0d0f] border-[#FF5533] dark:border-[#FF5533] shadow-md shadow-[#FF5533]/15 ring-2 ring-[#FF5533]/20'
+                    : 'bg-white/60 dark:bg-[#0d0d0f]/60 border-slate-200 dark:border-white/[0.06] hover:bg-white dark:hover:bg-slate-900 text-slate-600 dark:text-slate-400'
                 }`}
               >
                 {tool.badge && (
@@ -312,7 +312,7 @@ export default function SocialMediaWorkspacePage() {
                     {tool.badge}
                   </span>
                 )}
-                <div className={`p-2 rounded-xl mb-2 ${isActive ? 'bg-indigo-600 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'}`}>
+                <div className={`p-2 rounded-xl mb-2 ${isActive ? 'bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] text-white shadow-sm shadow-[#FF5533]/25' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'}`}>
                   <Icon className="w-4 h-4" />
                 </div>
                 <div className="font-semibold text-xs text-slate-900 dark:text-white leading-tight">
@@ -329,10 +329,10 @@ export default function SocialMediaWorkspacePage() {
         
         {/* Left Column: Smart Inputs */}
         <div className="lg:col-span-5 flex flex-col gap-4">
-          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm">
-            <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-100 dark:border-slate-800/80">
+          <div className="bg-white dark:bg-[#0d0d0f] rounded-2xl border border-slate-200 dark:border-white/10 p-5 shadow-sm">
+            <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-100 dark:border-white/[0.06]">
               <h2 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                <Sparkles className="w-4 h-4 text-[#FF5533] dark:text-[#FF7A45]" />
                 Campaign & Content Inputs
               </h2>
               <span className="text-xs text-slate-400">
@@ -352,8 +352,8 @@ export default function SocialMediaWorkspacePage() {
                     onClick={() => setLanguage('English')}
                     className={`py-2 px-3 text-xs font-semibold rounded-xl border transition-all ${
                       language === 'English'
-                        ? 'bg-indigo-50 dark:bg-indigo-950/60 border-indigo-600 text-indigo-700 dark:text-indigo-300'
-                        : 'border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400'
+                        ? 'bg-orange-50 dark:bg-orange-950/40 border-[#FF5533] text-[#FF5533] dark:text-[#FF7A45]'
+                        : 'border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-400'
                     }`}
                   >
                     English (Conversion Copy)
@@ -363,8 +363,8 @@ export default function SocialMediaWorkspacePage() {
                     onClick={() => setLanguage('Bengali')}
                     className={`py-2 px-3 text-xs font-semibold rounded-xl border transition-all ${
                       language === 'Bengali'
-                        ? 'bg-indigo-50 dark:bg-indigo-950/60 border-indigo-600 text-indigo-700 dark:text-indigo-300'
-                        : 'border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400'
+                        ? 'bg-orange-50 dark:bg-orange-950/40 border-[#FF5533] text-[#FF5533] dark:text-[#FF7A45]'
+                        : 'border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-400'
                     }`}
                   >
                     বাংলা (Natural Banglish)
@@ -383,7 +383,7 @@ export default function SocialMediaWorkspacePage() {
                     value={topic}
                     onChange={(e) => setTopic(e.target.value)}
                     placeholder="e.g. 5 Common SEO Mistakes in 2026, or Summer Leather Bag Launch"
-                    className="w-full text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                    className="w-full text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#030303] text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#FF5533]/20 focus:border-[#FF5533]/60"
                   />
                 </div>
               ) : (
@@ -396,7 +396,7 @@ export default function SocialMediaWorkspacePage() {
                     value={sourceContent}
                     onChange={(e) => setSourceContent(e.target.value)}
                     placeholder="Paste a blog excerpt, video transcript, or raw campaign notes here to transform into 5 multi-channel posts..."
-                    className="w-full text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 resize-none"
+                    className="w-full text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#030303] text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#FF5533]/20 focus:border-[#FF5533]/60 resize-none"
                   />
                 </div>
               )}
@@ -410,7 +410,7 @@ export default function SocialMediaWorkspacePage() {
                   <select
                     value={platform}
                     onChange={(e) => setPlatform(e.target.value)}
-                    className="w-full text-xs px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500"
+                    className="w-full text-xs px-3 py-2.5 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#030303] text-slate-900 dark:text-white focus:outline-none focus:border-[#FF5533]/60"
                   >
                     {PLATFORMS.map((p) => (
                       <option key={p} value={p}>{p}</option>
@@ -425,7 +425,7 @@ export default function SocialMediaWorkspacePage() {
                   <select
                     value={tone}
                     onChange={(e) => setTone(e.target.value)}
-                    className="w-full text-xs px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500"
+                    className="w-full text-xs px-3 py-2.5 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#030303] text-slate-900 dark:text-white focus:outline-none focus:border-[#FF5533]/60"
                   >
                     {TONES.map((t) => (
                       <option key={t} value={t}>{t}</option>
@@ -448,8 +448,8 @@ export default function SocialMediaWorkspacePage() {
                         onClick={() => setDuration(d)}
                         className={`py-2 px-2 text-[11px] font-semibold rounded-xl border transition-all text-center ${
                           duration === d
-                            ? 'bg-indigo-50 dark:bg-indigo-950/60 border-indigo-600 text-indigo-700 dark:text-indigo-300'
-                            : 'border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400'
+                            ? 'bg-orange-50 dark:bg-orange-950/40 border-[#FF5533] text-[#FF5533] dark:text-[#FF7A45]'
+                            : 'border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-400'
                         }`}
                       >
                         {d}
@@ -470,7 +470,7 @@ export default function SocialMediaWorkspacePage() {
                     value={audience}
                     onChange={(e) => setAudience(e.target.value)}
                     placeholder="e.g. Freelancers, Tech students, SME founders"
-                    className="w-full text-xs px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-indigo-500"
+                    className="w-full text-xs px-3 py-2.5 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#030303] text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-[#FF5533]/60"
                   />
                 </div>
 
@@ -483,7 +483,7 @@ export default function SocialMediaWorkspacePage() {
                     value={goal}
                     onChange={(e) => setGoal(e.target.value)}
                     placeholder="e.g. Get DMs, Website Clicks, Saves"
-                    className="w-full text-xs px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-indigo-500"
+                    className="w-full text-xs px-3 py-2.5 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#030303] text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-[#FF5533]/60"
                   />
                 </div>
               </div>
@@ -499,7 +499,7 @@ export default function SocialMediaWorkspacePage() {
                 type="button"
                 disabled={isGenerating}
                 onClick={handleGenerate}
-                className="w-full mt-2 py-3 px-4 rounded-xl font-bold text-xs bg-indigo-600 hover:bg-indigo-700 active:scale-[0.99] text-white transition-all shadow-md shadow-indigo-600/20 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full mt-2 py-3 px-4 rounded-xl font-bold text-xs bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] hover:from-[#FF5547] hover:to-[#FF9036] active:scale-[0.99] text-white transition-all shadow-md shadow-[#FF5533]/25 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isGenerating ? (
                   <>
@@ -519,10 +519,10 @@ export default function SocialMediaWorkspacePage() {
 
         {/* Right Column: Dynamic Formatted Output */}
         <div className="lg:col-span-7 flex flex-col gap-4">
-          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm min-h-[540px] flex flex-col">
+          <div className="bg-white dark:bg-[#0d0d0f] rounded-2xl border border-slate-200 dark:border-white/10 p-5 shadow-sm min-h-[540px] flex flex-col">
             
             {/* Output Header */}
-            <div className="flex items-center justify-between pb-3 mb-4 border-b border-slate-100 dark:border-slate-800/80">
+            <div className="flex items-center justify-between pb-3 mb-4 border-b border-slate-100 dark:border-white/[0.06]">
               <div className="flex items-center gap-2">
                 <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
                 <span className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
@@ -549,7 +549,7 @@ export default function SocialMediaWorkspacePage() {
                   <button
                     onClick={handleSaveAsset}
                     disabled={isSaved}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 transition-all"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-orange-500/10 text-[#FF5533] dark:text-[#FF7A45] hover:bg-orange-500/20 transition-all"
                   >
                     <BookmarkCheck className="w-3.5 h-3.5" />
                     {isSaved ? 'Saved to Library' : 'Save Asset'}
@@ -562,7 +562,7 @@ export default function SocialMediaWorkspacePage() {
             <div className="flex-1">
               {!generatedData && !isGenerating && (
                 <div className="h-full flex flex-col items-center justify-center text-center p-8 text-slate-400 dark:text-slate-500">
-                  <div className="w-16 h-16 rounded-2xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-900/50 flex items-center justify-center text-indigo-600 dark:text-indigo-400 mb-4">
+                  <div className="w-16 h-16 rounded-2xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center text-[#FF5533] dark:text-[#FF7A45] mb-4">
                     <Share2 className="w-8 h-8" />
                   </div>
                   <h3 className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">
@@ -576,7 +576,7 @@ export default function SocialMediaWorkspacePage() {
 
               {isGenerating && (
                 <div className="h-full flex flex-col items-center justify-center text-center p-12">
-                  <Loader2 className="w-10 h-10 text-indigo-600 animate-spin mb-4" />
+                  <Loader2 className="w-10 h-10 text-[#FF5533] animate-spin mb-4" />
                   <h4 className="text-sm font-bold text-slate-800 dark:text-slate-200">
                     Crafting Human-Rhythm Social Copy...
                   </h4>
@@ -595,7 +595,7 @@ export default function SocialMediaWorkspacePage() {
                       {generatedData.hookVariations && (
                         <div>
                           <div className="flex items-center justify-between mb-2.5">
-                            <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider flex items-center gap-1.5">
+                            <span className="text-xs font-bold text-[#FF5533] dark:text-[#FF7A45] uppercase tracking-wider flex items-center gap-1.5">
                               <Flame className="w-3.5 h-3.5" /> 5 Psychological Hook Variations
                             </span>
                             <span className="text-[11px] text-slate-400">Click to copy hook</span>
@@ -605,13 +605,13 @@ export default function SocialMediaWorkspacePage() {
                               <div
                                 key={idx}
                                 onClick={() => copyToClipboard(h.hook, `hook-${idx}`)}
-                                className="group p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/50 hover:bg-white dark:hover:bg-slate-900 hover:border-indigo-400 cursor-pointer transition-all"
+                                className="group p-3 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50/50 dark:bg-[#030303]/50 hover:bg-white dark:hover:bg-[#0d0d0f] hover:border-[#FF5533]/50 cursor-pointer transition-all"
                               >
                                 <div className="flex items-center justify-between mb-1">
-                                  <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300">
+                                  <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-orange-500/10 text-[#FF5533]">
                                     {h.type}
                                   </span>
-                                  <span className="text-[11px] text-slate-400 group-hover:text-indigo-600">
+                                  <span className="text-[11px] text-slate-400 group-hover:text-[#FF5533]">
                                     {copiedKey === `hook-${idx}` ? 'Copied!' : 'Copy'}
                                   </span>
                                 </div>
@@ -626,20 +626,20 @@ export default function SocialMediaWorkspacePage() {
 
                       {/* Primary Caption */}
                       {generatedData.primaryCaption && (
-                        <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-950/30">
+                        <div className="p-4 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50/30 dark:bg-[#030303]/30">
                           <div className="flex items-center justify-between mb-2">
                             <span className="text-xs font-bold text-slate-900 dark:text-white">
                               Primary High-Converting Caption
                             </span>
                             <button
                               onClick={() => copyToClipboard(generatedData.primaryCaption, 'primary-cap')}
-                              className="text-xs font-semibold text-indigo-600 hover:underline inline-flex items-center gap-1"
+                              className="text-xs font-semibold text-[#FF5533] hover:underline inline-flex items-center gap-1"
                             >
                               {copiedKey === 'primary-cap' ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
                               Copy Caption
                             </button>
                           </div>
-                          <div className="text-xs text-slate-700 dark:text-slate-300 whitespace-pre-line leading-relaxed font-normal bg-white dark:bg-slate-900 p-3.5 rounded-lg border border-slate-200 dark:border-slate-800">
+                          <div className="text-xs text-slate-700 dark:text-slate-300 whitespace-pre-line leading-relaxed font-normal bg-white dark:bg-[#0d0d0f] p-3.5 rounded-lg border border-slate-200 dark:border-white/10">
                             {generatedData.primaryCaption}
                           </div>
                         </div>
@@ -655,7 +655,7 @@ export default function SocialMediaWorkspacePage() {
                             {generatedData.alternativeCaptions.map((alt: any, idx: number) => (
                               <div
                                 key={idx}
-                                className="p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex flex-col justify-between"
+                                className="p-3 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0d0d0f] flex flex-col justify-between"
                               >
                                 <div>
                                   <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wide">
@@ -667,7 +667,7 @@ export default function SocialMediaWorkspacePage() {
                                 </div>
                                 <button
                                   onClick={() => copyToClipboard(alt.caption, `alt-${idx}`)}
-                                  className="mt-3 text-[11px] font-semibold text-indigo-600 dark:text-indigo-400 self-start hover:underline inline-flex items-center gap-1"
+                                  className="mt-3 text-[11px] font-semibold text-[#FF5533] dark:text-[#FF7A45] self-start hover:underline inline-flex items-center gap-1"
                                 >
                                   {copiedKey === `alt-${idx}` ? 'Copied!' : 'Copy Angle'}
                                 </button>
@@ -685,7 +685,7 @@ export default function SocialMediaWorkspacePage() {
                             <span
                               key={idx}
                               onClick={() => copyToClipboard(tag, `tag-${idx}`)}
-                              className="text-[11px] px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 cursor-pointer hover:bg-indigo-50 hover:text-indigo-600 transition-colors"
+                              className="text-[11px] px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 cursor-pointer hover:bg-orange-500/10 hover:text-[#FF5533] transition-colors"
                             >
                               {tag.startsWith('#') ? tag : `#${tag}`}
                             </span>
@@ -698,8 +698,8 @@ export default function SocialMediaWorkspacePage() {
                   {/* Tool 2: Carousel Planner */}
                   {activeTool === 'carousel_planner' && (
                     <div className="space-y-4">
-                      <div className="p-3 rounded-xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-900/50">
-                        <span className="text-xs font-bold text-indigo-700 dark:text-indigo-300">
+                      <div className="p-3 rounded-xl bg-orange-500/10 border border-orange-500/20">
+                        <span className="text-xs font-bold text-[#FF5533] dark:text-[#FF7A45]">
                           Carousel Promise / Theme: {generatedData.theme}
                         </span>
                       </div>
@@ -708,7 +708,7 @@ export default function SocialMediaWorkspacePage() {
                         {generatedData.slides?.map((slide: any, idx: number) => (
                           <div
                             key={idx}
-                            className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm flex flex-col justify-between"
+                            className="p-4 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0d0d0f] shadow-sm flex flex-col justify-between"
                           >
                             <div>
                               <div className="flex items-center justify-between mb-2">
@@ -717,7 +717,7 @@ export default function SocialMediaWorkspacePage() {
                                 </span>
                                 <button
                                   onClick={() => copyToClipboard(`${slide.headline}\n${slide.body}`, `slide-${idx}`)}
-                                  className="text-[10px] text-slate-400 hover:text-indigo-600"
+                                  className="text-[10px] text-slate-400 hover:text-[#FF5533]"
                                 >
                                   {copiedKey === `slide-${idx}` ? 'Copied' : 'Copy'}
                                 </button>
@@ -730,7 +730,7 @@ export default function SocialMediaWorkspacePage() {
                               </p>
                             </div>
 
-                            <div className="p-2 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800/80 text-[11px] text-slate-500 dark:text-slate-400">
+                            <div className="p-2 rounded-lg bg-slate-50 dark:bg-[#030303] border border-slate-100 dark:border-white/[0.06] text-[11px] text-slate-500 dark:text-slate-400">
                               <span className="font-semibold text-slate-700 dark:text-slate-300">Visual Cue: </span>
                               {slide.visualDirection}
                             </div>
@@ -739,14 +739,14 @@ export default function SocialMediaWorkspacePage() {
                       </div>
 
                       {generatedData.postCaption && (
-                        <div className="mt-4 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950">
+                        <div className="mt-4 p-3.5 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50/50 dark:bg-[#030303]">
                           <div className="flex items-center justify-between mb-1.5">
                             <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
                               Carousel Accompanying Caption
                             </span>
                             <button
                               onClick={() => copyToClipboard(generatedData.postCaption, 'car-cap')}
-                              className="text-xs text-indigo-600 font-semibold hover:underline"
+                              className="text-xs text-[#FF5533] font-semibold hover:underline"
                             >
                               Copy
                             </button>
@@ -762,7 +762,7 @@ export default function SocialMediaWorkspacePage() {
                   {/* Tool 3: Reels & Shorts Script */}
                   {activeTool === 'reels_shorts_script' && (
                     <div className="space-y-4">
-                      <div className="flex items-center justify-between p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
+                      <div className="flex items-center justify-between p-3.5 rounded-xl bg-slate-50 dark:bg-[#030303] border border-slate-200 dark:border-white/10">
                         <div>
                           <h4 className="text-xs font-bold text-slate-900 dark:text-white">
                             {generatedData.videoTitle}
@@ -773,7 +773,7 @@ export default function SocialMediaWorkspacePage() {
                         </div>
                         <button
                           onClick={() => copyToClipboard(JSON.stringify(generatedData.scriptSections, null, 2), 'script-all')}
-                          className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline"
+                          className="text-xs font-semibold text-[#FF5533] dark:text-[#FF7A45] hover:underline"
                         >
                           Copy Script
                         </button>
@@ -783,10 +783,10 @@ export default function SocialMediaWorkspacePage() {
                         {generatedData.scriptSections?.map((sec: any, idx: number) => (
                           <div
                             key={idx}
-                            className="p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900"
+                            className="p-3.5 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0d0d0f]"
                           >
                             <div className="flex items-center justify-between mb-2">
-                              <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-indigo-50 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-900">
+                              <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-orange-500/10 text-[#FF5533] border border-orange-500/30">
                                 {sec.timeRange} — {sec.sectionName}
                               </span>
                               {sec.onScreenText && (
@@ -800,7 +800,7 @@ export default function SocialMediaWorkspacePage() {
                               🗣️ "{sec.speakerText}"
                             </p>
 
-                            <div className="text-[11px] text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-950 p-2 rounded-lg">
+                            <div className="text-[11px] text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-[#030303] p-2 rounded-lg">
                               <span className="font-semibold text-slate-700 dark:text-slate-300">Visual Cue: </span>
                               {sec.visualCue}
                             </div>
@@ -809,7 +809,7 @@ export default function SocialMediaWorkspacePage() {
                       </div>
 
                       {generatedData.audioMusicDirection && (
-                        <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-400">
+                        <div className="p-3 rounded-xl bg-slate-50 dark:bg-[#030303] border border-slate-200 dark:border-white/10 text-xs text-slate-600 dark:text-slate-400">
                           <span className="font-semibold text-slate-800 dark:text-slate-200">🎵 Audio Direction: </span>
                           {generatedData.audioMusicDirection}
                         </div>
@@ -821,7 +821,7 @@ export default function SocialMediaWorkspacePage() {
                   {activeTool === 'video_ideas' && (
                     <div className="space-y-3">
                       {generatedData.strategySummary && (
-                        <div className="p-3 rounded-xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-900/50 text-xs text-indigo-800 dark:text-indigo-200">
+                        <div className="p-3 rounded-xl bg-orange-500/10 border border-orange-500/20 text-xs text-[#FF5533] dark:text-[#FF7A45]">
                           <span className="font-bold">Strategy: </span>
                           {generatedData.strategySummary}
                         </div>
@@ -831,7 +831,7 @@ export default function SocialMediaWorkspacePage() {
                         {generatedData.ideas?.map((idea: any, idx: number) => (
                           <div
                             key={idx}
-                            className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900"
+                            className="p-4 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0d0d0f]"
                           >
                             <div className="flex items-center justify-between mb-2">
                               <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
@@ -839,7 +839,7 @@ export default function SocialMediaWorkspacePage() {
                               </span>
                               <button
                                 onClick={() => copyToClipboard(`${idea.title}\nHook: ${idea.hook}\n${idea.talkingPoints?.join('\n')}`, `idea-${idx}`)}
-                                className="text-[11px] font-semibold text-indigo-600 dark:text-indigo-400 hover:underline"
+                                className="text-[11px] font-semibold text-[#FF5533] dark:text-[#FF7A45] hover:underline"
                               >
                                 {copiedKey === `idea-${idx}` ? 'Copied' : 'Copy'}
                               </button>
@@ -848,21 +848,21 @@ export default function SocialMediaWorkspacePage() {
                             <h4 className="text-xs font-bold text-slate-900 dark:text-white mb-1">
                               {idea.title}
                             </h4>
-                            <p className="text-xs text-indigo-600 dark:text-indigo-400 font-medium mb-2.5">
+                            <p className="text-xs text-[#FF5533] dark:text-[#FF7A45] font-medium mb-2.5">
                               Hook: "{idea.hook}"
                             </p>
 
                             <div className="space-y-1 mb-2.5">
                               {idea.talkingPoints?.map((pt: string, pIdx: number) => (
                                 <div key={pIdx} className="text-xs text-slate-600 dark:text-slate-300 flex items-start gap-1.5">
-                                  <span className="text-indigo-500 font-bold">•</span>
+                                  <span className="text-[#FF5533] font-bold">•</span>
                                   <span>{pt}</span>
                                 </div>
                               ))}
                             </div>
 
                             {idea.retentionCTA && (
-                              <div className="text-[11px] font-medium text-slate-500 bg-slate-50 dark:bg-slate-950 p-2 rounded-lg">
+                              <div className="text-[11px] font-medium text-slate-500 bg-slate-50 dark:bg-[#030303] p-2 rounded-lg">
                                 <span className="font-semibold text-slate-700 dark:text-slate-300">CTA Trigger: </span>
                                 {idea.retentionCTA}
                               </div>
@@ -876,14 +876,14 @@ export default function SocialMediaWorkspacePage() {
                   {/* Tool 5: Social Article */}
                   {activeTool === 'social_article' && (
                     <div className="space-y-4">
-                      <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+                      <div className="p-4 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0d0d0f]">
                         <div className="flex items-center justify-between mb-2">
-                          <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-indigo-50 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300">
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-orange-500/10 text-[#FF5533]">
                             {generatedData.readTime || '3 min read'}
                           </span>
                           <button
                             onClick={() => copyToClipboard(generatedData.contentMarkdown, 'art-md')}
-                            className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline"
+                            className="text-xs font-semibold text-[#FF5533] dark:text-[#FF7A45] hover:underline"
                           >
                             Copy Full Article
                           </button>
@@ -895,13 +895,13 @@ export default function SocialMediaWorkspacePage() {
                           {generatedData.subtitle}
                         </p>
 
-                        <div className="text-xs text-slate-700 dark:text-slate-300 whitespace-pre-line leading-relaxed border-t border-slate-100 dark:border-slate-800 pt-3">
+                        <div className="text-xs text-slate-700 dark:text-slate-300 whitespace-pre-line leading-relaxed border-t border-slate-100 dark:border-white/10 pt-3">
                           {generatedData.contentMarkdown}
                         </div>
                       </div>
 
                       {generatedData.keyTakeaways && (
-                        <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
+                        <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-[#030303] border border-slate-200 dark:border-white/10">
                           <span className="text-xs font-bold text-slate-900 dark:text-white block mb-2">
                             Key Takeaways:
                           </span>
@@ -923,14 +923,14 @@ export default function SocialMediaWorkspacePage() {
                     <div className="space-y-4">
                       {/* Story Post */}
                       {generatedData.storyPost && (
-                        <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+                        <div className="p-4 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0d0d0f]">
                           <div className="flex items-center justify-between mb-2">
                             <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300">
                               Channel 1: Story Narrative ({generatedData.storyPost.platform})
                             </span>
                             <button
                               onClick={() => copyToClipboard(generatedData.storyPost.content, 'rep-story')}
-                              className="text-xs text-indigo-600 hover:underline"
+                              className="text-xs text-[#FF5533] hover:underline"
                             >
                               Copy
                             </button>
@@ -946,25 +946,25 @@ export default function SocialMediaWorkspacePage() {
 
                       {/* Video Script */}
                       {generatedData.shortVideoScript && (
-                        <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+                        <div className="p-4 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0d0d0f]">
                           <div className="flex items-center justify-between mb-2">
                             <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300">
                               Channel 2: Short-Form Video ({generatedData.shortVideoScript.platform})
                             </span>
                             <button
                               onClick={() => copyToClipboard(`Hook: ${generatedData.shortVideoScript.hook}\n${generatedData.shortVideoScript.body}\nCTA: ${generatedData.shortVideoScript.cta}`, 'rep-vid')}
-                              className="text-xs text-indigo-600 hover:underline"
+                              className="text-xs text-[#FF5533] hover:underline"
                             >
                               Copy
                             </button>
                           </div>
-                          <p className="text-xs font-bold text-indigo-600 dark:text-indigo-400 mb-1">
+                          <p className="text-xs font-bold text-[#FF5533] dark:text-[#FF7A45] mb-1">
                             Hook: "{generatedData.shortVideoScript.hook}"
                           </p>
                           <p className="text-xs text-slate-600 dark:text-slate-300 mb-2">
                             {generatedData.shortVideoScript.body}
                           </p>
-                          <span className="text-[11px] text-slate-500 bg-slate-50 dark:bg-slate-950 px-2 py-1 rounded">
+                          <span className="text-[11px] text-slate-500 bg-slate-50 dark:bg-[#030303] px-2 py-1 rounded">
                             CTA: {generatedData.shortVideoScript.cta}
                           </span>
                         </div>
@@ -972,14 +972,14 @@ export default function SocialMediaWorkspacePage() {
 
                       {/* Authority Post */}
                       {generatedData.authorityPost && (
-                        <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+                        <div className="p-4 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0d0d0f]">
                           <div className="flex items-center justify-between mb-2">
                             <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-sky-50 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300">
                               Channel 3: Authority Post ({generatedData.authorityPost.platform})
                             </span>
                             <button
                               onClick={() => copyToClipboard(generatedData.authorityPost.content, 'rep-auth')}
-                              className="text-xs text-indigo-600 hover:underline"
+                              className="text-xs text-[#FF5533] hover:underline"
                             >
                               Copy
                             </button>
@@ -992,21 +992,21 @@ export default function SocialMediaWorkspacePage() {
 
                       {/* Tweet Thread */}
                       {generatedData.tweetThread?.tweets && (
-                        <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+                        <div className="p-4 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0d0d0f]">
                           <div className="flex items-center justify-between mb-2">
                             <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
                               Channel 4: Thread ({generatedData.tweetThread.platform})
                             </span>
                             <button
                               onClick={() => copyToClipboard(generatedData.tweetThread.tweets.join('\n\n---\n\n'), 'rep-thread')}
-                              className="text-xs text-indigo-600 hover:underline"
+                              className="text-xs text-[#FF5533] hover:underline"
                             >
                               Copy Thread
                             </button>
                           </div>
                           <div className="space-y-2">
                             {generatedData.tweetThread.tweets.map((tw: string, idx: number) => (
-                              <div key={idx} className="p-2.5 rounded-lg bg-slate-50 dark:bg-slate-950 text-xs text-slate-700 dark:text-slate-300 border border-slate-100 dark:border-slate-800/80">
+                              <div key={idx} className="p-2.5 rounded-lg bg-slate-50 dark:bg-[#030303] text-xs text-slate-700 dark:text-slate-300 border border-slate-100 dark:border-white/[0.06]">
                                 <span className="font-bold text-slate-400 mr-1.5">{idx + 1}/</span>
                                 {tw}
                               </div>

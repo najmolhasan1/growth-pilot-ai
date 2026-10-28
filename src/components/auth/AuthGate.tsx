@@ -274,7 +274,7 @@ export default function AuthGate({ children }: { children: React.ReactNode }) {
                 <button
                   type="button"
                   onClick={() => setCheckoutActive(true)}
-                  className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white py-3.5 rounded-xl font-black text-sm shadow-xl shadow-blue-500/20 flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer mb-6"
+                  className="w-full bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] hover:from-[#FF5547] hover:to-[#FF9036] text-white py-3.5 rounded-xl font-black text-sm shadow-xl shadow-[#FF5533]/25 flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer mb-6"
                 >
                   <Sparkles size={16} />
                   <span>Pay Securely & Unlock Plus Access</span>

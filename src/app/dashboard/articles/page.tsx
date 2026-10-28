@@ -100,12 +100,12 @@ export default function MyArticles() {
   );
 
   return (
-    <div className="min-h-screen p-6 lg:p-8 bg-[#020617]">
+    <div className="min-h-screen p-6 lg:p-8 bg-[#030303]">
       {/* Header */}
       <div className="flex items-center justify-between mb-10">
         <div>
           <h1 className="text-2xl font-black flex items-center gap-3 text-white">
-            <FileText className="text-blue-400" /> Article Library
+            <FileText className="text-[#FF5533]" /> Article Library
           </h1>
           <p className="text-sm text-white/40 mt-1">Access all your generated SEO reports and content drafts.</p>
         </div>
@@ -115,10 +115,10 @@ export default function MyArticles() {
             <input 
               type="text" placeholder="Search reports..." value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="bg-white/5 border border-white/10 rounded-xl py-2.5 px-10 text-sm text-white w-64 focus:outline-none focus:border-blue-500 transition-all"
+              className="bg-white/5 border border-white/10 rounded-xl py-2.5 px-10 text-sm text-white w-64 focus:outline-none focus:border-[#FF5533]/60 focus:ring-1 focus:ring-[#FF5533]/20 transition-all"
             />
           </div>
-          <Link href="/dashboard/generate" className="p-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-500 transition-all shadow-lg shadow-blue-500/20">
+          <Link href="/dashboard/generate" className="p-2.5 bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] text-white rounded-xl hover:from-[#FF5547] hover:to-[#FF9036] transition-all shadow-lg shadow-[#FF5533]/25">
             <Plus size={20} />
           </Link>
         </div>
@@ -126,7 +126,7 @@ export default function MyArticles() {
 
       {loading ? (
         <div className="flex flex-col items-center justify-center py-32">
-           <RefreshCw className="text-blue-400 animate-spin mb-4" size={32} />
+           <RefreshCw className="text-[#FF5533] animate-spin mb-4" size={32} />
            <p className="text-white/20 font-bold uppercase tracking-widest text-xs">Loading Library...</p>
         </div>
       ) : filteredArticles.length > 0 ? (
@@ -146,7 +146,7 @@ export default function MyArticles() {
                 <tr key={article.id} className="hover:bg-white/[0.01] transition-all group">
                   <td className="px-6 py-5">
                     <button onClick={() => handleViewReport(article.id)} className="flex flex-col text-left group-hover:opacity-80 transition-all">
-                      <span className="text-sm font-bold text-white group-hover:text-blue-400 transition-colors line-clamp-1">{article.title}</span>
+                      <span className="text-sm font-bold text-white group-hover:text-[#FF7A45] transition-colors line-clamp-1">{article.title}</span>
                       <span className="text-[10px] text-white/20 mt-1 uppercase tracking-tighter">Click to open full report</span>
                     </button>
                   </td>
@@ -159,7 +159,7 @@ export default function MyArticles() {
                     <div className="flex items-center gap-2">
                       <button 
                         onClick={() => handleViewReport(article.id)}
-                        className="p-2.5 bg-white/5 border border-white/10 rounded-xl text-white/40 hover:text-white hover:bg-blue-600 hover:border-blue-500 transition-all shadow-sm"
+                        className="p-2.5 bg-white/5 border border-white/10 rounded-xl text-white/40 hover:text-white hover:bg-[#FF5533] hover:border-[#FF5533] transition-all shadow-sm"
                         title="Open Full Report"
                       >
                         <ArrowUpRight size={18} />
@@ -183,7 +183,7 @@ export default function MyArticles() {
           <FileText size={48} className="text-white/10 mb-6" />
           <h3 className="text-lg font-bold text-white/60">No articles in your library</h3>
           <p className="text-sm text-white/20 mt-2 mb-8 max-w-xs mx-auto">Generate your first AI-powered SEO article to see it here.</p>
-          <Link href="/dashboard/generate" className="px-8 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-500 transition-all shadow-xl shadow-blue-500/20">
+          <Link href="/dashboard/generate" className="px-8 py-3 bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] text-white rounded-xl font-bold hover:from-[#FF5547] hover:to-[#FF9036] transition-all shadow-xl shadow-[#FF5533]/25">
             Start Generating
           </Link>
         </div>

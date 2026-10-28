@@ -59,8 +59,8 @@ const allTools: ToolCard[] = [
     category: 'SEO Workspace',
     icon: TrendingUp,
     tag: 'Hot',
-    color: 'text-indigo-400',
-    bg: 'bg-indigo-500/10 border-indigo-500/20',
+    color: 'text-[#FF5533]',
+    bg: 'bg-orange-500/10 border-orange-500/20',
   },
   {
     name: 'Keyword Research',
@@ -188,8 +188,8 @@ const allTools: ToolCard[] = [
     href: '/dashboard/marketing/social_campaign',
     category: 'Growth Suite',
     icon: Share2,
-    color: 'text-indigo-400',
-    bg: 'bg-indigo-500/10 border-indigo-500/20',
+    color: 'text-[#FF5533]',
+    bg: 'bg-orange-500/10 border-orange-500/20',
   },
   {
     name: 'Product Copy',
@@ -299,7 +299,7 @@ export default function DashboardPage() {
   }, [activeCategory, searchQuery]);
 
   return (
-    <div className="min-h-screen bg-[#020617] text-white">
+    <div className="min-h-screen bg-[#030303] text-white">
       {/* Main Container */}
       <div className="space-y-10 p-6 lg:p-10 max-w-7xl mx-auto">
         
@@ -319,18 +319,18 @@ export default function DashboardPage() {
             </div>
             {/* Ambient Glows */}
             <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent" />
-            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[300px] w-[500px] rounded-full bg-indigo-500/20 blur-[100px]" />
+            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[300px] w-[500px] rounded-full bg-[#FF5533]/15 blur-[100px]" />
           </div>
 
           {/* Banner Content Layer */}
           <div className="relative z-20 max-w-3xl space-y-6">
-            <div className="inline-flex items-center gap-2 rounded-full border border-fuchsia-500/30 bg-fuchsia-500/10 px-4 py-1.5 text-[10px] font-black uppercase tracking-widest text-fuchsia-300">
-              <Sparkles size={12} className="animate-pulse" /> Welcome back, {userName}!
+            <div className="inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-4 py-1.5 text-[10px] font-black uppercase tracking-widest text-[#FF5533] dark:text-[#FF7A45]">
+              <Sparkles size={12} className="animate-pulse text-[#FF6A3D]" /> Welcome back, {userName}!
             </div>
             
             <h1 className="text-3xl font-black leading-tight sm:text-5xl tracking-tight text-white">
               Find growth tools that{' '}
-              <span className="bg-gradient-to-r from-blue-400 via-indigo-300 to-fuchsia-300 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-[#FF4D42] via-[#FF6A3D] to-[#FF8A00] bg-clip-text text-transparent">
                 speak to you
               </span>
             </h1>
@@ -341,7 +341,7 @@ export default function DashboardPage() {
 
             {/* Premium Autocomplete Search Bar Component */}
             <div ref={suggestionsRef} className="relative max-w-xl mx-auto mt-4 w-full">
-              <div className="flex items-center gap-3 rounded-full border border-white/15 bg-[#090d16]/90 p-1.5 shadow-2xl backdrop-blur-md focus-within:border-fuchsia-400/50 focus-within:ring-2 focus-within:ring-fuchsia-400/10 transition-all">
+              <div className="flex items-center gap-3 rounded-full border border-white/15 bg-[#0d0d0f]/90 p-1.5 shadow-2xl backdrop-blur-md focus-within:border-[#FF5533]/50 focus-within:ring-2 focus-within:ring-[#FF5533]/15 transition-all">
                 <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/5 text-white/50">
                   <Command size={15} />
                 </div>
@@ -366,7 +366,7 @@ export default function DashboardPage() {
 
               {/* Suggestions Overlay Dropdown */}
               {showSuggestions && (
-                <div className="absolute left-0 right-0 top-full mt-2 z-50 rounded-2xl border border-white/10 bg-[#0d1117]/95 p-3 shadow-2xl backdrop-blur-xl text-left max-h-[320px] overflow-y-auto custom-scrollbar">
+                <div className="absolute left-0 right-0 top-full mt-2 z-50 rounded-2xl border border-white/10 bg-[#0d0d0f]/95 p-3 shadow-2xl backdrop-blur-xl text-left max-h-[320px] overflow-y-auto custom-scrollbar">
                   <p className="mb-2 px-3.5 text-[9px] font-black uppercase tracking-widest text-white/30">Suggestions</p>
                   
                   {suggestedTools.length === 0 ? (
@@ -388,7 +388,7 @@ export default function DashboardPage() {
                               <Icon size={16} />
                             </div>
                             <div className="min-w-0 flex-1">
-                              <h4 className="text-xs font-black text-white group-hover:text-fuchsia-300 transition-colors">{tool.name}</h4>
+                              <h4 className="text-xs font-black text-white group-hover:text-[#FF7A45] transition-colors">{tool.name}</h4>
                               <p className="truncate text-[10px] text-white/40 mt-0.5">{tool.description}</p>
                             </div>
                             <ArrowRight size={13} className="text-white/10 group-hover:text-white/60 group-hover:translate-x-0.5 transition-all" />
@@ -418,7 +418,7 @@ export default function DashboardPage() {
                   onClick={() => setActiveCategory(category)}
                   className={`rounded-full px-4 py-1.5 text-xs font-black transition cursor-pointer ${
                     activeCategory === category
-                      ? 'bg-fuchsia-600 text-white'
+                      ? 'bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] text-white shadow-md shadow-[#FF5533]/25'
                       : 'bg-white/5 text-white/40 hover:bg-white/10 hover:text-white'
                   }`}
                 >
@@ -450,7 +450,7 @@ export default function DashboardPage() {
                       )}
                     </div>
                     
-                    <h3 className="text-base font-black text-white group-hover:text-fuchsia-200 transition-colors">
+                    <h3 className="text-base font-black text-white group-hover:text-[#FF7A45] transition-colors">
                       {tool.name}
                     </h3>
                     
@@ -465,7 +465,7 @@ export default function DashboardPage() {
                       {tool.useCase}
                     </p>
                     
-                    <div className="mt-4 flex items-center gap-1.5 text-xs font-bold text-fuchsia-300/80 group-hover:text-fuchsia-250 transition-all">
+                    <div className="mt-4 flex items-center gap-1.5 text-xs font-bold text-[#FF5533] dark:text-[#FF7A45] group-hover:translate-x-0.5 transition-all">
                       Launch workspace <ArrowRight size={13} className="group-hover:translate-x-1 transition-transform" />
                     </div>
                   </div>

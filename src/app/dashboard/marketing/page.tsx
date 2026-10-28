@@ -154,16 +154,16 @@ function MarketingHubContent() {
   }, [savedAssets, searchQuery]);
 
   return (
-    <div className="min-h-screen bg-[#030712] p-6 lg:p-10">
+    <div className="min-h-screen bg-[#030303] p-6 lg:p-10">
       <div className="mx-auto max-w-7xl">
         {/* Workspace Title Header */}
         <div className="mb-8 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between border-b border-white/5 pb-6">
           <div>
-            <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-fuchsia-500/20 bg-fuchsia-500/10 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-fuchsia-300">
+            <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-[#FF5533]">
               <Sparkles size={12} /> MVP Growth Workspace
             </div>
             <h1 className="text-4xl font-black tracking-tight text-white">
-              Marketing <span className="bg-gradient-to-r from-fuchsia-300 to-indigo-300 bg-clip-text text-transparent">Suite</span>
+              Marketing <span className="bg-gradient-to-r from-[#FF4D42] via-[#FF6A3D] to-[#FF8A00] bg-clip-text text-transparent">Suite</span>
             </h1>
             <p className="mt-3 max-w-2xl text-sm leading-6 text-white/50">
               Select any growth workflow to launch its dedicated workspace. Brand Brain is shared across all tools to guarantee on-brand execution.
@@ -188,7 +188,7 @@ function MarketingHubContent() {
                   onClick={() => setSelectedCategoryFilter(cat)}
                   className={`rounded-full px-3.5 py-1.5 text-xs font-bold transition cursor-pointer ${
                     selectedCategoryFilter === cat
-                      ? 'bg-fuchsia-600 text-white'
+                      ? 'bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] text-white shadow-md shadow-[#FF5533]/25'
                       : 'bg-white/5 text-white/40 hover:bg-white/10 hover:text-white'
                   }`}
                 >
@@ -211,23 +211,23 @@ function MarketingHubContent() {
                         <Link
                           key={tool.id}
                           href={`/dashboard/marketing/${tool.id}`}
-                          className="group relative rounded-3xl border border-white/10 bg-white/[0.02] p-6 hover-glow-card transition-all duration-300 hover:border-white/20 hover:bg-white/[0.04] text-left"
+                          className="group relative rounded-3xl border border-white/10 bg-white/[0.02] p-6 hover-glow-card transition-all duration-300 hover:border-[#FF5533]/30 hover:bg-white/[0.04] text-left"
                         >
-                          <div className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-fuchsia-500/10 text-fuchsia-350 shadow-md">
+                          <div className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-[#FF5533]/10 text-[#FF5533] shadow-md">
                             <IconComponent size={20} />
                           </div>
                           {tool.featured && (
-                            <span className="absolute right-6 top-6 rounded-full bg-indigo-500/10 px-2 py-0.5 text-[9px] font-black uppercase tracking-widest text-indigo-350 border border-indigo-500/10">
+                            <span className="absolute right-6 top-6 rounded-full bg-orange-500/10 px-2 py-0.5 text-[9px] font-black uppercase tracking-widest text-[#FF5533] border border-orange-500/20">
                               Core
                             </span>
                           )}
-                          <h4 className="text-base font-black text-white group-hover:text-fuchsia-200 transition-colors">
+                          <h4 className="text-base font-black text-white group-hover:text-[#FF7A45] transition-colors">
                             {tool.label}
                           </h4>
                           <p className="mt-2 text-xs leading-relaxed text-white/40 group-hover:text-white/50 transition-colors">
                             {tool.description}
                           </p>
-                          <div className="mt-4 flex items-center gap-1.5 text-xs font-bold text-fuchsia-300/80 group-hover:text-fuchsia-250 transition-colors">
+                          <div className="mt-4 flex items-center gap-1.5 text-xs font-bold text-[#FF5533] group-hover:text-[#FF8A00] transition-colors">
                             Launch workspace <ArrowRight size={13} className="group-hover:translate-x-1 transition-transform" />
                           </div>
                         </Link>
@@ -243,7 +243,7 @@ function MarketingHubContent() {
         <div id="library" className="mt-16 rounded-3xl border border-white/10 bg-white/[0.02] p-6">
           <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between border-b border-white/5 pb-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-500/10 text-indigo-300">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-500/10 text-[#FF5533]">
                 <Library size={20} />
               </div>
               <div>
@@ -257,12 +257,12 @@ function MarketingHubContent() {
               placeholder="Search by title or tool..."
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
-              className="w-full max-w-xs rounded-xl border border-white/10 bg-[#0d1117] px-4 py-2.5 text-xs text-white outline-none focus:border-indigo-400/50"
+              className="w-full max-w-xs rounded-xl border border-white/10 bg-[#0d0d0f] px-4 py-2.5 text-xs text-white outline-none focus:border-[#FF5533]/50 focus:ring-1 focus:ring-[#FF5533]/20"
             />
           </div>
 
           {filteredAssets.length === 0 ? (
-            <div className="flex min-h-[200px] flex-col items-center justify-center rounded-2xl border border-dashed border-white/10 bg-[#0d1117]/30 p-8 text-center">
+            <div className="flex min-h-[200px] flex-col items-center justify-center rounded-2xl border border-dashed border-white/10 bg-[#0d0d0f]/50 p-8 text-center">
               <p className="text-sm text-white/35">
                 {searchQuery ? 'No matching assets found.' : 'You have not saved any marketing outputs yet. Generate some tools to see history.'}
               </p>
@@ -272,7 +272,7 @@ function MarketingHubContent() {
               {filteredAssets.map(asset => {
                 const toolConfig = tools.find(t => t.id === asset.tool);
                 return (
-                  <div key={asset.id} className="flex flex-col justify-between rounded-2xl border border-white/10 bg-[#0d1117] p-5">
+                  <div key={asset.id} className="flex flex-col justify-between rounded-2xl border border-white/10 bg-[#0d0d0f] p-5">
                     <div>
                       <div className="flex items-start justify-between gap-3">
                         <span className="rounded-full bg-white/5 px-2 py-0.5 text-[9px] font-bold text-white/40">
@@ -289,7 +289,7 @@ function MarketingHubContent() {
                     <div className="mt-5 flex flex-wrap gap-2">
                       <Link
                         href={`/dashboard/marketing/${asset.tool}?loadAssetId=${asset.id}`}
-                        className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-xl bg-fuchsia-600/10 px-3.5 py-2 text-[11px] font-black text-fuchsia-300 transition hover:bg-fuchsia-600 hover:text-white"
+                        className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-xl bg-orange-500/10 px-3.5 py-2 text-[11px] font-black text-[#FF5533] transition hover:bg-gradient-to-r hover:from-[#FF473A] hover:to-[#FF8526] hover:text-white"
                       >
                         Load Workspace <ArrowRight size={12} />
                       </Link>
@@ -325,7 +325,7 @@ function MarketingHubContent() {
 
 export default function MarketingHubPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-[#030712] p-8 text-white/40 flex items-center justify-center">Loading marketing workspace...</div>}>
+    <Suspense fallback={<div className="min-h-screen bg-[#030303] p-8 text-white/40 flex items-center justify-center">Loading marketing workspace...</div>}>
       <MarketingHubContent />
     </Suspense>
   );

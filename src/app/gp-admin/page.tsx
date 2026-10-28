@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { ShieldCheck, Eye, EyeOff, Loader2, Lock, AlertCircle, Zap } from 'lucide-react';
+import { ShieldCheck, Eye, EyeOff, Loader2, Lock, AlertCircle } from 'lucide-react';
+import BrandLogo from '@/components/layout/BrandLogo';
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -54,19 +55,19 @@ export default function AdminLoginPage() {
 
   if (checkingSession) {
     return (
-      <div className="min-h-screen bg-[#020617] flex items-center justify-center">
-        <Loader2 className="animate-spin text-indigo-400" size={32} />
+      <div className="min-h-screen bg-[#030303] flex items-center justify-center">
+        <Loader2 className="animate-spin text-[#FF5533]" size={32} />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#020617] flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen bg-[#030303] flex items-center justify-center p-4 relative overflow-hidden">
       {/* Background glow effects */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-[-20%] left-[20%] w-[600px] h-[600px] bg-indigo-600/8 rounded-full blur-[120px]" />
-        <div className="absolute bottom-[-10%] right-[15%] w-[500px] h-[500px] bg-violet-600/6 rounded-full blur-[100px]" />
-        <div className="absolute top-[40%] left-[-10%] w-[400px] h-[400px] bg-blue-600/5 rounded-full blur-[80px]" />
+        <div className="absolute top-[-20%] left-[20%] w-[600px] h-[600px] bg-[#FF5533]/10 rounded-full blur-[120px]" />
+        <div className="absolute bottom-[-10%] right-[15%] w-[500px] h-[500px] bg-[#FF8A00]/8 rounded-full blur-[100px]" />
+        <div className="absolute top-[40%] left-[-10%] w-[400px] h-[400px] bg-[#FF4D42]/8 rounded-full blur-[80px]" />
       </div>
 
       {/* Grid pattern overlay */}
@@ -81,18 +82,15 @@ export default function AdminLoginPage() {
       <div className="w-full max-w-md relative z-10">
         {/* Logo + branding */}
         <div className="text-center mb-10">
-          <div className="inline-flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-600/30">
-              <Zap className="text-white" fill="white" size={20} />
-            </div>
-            <span className="text-white font-black text-xl tracking-tight">GrowthPilot</span>
+          <div className="inline-flex items-center justify-center mb-6">
+            <BrandLogo href="/gp-admin" imgClassName="h-10 w-auto" />
           </div>
 
           <div className="flex items-center justify-center gap-2 mb-3">
-            <div className="w-8 h-8 bg-red-500/10 border border-red-500/20 rounded-lg flex items-center justify-center">
-              <ShieldCheck size={16} className="text-red-400" />
+            <div className="w-8 h-8 bg-orange-500/10 border border-orange-500/20 rounded-lg flex items-center justify-center">
+              <ShieldCheck size={16} className="text-[#FF5533]" />
             </div>
-            <span className="text-[10px] font-bold text-red-400/80 uppercase tracking-[0.2em]">Restricted Admin Access</span>
+            <span className="text-[10px] font-bold text-[#FF5533] uppercase tracking-[0.2em]">Restricted Admin Access</span>
           </div>
 
           <h1 className="text-2xl font-black text-white">Administration Panel</h1>
@@ -122,7 +120,7 @@ export default function AdminLoginPage() {
                   autoFocus
                   autoComplete="current-password"
                   required
-                  className="w-full bg-[#0a0e1a] border border-white/10 rounded-2xl pl-11 pr-12 py-3.5 text-sm text-white placeholder:text-white/20 focus:border-indigo-500/50 focus:outline-none focus:ring-1 focus:ring-indigo-500/20 transition-all font-semibold tracking-wide"
+                  className="w-full bg-[#0d0d0f] border border-white/10 rounded-2xl pl-11 pr-12 py-3.5 text-sm text-white placeholder:text-white/20 focus:border-[#FF5533]/50 focus:outline-none focus:ring-1 focus:ring-[#FF5533]/20 transition-all font-semibold tracking-wide"
                 />
                 <button
                   type="button"
@@ -146,7 +144,7 @@ export default function AdminLoginPage() {
             <button
               type="submit"
               disabled={loading || !password.trim()}
-              className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-500 disabled:bg-indigo-600/40 disabled:cursor-not-allowed text-white font-bold text-sm rounded-2xl flex items-center justify-center gap-2.5 transition-all shadow-lg shadow-indigo-600/20 hover:shadow-indigo-500/30 hover:scale-[1.01] active:scale-[0.99] cursor-pointer"
+              className="w-full py-3.5 bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] hover:from-[#FF5547] hover:to-[#FF9036] disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold text-sm rounded-2xl flex items-center justify-center gap-2.5 transition-all shadow-lg shadow-[#FF5533]/25 hover:shadow-[#FF5533]/35 hover:scale-[1.01] active:scale-[0.99] cursor-pointer"
             >
               {loading ? (
                 <>

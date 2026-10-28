@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -51,14 +51,14 @@ export default function DashboardStats({ uploads }: DashboardStatsProps) {
     <div id="stats-container" className="grid grid-cols-2 gap-3 lg:grid-cols-5">
       {/* Total Uploads */}
       <div id="stat-total-uploads" className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-xs transition-all hover:shadow-sm">
-        <div className="rounded-xl border border-blue-100/30 bg-blue-50 p-2.5 text-blue-600">
+        <div className="rounded-xl border border-orange-500/20 bg-orange-500/10 p-2.5 text-[#FF5533]">
           <FileText className="h-4 w-4" />
         </div>
         <div>
           <p className="font-sans text-[10px] font-semibold uppercase tracking-wider text-slate-400">Total Uploads</p>
           <div className="mt-0.5 flex items-baseline gap-1.5">
             <span className="font-display text-xl font-bold text-slate-900">{totalFiles}</span>
-            <span className="text-[10px] text-blue-600 font-bold font-mono">FILES</span>
+            <span className="text-[10px] text-[#FF5533] font-bold font-mono">FILES</span>
           </div>
         </div>
       </div>

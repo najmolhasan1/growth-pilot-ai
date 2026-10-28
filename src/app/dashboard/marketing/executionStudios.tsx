@@ -343,7 +343,7 @@ export function EmailExecutionStudio({
       <div className="rounded-2xl border border-white/10 bg-slate-900/90 p-5 backdrop-blur shadow-xl">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400">
+            <div className="w-10 h-10 rounded-xl bg-orange-500/15 border border-orange-500/30 flex items-center justify-center text-[#FF7A45]">
               <Mail size={20} />
             </div>
             <div>
@@ -378,23 +378,23 @@ export function EmailExecutionStudio({
               onClick={() => setShowSettings(true)}
               className="px-3.5 py-2 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-xs font-bold text-slate-200 hover:text-white transition-all flex items-center gap-2 shadow-sm cursor-pointer"
             >
-              <Settings size={14} className="text-indigo-400" />
+              <Settings size={14} className="text-[#FF7A45]" />
               {settings.fromEmail ? 'ESP Settings' : 'Connect Sender'}
             </button>
 
             <button
               type="button"
               onClick={() => setShowTestModal(true)}
-              className="px-3.5 py-2 rounded-xl border border-indigo-500/30 bg-indigo-950/40 hover:bg-indigo-900/50 text-xs font-bold text-indigo-300 transition-all flex items-center gap-2 shadow-sm cursor-pointer"
+              className="px-3.5 py-2 rounded-xl border border-orange-500/30 bg-orange-950/40 hover:bg-orange-900/40 text-xs font-bold text-[#FF8A00] transition-all flex items-center gap-2 shadow-sm cursor-pointer"
             >
-              <Send size={14} className="text-indigo-400" />
+              <Send size={14} className="text-[#FF7A45]" />
               Send Test Email
             </button>
 
             <button
               type="button"
               onClick={() => setShowRunModal(true)}
-              className="px-5 py-2 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-xs font-black text-white shadow-lg shadow-indigo-600/30 transition-all flex items-center gap-2 cursor-pointer"
+              className="px-5 py-2 rounded-xl bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] hover:from-[#FF5547] hover:to-[#FF9036] text-xs font-black text-white shadow-lg shadow-[#FF5533]/25 transition-all flex items-center gap-2 cursor-pointer"
             >
               <Play size={14} />
               RUN CAMPAIGN
@@ -409,7 +409,7 @@ export function EmailExecutionStudio({
             onClick={() => setActiveTab('compose')}
             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
               activeTab === 'compose'
-                ? 'bg-indigo-600 text-white shadow-md'
+                ? 'bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] text-white shadow-md shadow-[#FF5533]/20'
                 : 'text-slate-400 hover:text-white hover:bg-white/5'
             }`}
           >
@@ -421,13 +421,13 @@ export function EmailExecutionStudio({
             onClick={() => setActiveTab('audience')}
             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
               activeTab === 'audience'
-                ? 'bg-indigo-600 text-white shadow-md'
+                ? 'bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] text-white shadow-md shadow-[#FF5533]/20'
                 : 'text-slate-400 hover:text-white hover:bg-white/5'
             }`}
           >
             <Users size={14} />
             Audience &amp; Contacts
-            <span className="px-1.5 py-0.2 rounded-full text-[10px] font-black bg-black/40 text-indigo-200 ml-1">
+            <span className="px-1.5 py-0.2 rounded-full text-[10px] font-black bg-black/40 text-[#FFA07A] ml-1">
               {parsedList.length}
             </span>
           </button>
@@ -438,7 +438,7 @@ export function EmailExecutionStudio({
               onClick={() => setActiveTab('strategy')}
               className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
                 activeTab === 'strategy'
-                  ? 'bg-indigo-600 text-white shadow-md'
+                  ? 'bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] text-white shadow-md shadow-[#FF5533]/20'
                   : 'text-slate-400 hover:text-white hover:bg-white/5'
               }`}
             >
@@ -451,7 +451,7 @@ export function EmailExecutionStudio({
             onClick={() => setActiveTab('logs')}
             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
               activeTab === 'logs'
-                ? 'bg-indigo-600 text-white shadow-md'
+                ? 'bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] text-white shadow-md shadow-[#FF5533]/20'
                 : 'text-slate-400 hover:text-white hover:bg-white/5'
             }`}
           >
@@ -480,7 +480,7 @@ export function EmailExecutionStudio({
                   value={subject}
                   onChange={e => setSubject(e.target.value)}
                   placeholder="Enter compelling subject line..."
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-700/80 bg-slate-950 text-sm font-semibold text-white focus:outline-none focus:border-indigo-500 transition-colors"
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-700/80 bg-[#0d0d0f] text-sm font-semibold text-white focus:outline-none focus:border-[#FF5533]/60 transition-colors"
                 />
               </div>
 
@@ -496,7 +496,7 @@ export function EmailExecutionStudio({
                   value={preheader}
                   onChange={e => setPreheader(e.target.value)}
                   placeholder="Secondary teaser text..."
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-700/80 bg-slate-950 text-sm font-medium text-slate-300 focus:outline-none focus:border-indigo-500 transition-colors"
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-700/80 bg-[#0d0d0f] text-sm font-medium text-slate-300 focus:outline-none focus:border-[#FF5533]/60 transition-colors"
                 />
               </div>
             </div>
@@ -507,21 +507,21 @@ export function EmailExecutionStudio({
               <button
                 type="button"
                 onClick={() => insertTag('{{name}}')}
-                className="px-2.5 py-1 rounded-lg text-xs font-bold bg-indigo-950/60 text-indigo-300 border border-indigo-500/30 hover:bg-indigo-900/60 transition cursor-pointer"
+                className="px-2.5 py-1 rounded-lg text-xs font-bold bg-orange-950/50 text-[#FF8A00] border border-orange-500/30 hover:bg-orange-900/50 transition cursor-pointer"
               >
                 + Full Name ({'{{name}}'})
               </button>
               <button
                 type="button"
                 onClick={() => insertTag('{{first_name}}')}
-                className="px-2.5 py-1 rounded-lg text-xs font-bold bg-indigo-950/60 text-indigo-300 border border-indigo-500/30 hover:bg-indigo-900/60 transition cursor-pointer"
+                className="px-2.5 py-1 rounded-lg text-xs font-bold bg-orange-950/50 text-[#FF8A00] border border-orange-500/30 hover:bg-orange-900/50 transition cursor-pointer"
               >
                 + First Name ({'{{first_name}}'})
               </button>
               <button
                 type="button"
                 onClick={() => insertTag('{{company}}')}
-                className="px-2.5 py-1 rounded-lg text-xs font-bold bg-indigo-950/60 text-indigo-300 border border-indigo-500/30 hover:bg-indigo-900/60 transition cursor-pointer"
+                className="px-2.5 py-1 rounded-lg text-xs font-bold bg-orange-950/50 text-[#FF8A00] border border-orange-500/30 hover:bg-orange-900/50 transition cursor-pointer"
               >
                 + Company ({'{{company}}'})
               </button>
@@ -540,7 +540,7 @@ export function EmailExecutionStudio({
                   type="button"
                   onClick={() => setViewLayout('split')}
                   className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
-                    viewLayout === 'split' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white'
+                    viewLayout === 'split' ? 'bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] text-white' : 'text-slate-400 hover:text-white'
                   }`}
                 >
                   Split View
@@ -549,7 +549,7 @@ export function EmailExecutionStudio({
                   type="button"
                   onClick={() => setViewLayout('editor')}
                   className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
-                    viewLayout === 'editor' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white'
+                    viewLayout === 'editor' ? 'bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] text-white' : 'text-slate-400 hover:text-white'
                   }`}
                 >
                   Editor Only
@@ -558,7 +558,7 @@ export function EmailExecutionStudio({
                   type="button"
                   onClick={() => setViewLayout('preview')}
                   className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
-                    viewLayout === 'preview' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white'
+                    viewLayout === 'preview' ? 'bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] text-white' : 'text-slate-400 hover:text-white'
                   }`}
                 >
                   Preview Only
@@ -604,7 +604,7 @@ export function EmailExecutionStudio({
                   rows={18}
                   value={bodyHtml}
                   onChange={e => setBodyHtml(e.target.value)}
-                  className="w-full p-4 rounded-xl border border-slate-800 bg-slate-950 text-sm leading-relaxed text-slate-100 font-mono focus:outline-none focus:border-indigo-500 transition-colors resize-y"
+                  className="w-full p-4 rounded-xl border border-slate-800 bg-[#0d0d0f] text-sm leading-relaxed text-slate-100 font-mono focus:outline-none focus:border-[#FF5533]/60 transition-colors resize-y"
                   placeholder="Write your email body here..."
                 />
               </div>
@@ -613,7 +613,7 @@ export function EmailExecutionStudio({
             {/* Right: Realistic Email Client Simulation */}
             {(viewLayout === 'split' || viewLayout === 'preview') && (
               <div className={`${viewLayout === 'split' ? 'xl:col-span-6' : 'xl:col-span-12'} flex flex-col items-center`}>
-                <div className={`w-full rounded-2xl border border-slate-800 bg-slate-950 shadow-2xl overflow-hidden transition-all duration-300 ${
+                <div className={`w-full rounded-2xl border border-slate-800 bg-[#0d0d0f] shadow-2xl overflow-hidden transition-all duration-300 ${
                   previewDevice === 'mobile' ? 'max-w-[390px] border-4 border-slate-700' : 'w-full'
                 }`}>
                   {/* macOS / Apple Mail Client Header */}
@@ -635,7 +635,7 @@ export function EmailExecutionStudio({
                   <div className="bg-slate-900/50 p-4 border-b border-slate-800 space-y-2">
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex items-center gap-2.5">
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-xs font-bold text-white uppercase">
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#FF4D42] via-[#FF6A3D] to-[#FF8A00] flex items-center justify-center text-xs font-bold text-white uppercase">
                           {(settings.fromName || businessName).slice(0, 2)}
                         </div>
                         <div>
@@ -665,7 +665,7 @@ export function EmailExecutionStudio({
                   </div>
 
                   {/* Email Body Canvas (Rendered paper) */}
-                  <div className="bg-white p-6 min-h-[380px] max-h-[520px] overflow-y-auto text-slate-900 font-sans selection:bg-indigo-100">
+                  <div className="bg-white p-6 min-h-[380px] max-h-[520px] overflow-y-auto text-slate-900 font-sans selection:bg-orange-100">
                     <div className="text-sm leading-relaxed whitespace-pre-wrap">
                       {bodyHtml || <span className="text-slate-400 italic">Email content will render here...</span>}
                     </div>
@@ -675,7 +675,7 @@ export function EmailExecutionStudio({
                       <p>© {new Date().getFullYear()} {settings.fromName || businessName}. All rights reserved.</p>
                       <p>
                         You are receiving this email because you opted in via our website.
-                        <a href="#unsubscribe" className="text-indigo-600 underline ml-1">Unsubscribe</a>
+                        <a href="#unsubscribe" className="text-[#FF5533] underline ml-1">Unsubscribe</a>
                       </p>
                     </div>
                   </div>
@@ -704,8 +704,8 @@ export function EmailExecutionStudio({
             </div>
 
             <div className="rounded-2xl border border-white/10 bg-slate-900/60 p-4">
-              <span className="text-xs font-bold text-indigo-400 uppercase tracking-wider">Estimated Batches</span>
-              <div className="text-2xl font-black text-indigo-400 mt-1">{Math.ceil(parsedList.length / 25) || 1}</div>
+              <span className="text-xs font-bold text-[#FF7A45] uppercase tracking-wider">Estimated Batches</span>
+              <div className="text-2xl font-black text-[#FF7A45] mt-1">{Math.ceil(parsedList.length / 25) || 1}</div>
               <p className="text-[11px] text-slate-500 mt-1">Controlled safe throttling</p>
             </div>
           </div>
@@ -718,7 +718,7 @@ export function EmailExecutionStudio({
                 <p className="text-xs text-slate-400">Paste emails or upload a CSV / TXT contact export</p>
               </div>
 
-              <label className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 border border-indigo-500/30 text-xs font-bold transition cursor-pointer">
+              <label className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-orange-500/15 hover:bg-orange-500/25 text-[#FF8A00] border border-orange-500/30 text-xs font-bold transition cursor-pointer">
                 <Upload size={14} /> Upload CSV / TXT File
                 <input type="file" accept=".csv,.txt" onChange={handleCsvUpload} className="hidden" />
               </label>
@@ -726,14 +726,14 @@ export function EmailExecutionStudio({
 
             <div>
               <label className="block text-xs font-bold text-slate-300 mb-2">
-                Paste Emails (Format: <code className="text-indigo-400">name &lt;email@example.com&gt;</code> or <code className="text-indigo-400">email@example.com</code>)
+                Paste Emails (Format: <code className="text-[#FF7A45]">name &lt;email@example.com&gt;</code> or <code className="text-[#FF7A45]">email@example.com</code>)
               </label>
               <textarea
                 rows={6}
                 value={recipientsText}
                 onChange={e => setRecipientsText(e.target.value)}
                 placeholder="john@example.com&#10;Sarah Miller <sarah@company.com>&#10;alex.chen@techstartup.io"
-                className="w-full p-4 rounded-xl border border-slate-800 bg-slate-950 text-xs font-mono text-slate-200 focus:outline-none focus:border-indigo-500 leading-relaxed"
+                className="w-full p-4 rounded-xl border border-slate-800 bg-[#0d0d0f] text-xs font-mono text-slate-200 focus:outline-none focus:border-[#FF5533]/60 leading-relaxed"
               />
             </div>
 
@@ -741,7 +741,7 @@ export function EmailExecutionStudio({
             {parsedList.length > 0 && (
               <div className="space-y-2 pt-2">
                 <span className="text-xs font-bold text-slate-400">Parsed Contacts ({parsedList.length}):</span>
-                <div className="max-h-60 overflow-y-auto rounded-xl border border-slate-800 bg-slate-950/80 divide-y divide-slate-800/60">
+                <div className="max-h-60 overflow-y-auto rounded-xl border border-slate-800 bg-[#0d0d0f]/80 divide-y divide-slate-800/60">
                   {parsedList.map((rec, i) => (
                     <div key={i} className="px-4 py-2.5 flex items-center justify-between text-xs">
                       <div className="flex items-center gap-2">
@@ -766,18 +766,18 @@ export function EmailExecutionStudio({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           {result.executiveSummary && (
             <div className="rounded-2xl border border-white/10 bg-slate-900/60 p-5 space-y-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-indigo-400">Executive Summary</span>
+              <span className="text-xs font-bold uppercase tracking-wider text-[#FF7A45]">Executive Summary</span>
               <p className="text-sm leading-relaxed text-slate-200">{result.executiveSummary}</p>
             </div>
           )}
 
           {result.strategy && result.strategy.length > 0 && (
             <div className="rounded-2xl border border-white/10 bg-slate-900/60 p-5 space-y-3">
-              <span className="text-xs font-bold uppercase tracking-wider text-indigo-400">Strategic Angle</span>
+              <span className="text-xs font-bold uppercase tracking-wider text-[#FF7A45]">Strategic Angle</span>
               <ul className="space-y-2 text-xs leading-relaxed text-slate-300">
                 {result.strategy.map((item, idx) => (
                   <li key={idx} className="flex items-start gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 mt-1.5 flex-shrink-0" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#FF5533] mt-1.5 flex-shrink-0" />
                     <span>{item}</span>
                   </li>
                 ))}
@@ -827,14 +827,14 @@ export function EmailExecutionStudio({
               <button
                 type="button"
                 onClick={() => setShowRunModal(true)}
-                className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-xs font-bold text-white shadow-lg flex items-center gap-2 cursor-pointer"
+                className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] hover:from-[#FF5547] hover:to-[#FF9036] text-xs font-bold text-white shadow-lg flex items-center gap-2 cursor-pointer"
               >
                 <Play size={14} /> Launch Live Broadcast
               </button>
             </div>
 
             {campaignSummary ? (
-              <div className="grid grid-cols-3 gap-4 p-4 rounded-xl bg-slate-950 border border-slate-800 text-center">
+              <div className="grid grid-cols-3 gap-4 p-4 rounded-xl bg-[#0d0d0f] border border-slate-800 text-center">
                 <div>
                   <div className="text-xs font-bold text-slate-400">TOTAL RECIPIENTS</div>
                   <div className="text-2xl font-black text-white mt-1">{campaignSummary.total}</div>
@@ -860,7 +860,7 @@ export function EmailExecutionStudio({
             {campaignLogs.length > 0 && (
               <div className="space-y-2">
                 <span className="text-xs font-bold text-slate-400">Delivery Log History:</span>
-                <div className="max-h-72 overflow-y-auto rounded-xl border border-slate-800 bg-slate-950 font-mono text-xs divide-y divide-slate-800/60">
+                <div className="max-h-72 overflow-y-auto rounded-xl border border-slate-800 bg-[#0d0d0f] font-mono text-xs divide-y divide-slate-800/60">
                   {campaignLogs.map((log, i) => (
                     <div key={i} className="px-4 py-2.5 flex items-center justify-between">
                       <span className="text-slate-300">{log.email}</span>
@@ -882,7 +882,7 @@ export function EmailExecutionStudio({
           <div className="max-w-md w-full rounded-3xl border border-white/10 bg-slate-900 p-6 shadow-2xl space-y-4">
             <div className="flex items-center justify-between border-b border-white/10 pb-3">
               <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                <Send size={16} className="text-indigo-400" /> Send Test Email
+                <Send size={16} className="text-[#FF7A45]" /> Send Test Email
               </h3>
               <button
                 type="button"
@@ -904,7 +904,7 @@ export function EmailExecutionStudio({
                 placeholder="name@example.com"
                 value={testEmail}
                 onChange={e => setTestEmail(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-800 bg-slate-950 text-xs text-white focus:outline-none focus:border-indigo-500"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-800 bg-[#0d0d0f] text-xs text-white focus:outline-none focus:border-[#FF5533]/60"
               />
             </div>
 
@@ -929,7 +929,7 @@ export function EmailExecutionStudio({
                 type="button"
                 disabled={sendingTest || !testEmail}
                 onClick={sendTest}
-                className="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-xs font-bold text-white flex items-center gap-1.5 disabled:opacity-50"
+                className="px-5 py-2 rounded-xl bg-[#FF5533] hover:bg-[#FF5533] text-xs font-bold text-white flex items-center gap-1.5 disabled:opacity-50"
               >
                 {sendingTest ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
                 {sendingTest ? 'Sending...' : 'Dispatch Test'}
@@ -946,7 +946,7 @@ export function EmailExecutionStudio({
             <div className="flex items-center justify-between border-b border-white/10 pb-4">
               <div>
                 <h3 className="text-base font-black text-white flex items-center gap-2">
-                  <Settings size={18} className="text-indigo-400" /> Sender &amp; ESP Integration
+                  <Settings size={18} className="text-[#FF7A45]" /> Sender &amp; ESP Integration
                 </h3>
                 <p className="text-xs text-slate-400">Configure SMTP, Resend, or SendGrid for live broadcasts</p>
               </div>
@@ -965,7 +965,7 @@ export function EmailExecutionStudio({
                 <select
                   value={settings.provider}
                   onChange={e => setSettings({ ...settings, provider: e.target.value as any })}
-                  className="w-full px-3 py-2.5 rounded-xl border border-slate-800 bg-slate-950 text-white font-bold"
+                  className="w-full px-3 py-2.5 rounded-xl border border-slate-800 bg-[#0d0d0f] text-white font-bold"
                 >
                   <option value="smtp">Direct SMTP (Gmail, Google Workspace, Custom Domain, SendGrid SMTP)</option>
                   <option value="resend">Resend API (Modern deliverability)</option>
@@ -983,7 +983,7 @@ export function EmailExecutionStudio({
                     placeholder="marketing@yourdomain.com"
                     value={settings.fromEmail}
                     onChange={e => setSettings({ ...settings, fromEmail: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl border border-slate-800 bg-slate-950 text-white"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-800 bg-[#0d0d0f] text-white"
                   />
                 </div>
                 <div>
@@ -993,13 +993,13 @@ export function EmailExecutionStudio({
                     placeholder="e.g. Najmol from GrowthPilot"
                     value={settings.fromName}
                     onChange={e => setSettings({ ...settings, fromName: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl border border-slate-800 bg-slate-950 text-white"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-800 bg-[#0d0d0f] text-white"
                   />
                 </div>
               </div>
 
               {settings.provider === 'smtp' && (
-                <div className="space-y-3 p-3.5 rounded-2xl bg-slate-950 border border-slate-800">
+                <div className="space-y-3 p-3.5 rounded-2xl bg-[#0d0d0f] border border-slate-800">
                   <div className="grid grid-cols-3 gap-2">
                     <div className="col-span-2">
                       <label className="block font-bold text-slate-300 mb-1">SMTP Host</label>
@@ -1054,7 +1054,7 @@ export function EmailExecutionStudio({
                     placeholder="re_••••••••"
                     value={settings.resendApiKey}
                     onChange={e => setSettings({ ...settings, resendApiKey: e.target.value })}
-                    className="w-full px-3 py-2.5 rounded-xl border border-slate-800 bg-slate-950 text-white"
+                    className="w-full px-3 py-2.5 rounded-xl border border-slate-800 bg-[#0d0d0f] text-white"
                   />
                 </div>
               )}
@@ -1067,7 +1067,7 @@ export function EmailExecutionStudio({
                     placeholder="SG.••••••••"
                     value={settings.sendgridApiKey}
                     onChange={e => setSettings({ ...settings, sendgridApiKey: e.target.value })}
-                    className="w-full px-3 py-2.5 rounded-xl border border-slate-800 bg-slate-950 text-white"
+                    className="w-full px-3 py-2.5 rounded-xl border border-slate-800 bg-[#0d0d0f] text-white"
                   />
                 </div>
               )}
@@ -1080,7 +1080,7 @@ export function EmailExecutionStudio({
                     placeholder="https://hooks.zapier.com/hooks/catch/..."
                     value={settings.webhookUrl}
                     onChange={e => setSettings({ ...settings, webhookUrl: e.target.value })}
-                    className="w-full px-3 py-2.5 rounded-xl border border-slate-800 bg-slate-950 text-white"
+                    className="w-full px-3 py-2.5 rounded-xl border border-slate-800 bg-[#0d0d0f] text-white"
                   />
                 </div>
               )}
@@ -1095,7 +1095,7 @@ export function EmailExecutionStudio({
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 font-bold text-white shadow-md flex items-center gap-1.5"
+                  className="px-5 py-2 rounded-xl bg-[#FF5533] hover:bg-[#FF5533] font-bold text-white shadow-md flex items-center gap-1.5"
                 >
                   {saveSuccess ? <Check size={14} /> : null}
                   {saveSuccess ? 'Saved!' : 'Save Credentials'}
@@ -1109,11 +1109,11 @@ export function EmailExecutionStudio({
       {/* LIVE CAMPAIGN BROADCAST MODAL */}
       {showRunModal && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="max-w-2xl w-full rounded-3xl border border-indigo-500/30 bg-slate-900 p-6 shadow-2xl space-y-5">
+          <div className="max-w-2xl w-full rounded-3xl border border-orange-500/30 bg-slate-900 p-6 shadow-2xl space-y-5">
             <div className="flex items-center justify-between border-b border-white/10 pb-4">
               <div>
                 <h3 className="text-base font-black text-white flex items-center gap-2">
-                  <Play size={18} className="text-indigo-400" /> Confirm &amp; Launch Email Broadcast
+                  <Play size={18} className="text-[#FF7A45]" /> Confirm &amp; Launch Email Broadcast
                 </h3>
                 <p className="text-xs text-slate-400">
                   Target: <span className="font-bold text-white">{parsedList.length} verified contacts</span>
@@ -1148,14 +1148,14 @@ export function EmailExecutionStudio({
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-xs text-white font-bold">
                   <span className="flex items-center gap-2">
-                    <Loader2 size={14} className="animate-spin text-indigo-400" />
+                    <Loader2 size={14} className="animate-spin text-[#FF7A45]" />
                     Dispatching emails in controlled batches...
                   </span>
                   <span>{campaignProgress}%</span>
                 </div>
                 <div className="w-full h-2 rounded-full bg-slate-800 overflow-hidden">
                   <div
-                    className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 transition-all duration-300"
+                    className="h-full bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] transition-all duration-300"
                     style={{ width: `${campaignProgress}%` }}
                   />
                 </div>
@@ -1163,7 +1163,7 @@ export function EmailExecutionStudio({
             )}
 
             {campaignSummary && (
-              <div className="grid grid-cols-3 gap-3 p-4 rounded-2xl bg-slate-950 border border-slate-800 text-center">
+              <div className="grid grid-cols-3 gap-3 p-4 rounded-2xl bg-[#0d0d0f] border border-slate-800 text-center">
                 <div>
                   <div className="text-[10px] uppercase font-bold text-slate-400">Total</div>
                   <div className="text-xl font-black text-white">{campaignSummary.total}</div>
@@ -1193,7 +1193,7 @@ export function EmailExecutionStudio({
                   type="button"
                   disabled={runningCampaign || parsedList.length === 0}
                   onClick={runLiveCampaign}
-                  className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-xs font-black text-white shadow-lg flex items-center gap-2 cursor-pointer disabled:opacity-50"
+                  className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] hover:from-[#FF5547] hover:to-[#FF9036] text-xs font-black text-white shadow-lg flex items-center gap-2 cursor-pointer disabled:opacity-50"
                 >
                   {runningCampaign ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
                   Confirm &amp; Dispatch to All ({parsedList.length})
@@ -1581,7 +1581,7 @@ export function SmsExecutionStudio({ primaryOutput }: { primaryOutput: string })
             <Smartphone size={13} className="text-emerald-400" /> Customer Phone Mockup
           </span>
 
-          <div className="w-[280px] rounded-[36px] border-4 border-slate-700 bg-slate-950 p-3 shadow-2xl space-y-3">
+          <div className="w-[280px] rounded-[36px] border-4 border-slate-700 bg-[#0d0d0f] p-3 shadow-2xl space-y-3">
             {/* Phone speaker & camera */}
             <div className="mx-auto w-20 h-4 rounded-full bg-slate-800 flex items-center justify-center">
               <div className="w-2.5 h-2.5 rounded-full bg-slate-900 mr-2" />
@@ -2233,7 +2233,7 @@ export function SocialCampaignStudio({ primaryOutput }: { primaryOutput: string 
 
           <div className="rounded-2xl border border-white/10 bg-[#161b22] p-4 text-white space-y-3 shadow-xl">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-fuchsia-600 to-indigo-600 flex items-center justify-center text-xs font-black">
+              <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-[#FF4D42] via-[#FF6A3D] to-[#FF8A00] flex items-center justify-center text-xs font-black">
                 GP
               </div>
               <div>

@@ -265,7 +265,7 @@ export default function ResultPage() {
   if (!result) return (
     <div className="min-h-screen flex items-center justify-center">
       <div className="text-center">
-        <div className="w-10 h-10 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+        <div className="w-10 h-10 border-2 border-[#FF5533] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
         <p className="text-white/40 text-sm">Loading result...</p>
       </div>
     </div>
@@ -324,7 +324,7 @@ export default function ResultPage() {
           </button>
           <div>
             <h1 className="text-xl font-black">{data.seo_title}</h1>
-            <p className="text-xs text-white/40 mt-0.5">Keyword: <span className="text-blue-400">{keyword}</span> | {data.word_count} words | {currentMode}</p>
+            <p className="text-xs text-white/40 mt-0.5">Keyword: <span className="text-[#FF5533]">{keyword}</span> | {data.word_count} words | {currentMode}</p>
             {data.generation_settings?.writing_model && (
               <p className="text-[10px] text-emerald-400/80 mt-1">
                 {data.generation_settings.provider} writing: {data.generation_settings.writing_model} | Current as of {data.generation_settings.current_as_of}
@@ -335,13 +335,13 @@ export default function ResultPage() {
         <div className="flex items-center gap-3">
           <button onClick={handlePublish} disabled={publishing || publishStatus === 'success'}
             className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-black transition-all ${
-              publishStatus === 'success' ? 'bg-emerald-500 text-white' : 'bg-white text-black hover:bg-blue-500 hover:text-white'
+              publishStatus === 'success' ? 'bg-emerald-500 text-white' : 'bg-white text-black hover:bg-[#FF5533] hover:text-white'
             }`}>
             {publishing ? <RefreshCw size={13} className="animate-spin" /> : publishStatus === 'success' ? <CheckCircle2 size={13} /> : <Globe size={13} />}
             {publishing ? 'Publishing...' : publishStatus === 'success' ? 'Published as Draft' : 'Publish to WordPress'}
           </button>
           <button onClick={generateSocial} disabled={generatingSocial}
-            className="flex items-center gap-2 px-4 py-2.5 bg-blue-600/10 border border-blue-600/30 text-blue-400 rounded-xl text-xs font-bold hover:bg-blue-600 hover:text-white transition-all disabled:opacity-50">
+            className="flex items-center gap-2 px-4 py-2.5 bg-orange-500/10 border border-orange-500/30 text-[#FF5533] rounded-xl text-xs font-bold hover:bg-[#FF5533] hover:text-white transition-all disabled:opacity-50">
             {generatingSocial ? <RefreshCw size={13} className="animate-spin" /> : <Share2 size={13} />} Social Snippets
           </button>
         </div>
@@ -367,43 +367,43 @@ export default function ResultPage() {
         <div className="flex items-center gap-2 flex-wrap">
           <a href="#" download={`${exportFileName}.txt`}
             onClick={event => prepareDownload(event, new Blob([plainTextArticle()], { type: 'text/plain;charset=utf-8' }), 'txt')}
-            className="flex items-center gap-2 px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-xs font-bold hover:border-blue-400/40 hover:bg-blue-500/10 transition-all">
+            className="flex items-center gap-2 px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-xs font-bold hover:border-[#FF5533]/40 hover:bg-orange-500/10 transition-all">
             <Download size={13} /> Plain Text (.txt)
           </a>
           <a href="#" download={`${exportFileName}.html`}
             onClick={event => prepareDownload(event, new Blob([buildArticleHtml(exportArticle)], { type: 'text/html;charset=utf-8' }), 'html')}
-            className="flex items-center gap-2 px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-xs font-bold hover:border-blue-400/40 hover:bg-blue-500/10 transition-all">
+            className="flex items-center gap-2 px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-xs font-bold hover:border-[#FF5533]/40 hover:bg-orange-500/10 transition-all">
             <Download size={13} /> HTML (.html)
           </a>
           <a href="#" download={`${exportFileName}.docx`}
             onClick={event => prepareDownload(event, buildDocx(exportArticle), 'docx')}
-            className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-blue-500 to-violet-600 rounded-xl text-xs font-bold hover:scale-105 transition-all shadow-lg shadow-blue-500/20">
+            className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] hover:from-[#FF5547] hover:to-[#FF9036] rounded-xl text-xs font-bold hover:scale-105 transition-all shadow-lg shadow-[#FF5533]/25 text-white">
             <Download size={13} /> Word (.docx)
           </a>
           <a href="#" download={`${exportFileName}.doc`}
             onClick={event => prepareDownload(event, new Blob([buildWordHtmlDocument(exportArticle)], { type: 'application/msword;charset=utf-8' }), 'doc')}
-            className="flex items-center gap-2 px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-xs font-bold hover:border-blue-400/40 hover:bg-blue-500/10 transition-all">
+            className="flex items-center gap-2 px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-xs font-bold hover:border-[#FF5533]/40 hover:bg-orange-500/10 transition-all">
             <Download size={13} /> Word (.doc)
           </a>
           <a href="#" download={`${exportFileName}.md`}
             onClick={event => prepareDownload(event, new Blob([articleToMarkdown(data.article_html)], { type: 'text/markdown;charset=utf-8' }), 'md')}
-            className="flex items-center gap-2 px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-xs font-bold hover:border-blue-400/40 hover:bg-blue-500/10 transition-all">
+            className="flex items-center gap-2 px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-xs font-bold hover:border-[#FF5533]/40 hover:bg-orange-500/10 transition-all">
             <Download size={13} /> Markdown (.md)
           </a>
         </div>
       </div>
 
       {/* SEO Score Banner */}
-      <div className={`mb-6 p-5 rounded-2xl border flex items-center justify-between flex-wrap gap-4 ${visibleScore >= 90 ? 'bg-emerald-500/10 border-emerald-500/20' : visibleScore >= 70 ? 'bg-blue-500/10 border-blue-500/20' : 'bg-orange-500/10 border-orange-500/20'}`}>
+      <div className={`mb-6 p-5 rounded-2xl border flex items-center justify-between flex-wrap gap-4 ${visibleScore >= 90 ? 'bg-emerald-500/10 border-emerald-500/20' : visibleScore >= 70 ? 'bg-orange-500/10 border-orange-500/20' : 'bg-red-500/10 border-red-500/20'}`}>
         <div>
           <p className="text-2xl font-black">{visibleScore}% <span className="text-sm font-medium text-white/60">{currentMode} Validation</span></p>
-          <p className={`text-xs font-bold mt-1 ${visibleScore >= 90 ? 'text-emerald-400' : visibleScore >= 70 ? 'text-blue-400' : 'text-orange-400'}`}>
+          <p className={`text-xs font-bold mt-1 ${visibleScore >= 90 ? 'text-emerald-400' : visibleScore >= 70 ? 'text-[#FF5533]' : 'text-red-400'}`}>
             {visiblePassed}/{visibleTotal} measurable mode signals passed. Review failed items before publishing.
           </p>
         </div>
         <div className="flex gap-4 text-center">
-          <div><p className="text-lg font-black text-blue-400">{data.word_count}</p><p className="text-[10px] text-white/40">Words</p></div>
-          <div><p className="text-lg font-black text-violet-400">{data.keyword_density_percent?.toFixed(1) || '~1.5'}%</p><p className="text-[10px] text-white/40">Density</p></div>
+          <div><p className="text-lg font-black text-[#FF5533]">{data.word_count}</p><p className="text-[10px] text-white/40">Words</p></div>
+          <div><p className="text-lg font-black text-[#FF8A00]">{data.keyword_density_percent?.toFixed(1) || '~1.5'}%</p><p className="text-[10px] text-white/40">Density</p></div>
           <div><p className="text-lg font-black text-emerald-400">{data.lsi_keywords?.length || 0}</p><p className="text-[10px] text-white/40">LSI Keys</p></div>
         </div>
       </div>
@@ -418,7 +418,7 @@ export default function ResultPage() {
           { id: 'social', label: 'Social Snippets', icon: Share2 },
         ] as const).map(tab => (
           <button key={tab.id} onClick={() => setActiveTab(tab.id)}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold border transition-all ${activeTab === tab.id ? 'bg-blue-500/20 border-blue-500/40 text-blue-400' : 'bg-white/[0.03] border-white/10 text-white/50 hover:border-white/20'}`}>
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold border transition-all ${activeTab === tab.id ? 'bg-orange-500/20 border-orange-500/40 text-[#FF5533]' : 'bg-white/[0.03] border-white/10 text-white/50 hover:border-white/20'}`}>
             <tab.icon size={13} /> {tab.label}
           </button>
         ))}
@@ -600,7 +600,7 @@ ${data.article_html || '<p>No content generated.</p>'}
                       <p className="text-sm font-bold">{data.mode_audit.mode_name} Validation</p>
                       <p className="text-xs text-white/40 mt-1">{data.mode_audit.target}</p>
                     </div>
-                    <span className="text-xs font-black text-blue-300 bg-blue-500/10 border border-blue-500/20 rounded-full px-3 py-1">
+                    <span className="text-xs font-black text-[#FF5533] bg-orange-500/10 border border-orange-500/20 rounded-full px-3 py-1">
                       {data.mode_audit.score}%
                     </span>
                   </div>
@@ -665,7 +665,7 @@ ${data.article_html || '<p>No content generated.</p>'}
                 <div className="space-y-2">
                   {Object.entries(data.og_tags || {}).map(([k, v]) => (
                     <div key={k} className="flex gap-3 text-xs">
-                      <span className="text-blue-400 font-mono shrink-0">{k}</span>
+                      <span className="text-[#FF5533] font-mono shrink-0">{k}</span>
                       <span className="text-white/60">{v}</span>
                     </div>
                   ))}
@@ -678,8 +678,8 @@ ${data.article_html || '<p>No content generated.</p>'}
             <div className="space-y-6">
               {!socialSnippets && !generatingSocial && (
                 <div className="text-center py-20 bg-white/[0.03] border border-white/[0.07] rounded-3xl">
-                  <div className="w-16 h-16 bg-blue-500/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                    <Share2 className="text-blue-400" size={24} />
+                  <div className="w-16 h-16 bg-orange-500/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <Share2 className="text-[#FF5533]" size={24} />
                   </div>
                   <h3 className="text-lg font-bold mb-2">Social Media Auto-Pilot</h3>
                   <p className="text-sm text-white/40 mb-6 max-w-sm mx-auto">Generate tailored posts for LinkedIn, Facebook, and Twitter based on your article.</p>
@@ -689,7 +689,7 @@ ${data.article_html || '<p>No content generated.</p>'}
                     </p>
                   )}
                   <button onClick={generateSocial}
-                    className="px-8 py-3 bg-blue-600 rounded-xl font-bold hover:bg-blue-500 transition-all flex items-center gap-2 mx-auto">
+                    className="px-8 py-3 bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] hover:from-[#FF5547] hover:to-[#FF9036] rounded-xl font-bold transition-all flex items-center gap-2 mx-auto text-white shadow-lg shadow-[#FF5533]/25 cursor-pointer">
                     Generate Snippets Now
                   </button>
                 </div>
@@ -697,7 +697,7 @@ ${data.article_html || '<p>No content generated.</p>'}
 
               {generatingSocial && (
                 <div className="text-center py-20 bg-white/[0.03] border border-white/[0.07] rounded-3xl">
-                  <RefreshCw className="text-blue-400 animate-spin mx-auto mb-4" size={32} />
+                  <RefreshCw className="text-[#FF5533] animate-spin mx-auto mb-4" size={32} />
                   <p className="text-sm font-bold">AI is crafting your social posts...</p>
                 </div>
               )}
@@ -759,7 +759,7 @@ ${data.article_html || '<p>No content generated.</p>'}
                     <div className="p-5 space-y-4">
                       {socialSnippets.twitter.map((tweet: string, idx: number) => (
                         <div key={idx} className="p-4 bg-white/5 rounded-xl border border-white/5 relative">
-                          <span className="absolute -top-2 -left-2 w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center text-[10px] font-black">{idx + 1}</span>
+                          <span className="absolute -top-2 -left-2 w-6 h-6 bg-[#FF5533] rounded-full flex items-center justify-center text-[10px] font-black">{idx + 1}</span>
                           <p className="text-xs text-white/80 leading-relaxed">{tweet}</p>
                         </div>
                       ))}
@@ -813,7 +813,7 @@ ${data.article_html || '<p>No content generated.</p>'}
               <p className="text-xs font-bold text-white/40 uppercase tracking-wider mb-3">LSI Keywords Used</p>
               <div className="flex flex-wrap gap-1.5">
                 {data.lsi_keywords.map((kw, i) => (
-                  <span key={i} className="text-[10px] bg-violet-500/15 text-violet-300 px-2.5 py-1 rounded-full font-medium">{kw}</span>
+                  <span key={i} className="text-[10px] bg-orange-500/15 text-[#FF7A45] px-2.5 py-1 rounded-full font-medium">{kw}</span>
                 ))}
               </div>
             </div>
@@ -836,7 +836,7 @@ ${data.article_html || '<p>No content generated.</p>'}
             <p className="text-xs font-bold text-white/40 uppercase tracking-wider mb-3">Link Placeholders</p>
             <div className="space-y-2">
               {data.internal_link_placeholders?.map((l, i) => (
-                <div key={i} className="flex items-center gap-2 text-[11px] text-blue-300">
+                <div key={i} className="flex items-center gap-2 text-[11px] text-[#FF5533]">
                   <Link2 size={10} className="shrink-0" /> Internal: {l}
                 </div>
               ))}

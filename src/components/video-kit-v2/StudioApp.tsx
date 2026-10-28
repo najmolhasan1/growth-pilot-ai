@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -226,7 +226,7 @@ export default function App() {
               <div className="flex flex-col gap-3 sm:flex-row lg:flex-col xl:flex-row">
                 <a 
                   href="#upload-panel"
-                  className="inline-flex items-center justify-center gap-2 rounded-2xl bg-blue-600 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-blue-950/30 transition hover:bg-blue-500 active:scale-[0.98]"
+                  className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#FF5533] px-5 py-3 text-sm font-bold text-white shadow-lg shadow-[#FF5533]/25 transition hover:bg-orange-500/100 active:scale-[0.98]"
                 >
                   <Sparkles className="h-4 w-4" />
                   New Transcribe
@@ -267,7 +267,7 @@ export default function App() {
             />
           ) : (
             <div id="empty-workspace-card" className="flex min-h-[420px] flex-col items-center justify-center rounded-3xl border border-dashed border-slate-200 bg-white p-8 text-center shadow-sm sm:p-12">
-              <div className="mb-5 rounded-3xl border border-slate-200 bg-slate-50 p-4 text-blue-500 shadow-sm">
+              <div className="mb-5 rounded-3xl border border-slate-200 bg-slate-50 p-4 text-[#FF5533] shadow-sm">
                 <Monitor className="h-10 w-10" />
               </div>
               <h3 className="text-xl font-bold text-slate-800">No active transcription</h3>
@@ -283,7 +283,7 @@ export default function App() {
                   }
                   setSelectedUploadId(DEMO_UPLOAD.id);
                 }}
-                className="mt-6 inline-flex items-center gap-2 rounded-2xl bg-blue-600 px-5 py-3 text-sm font-bold text-white shadow-md transition hover:bg-blue-700"
+                className="mt-6 inline-flex items-center gap-2 rounded-2xl bg-[#FF5533] px-5 py-3 text-sm font-bold text-white shadow-md transition hover:bg-blue-700"
               >
                 <Sparkles className="h-4 w-4" />
                 Load Welcome Demo File

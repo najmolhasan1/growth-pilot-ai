@@ -158,15 +158,15 @@ export default function BrandBrainPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#030712] p-6 lg:p-10">
+    <div className="min-h-screen bg-[#030303] p-6 lg:p-10">
       <div className="mx-auto max-w-6xl">
         <div className="mb-8 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-indigo-500/20 bg-indigo-500/10 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-indigo-300">
+            <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-[#FF5533]">
               <Brain size={12} /> Business Context Engine
             </div>
             <h1 className="text-4xl font-black tracking-tight text-white">
-              Brand <span className="bg-gradient-to-r from-indigo-300 to-fuchsia-300 bg-clip-text text-transparent">Brain</span>
+              Brand <span className="bg-gradient-to-r from-[#FF4D42] via-[#FF6A3D] to-[#FF8A00] bg-clip-text text-transparent">Brain</span>
             </h1>
             <p className="mt-3 max-w-2xl text-sm leading-6 text-white/50">
               Save your business, audience, offer, objections, and voice once. The Marketing Suite will use this context so outputs feel specific instead of generic.
@@ -176,7 +176,7 @@ export default function BrandBrainPage() {
             <p className="text-[10px] font-bold uppercase tracking-widest text-white/35">Profile Strength</p>
             <div className="mt-2 flex items-center gap-3">
               <div className="h-2 w-40 overflow-hidden rounded-full bg-white/10">
-                <div className="h-full rounded-full bg-indigo-400" style={{ width: `${completion}%` }} />
+                <div className="h-full rounded-full bg-[#FF5533]" style={{ width: `${completion}%` }} />
               </div>
               <span className="text-sm font-black text-white">{completion}%</span>
             </div>
@@ -197,7 +197,7 @@ export default function BrandBrainPage() {
                 <select
                   value={profile[field.key]}
                   onChange={event => updateField(field.key, event.target.value)}
-                  className="w-full rounded-2xl border border-white/10 bg-[#0d1117] px-4 py-3 text-sm text-white outline-none transition-all focus:border-indigo-400/70"
+                  className="w-full rounded-2xl border border-white/10 bg-[#0d0d0f] px-4 py-3 text-sm text-white outline-none transition-all focus:border-[#FF5533]/60 focus:ring-1 focus:ring-[#FF5533]/20"
                 >
                   {field.options?.map(option => <option key={option} value={option}>{option}</option>)}
                 </select>
@@ -207,14 +207,14 @@ export default function BrandBrainPage() {
                   onChange={event => updateField(field.key, event.target.value)}
                   placeholder={field.placeholder}
                   rows={4}
-                  className="w-full resize-y rounded-2xl border border-white/10 bg-[#0d1117] px-4 py-3 text-sm leading-6 text-white outline-none transition-all placeholder:text-white/20 focus:border-indigo-400/70"
+                  className="w-full resize-y rounded-2xl border border-white/10 bg-[#0d0d0f] px-4 py-3 text-sm leading-6 text-white outline-none transition-all placeholder:text-white/20 focus:border-[#FF5533]/60 focus:ring-1 focus:ring-[#FF5533]/20"
                 />
               ) : (
                 <input
                   value={profile[field.key]}
                   onChange={event => updateField(field.key, event.target.value)}
                   placeholder={field.placeholder}
-                  className="w-full rounded-2xl border border-white/10 bg-[#0d1117] px-4 py-3 text-sm text-white outline-none transition-all placeholder:text-white/20 focus:border-indigo-400/70"
+                  className="w-full rounded-2xl border border-white/10 bg-[#0d0d0f] px-4 py-3 text-sm text-white outline-none transition-all placeholder:text-white/20 focus:border-[#FF5533]/60 focus:ring-1 focus:ring-[#FF5533]/20"
                 />
               )}
             </div>
@@ -224,7 +224,7 @@ export default function BrandBrainPage() {
         <div className="mt-8 flex flex-col gap-3 sm:flex-row">
           <button
             onClick={saveProfile}
-            className="inline-flex items-center justify-center gap-2 rounded-2xl bg-indigo-600 px-6 py-4 text-sm font-black text-white shadow-xl shadow-indigo-500/20 transition hover:bg-indigo-500"
+            className="inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] px-6 py-4 text-sm font-black text-white shadow-xl shadow-[#FF5533]/25 transition hover:from-[#FF5547] hover:to-[#FF9036]"
           >
             {saved ? <CheckCircle2 size={18} /> : <Save size={18} />}
             {saved ? 'Saved' : 'Save Brand Brain'}

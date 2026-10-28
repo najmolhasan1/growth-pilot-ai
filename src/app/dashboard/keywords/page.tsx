@@ -190,15 +190,15 @@ export default function KeywordResearch() {
   const trendColor = (t: string) => t === 'Rising' ? 'text-emerald-400' : t === 'Declining' ? 'text-red-400' : 'text-amber-400';
 
   return (
-    <div className="min-h-screen p-6 lg:p-10 bg-[#030712]">
+    <div className="min-h-screen p-6 lg:p-10 bg-[#030303]">
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-8">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-[10px] font-bold uppercase tracking-widest mb-3">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-500/10 border border-orange-500/20 text-[#FF5533] text-[10px] font-bold uppercase tracking-widest mb-3">
             <Zap size={12} /> Advanced SEO Intelligence
           </div>
           <h1 className="text-4xl font-black text-white tracking-tight">
-            Keyword <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-violet-400">Intelligence</span>
+            Keyword <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF4D42] via-[#FF6A3D] to-[#FF8A00]">Intelligence</span>
           </h1>
         </div>
         {savedReports.length > 0 && (
@@ -211,12 +211,12 @@ export default function KeywordResearch() {
       {/* History */}
       <AnimatePresence>{showHistory && (
         <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="mb-8 overflow-hidden">
-          <div className="bg-slate-900/40 border border-white/5 rounded-2xl p-6">
+          <div className="bg-[#0d0d0f] border border-white/10 rounded-2xl p-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               {savedReports.map(r => (
-                <div key={r.id} className="flex items-center justify-between p-4 bg-white/[0.03] border border-white/5 rounded-xl hover:border-indigo-500/20 transition-all group">
+                <div key={r.id} className="flex items-center justify-between p-4 bg-white/[0.03] border border-white/5 rounded-xl hover:border-[#FF5533]/30 transition-all group">
                   <div className="cursor-pointer flex-1" onClick={() => loadReport(r)}>
-                    <p className="text-sm font-bold text-white group-hover:text-indigo-300">{r.keyword}</p>
+                    <p className="text-sm font-bold text-white group-hover:text-[#FF7A45]">{r.keyword}</p>
                     <p className="text-[10px] text-slate-500 mt-1 flex items-center gap-1"><Clock size={10} /> {r.date}</p>
                   </div>
                   <button onClick={() => deleteReport(r.id)} className="p-2 text-slate-700 hover:text-red-400"><Trash2 size={14} /></button>
@@ -229,10 +229,10 @@ export default function KeywordResearch() {
 
       {/* Advanced Search Form */}
       <form onSubmit={handleSearch} className="mb-10 space-y-4">
-        <div className="flex items-center gap-3 bg-slate-900/40 border border-white/5 rounded-2xl p-2 focus-within:border-indigo-500/30 transition-all max-w-3xl">
+        <div className="flex items-center gap-3 bg-[#0d0d0f] border border-white/10 rounded-2xl p-2 focus-within:border-[#FF5533]/50 transition-all max-w-3xl">
           <Search className="ml-4 text-slate-500" size={20} />
           <input type="text" placeholder="Enter your target keyword..." className="w-full bg-transparent border-none outline-none px-3 py-2 text-white font-medium placeholder:text-slate-600" value={keyword} onChange={(e) => setKeyword(e.target.value)} disabled={loading} />
-          <button type="submit" disabled={loading} className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold text-sm flex items-center gap-2 transition-all disabled:opacity-50 whitespace-nowrap">
+          <button type="submit" disabled={loading} className="px-6 py-3 bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] hover:from-[#FF5547] hover:to-[#FF9036] text-white rounded-xl font-bold text-sm flex items-center gap-2 transition-all shadow-lg shadow-[#FF5533]/25 disabled:opacity-50 whitespace-nowrap cursor-pointer">
             {loading ? <Loader2 className="animate-spin" size={16} /> : <Search size={16} />}
             {loading ? 'Analyzing...' : 'Analyze'}
           </button>
@@ -242,7 +242,7 @@ export default function KeywordResearch() {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 max-w-3xl">
           <div className="relative">
             <Globe size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-600 z-10" />
-            <select className="w-full bg-slate-900/30 border border-white/5 rounded-xl pl-9 pr-3 py-2.5 text-xs text-white outline-none focus:border-indigo-500/30 appearance-none" value={location} onChange={(e) => setLocation(e.target.value)}>
+            <select className="w-full bg-[#0d0d0f] border border-white/10 rounded-xl pl-9 pr-3 py-2.5 text-xs text-white outline-none focus:border-[#FF5533]/50 appearance-none" value={location} onChange={(e) => setLocation(e.target.value)}>
               <option value="">Global</option>
               <option value="Bangladesh">Bangladesh</option>
               <option value="India">India</option>
@@ -266,7 +266,7 @@ export default function KeywordResearch() {
           </div>
           <div className="relative">
             <Languages size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-600" />
-            <select className="w-full bg-slate-900/30 border border-white/5 rounded-xl pl-9 pr-3 py-2.5 text-xs text-white outline-none focus:border-indigo-500/30 appearance-none" value={language} onChange={(e) => setLanguage(e.target.value)}>
+            <select className="w-full bg-[#0d0d0f] border border-white/10 rounded-xl pl-9 pr-3 py-2.5 text-xs text-white outline-none focus:border-[#FF5533]/50 appearance-none" value={language} onChange={(e) => setLanguage(e.target.value)}>
               <option value="English">English</option>
               <option value="Bengali">Bengali</option>
               <option value="Hindi">Hindi</option>
@@ -274,11 +274,11 @@ export default function KeywordResearch() {
           </div>
           <div className="relative">
             <Briefcase size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-600" />
-            <input type="text" placeholder="Business type..." className="w-full bg-slate-900/30 border border-white/5 rounded-xl pl-9 pr-3 py-2.5 text-xs text-white placeholder:text-slate-600 outline-none focus:border-indigo-500/30" value={businessType} onChange={(e) => setBusinessType(e.target.value)} />
+            <input type="text" placeholder="Business type..." className="w-full bg-[#0d0d0f] border border-white/10 rounded-xl pl-9 pr-3 py-2.5 text-xs text-white placeholder:text-slate-600 outline-none focus:border-[#FF5533]/50" value={businessType} onChange={(e) => setBusinessType(e.target.value)} />
           </div>
           <div className="relative">
             <Target size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-600" />
-            <input type="text" placeholder="Purpose (e.g. Blog, Ads)" className="w-full bg-slate-900/30 border border-white/5 rounded-xl pl-9 pr-3 py-2.5 text-xs text-white placeholder:text-slate-600 outline-none focus:border-indigo-500/30" value={purpose} onChange={(e) => setPurpose(e.target.value)} />
+            <input type="text" placeholder="Purpose (e.g. Blog, Ads)" className="w-full bg-[#0d0d0f] border border-white/10 rounded-xl pl-9 pr-3 py-2.5 text-xs text-white placeholder:text-slate-600 outline-none focus:border-[#FF5533]/50" value={purpose} onChange={(e) => setPurpose(e.target.value)} />
           </div>
         </div>
       </form>
@@ -311,13 +311,13 @@ export default function KeywordResearch() {
             {/* Stats Row */}
             <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
               {[
-                { icon: BarChart3, label: 'Difficulty', value: `${data.difficulty}/100`, color: 'text-indigo-400' },
+                { icon: BarChart3, label: 'Difficulty', value: `${data.difficulty}/100`, color: 'text-[#FF5533]' },
                 { icon: TrendingUp, label: 'Volume', value: data.volume, color: 'text-emerald-400' },
-                { icon: Target, label: 'Intent', value: data.intent, color: 'text-violet-400' },
+                { icon: Target, label: 'Intent', value: data.intent, color: 'text-[#FF8A00]' },
                 { icon: DollarSign, label: 'Est. CPC', value: data.cpc, color: 'text-amber-400' },
                 { icon: TrendingUp, label: 'Trend', value: data.trend, color: trendColor(data.trend) },
               ].map((s, i) => (
-                <div key={i} className="bg-slate-900/40 border border-white/5 rounded-2xl p-5 text-center">
+                <div key={i} className="bg-[#0d0d0f] border border-white/10 rounded-2xl p-5 text-center">
                   <s.icon className={`mx-auto ${s.color} mb-2`} size={20} />
                   <div className={`text-xl font-black text-white ${s.label === 'Intent' ? 'text-sm uppercase' : ''}`}>{s.value}</div>
                   <div className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mt-1">{s.label}</div>
@@ -328,8 +328,8 @@ export default function KeywordResearch() {
             {/* Strategy + Audience Row */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {data.strategy && (
-                <div className="bg-indigo-600/5 border border-indigo-500/10 rounded-2xl p-6">
-                  <div className="flex items-center gap-2 mb-3"><Sparkles className="text-indigo-400" size={16} /><h3 className="text-sm font-bold text-white">SEO Strategy</h3></div>
+                <div className="bg-orange-500/5 border border-orange-500/15 rounded-2xl p-6">
+                  <div className="flex items-center gap-2 mb-3"><Sparkles className="text-[#FF5533]" size={16} /><h3 className="text-sm font-bold text-white">SEO Strategy</h3></div>
                   <p className="text-slate-400 text-sm leading-relaxed">{data.strategy}</p>
                 </div>
               )}
@@ -418,11 +418,11 @@ export default function KeywordResearch() {
 
             {/* AI Prompts */}
             {data.ai_prompts?.length > 0 && (
-              <div className="bg-slate-900/40 border border-white/5 rounded-2xl p-6">
+              <div className="bg-[#0d0d0f] border border-white/10 rounded-2xl p-6">
                 <div className="flex flex-wrap items-center gap-2 mb-2">
-                  <Sparkles className="text-violet-400" size={18} />
+                  <Sparkles className="text-[#FF8A00]" size={18} />
                   <h3 className="text-sm font-bold text-white">Questions Learners May Ask ChatGPT / Gemini / Claude</h3>
-                  <span className="text-[9px] font-bold text-violet-300 bg-violet-500/10 px-2 py-0.5 rounded-full uppercase">10 AI Query Ideas</span>
+                  <span className="text-[9px] font-bold text-[#FF5533] bg-orange-500/10 px-2 py-0.5 rounded-full uppercase">10 AI Query Ideas</span>
                 </div>
                 <p className="text-xs text-slate-500 mb-5">
                   {data.ai_prompts_basis || 'Likely learner questions based on this topic.'} These are estimates, not private platform search logs.
@@ -430,7 +430,7 @@ export default function KeywordResearch() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {data.ai_prompts.map((prompt: string, i: number) => (
                     <div key={i} className="flex items-start gap-3 p-4 bg-white/[0.03] border border-white/5 rounded-xl group">
-                      <span className="w-6 h-6 bg-violet-500/10 text-violet-400 rounded-lg flex items-center justify-center text-[10px] font-black shrink-0">{i + 1}</span>
+                      <span className="w-6 h-6 bg-orange-500/10 text-[#FF5533] rounded-lg flex items-center justify-center text-[10px] font-black shrink-0">{i + 1}</span>
                       <p className="text-sm text-slate-300 flex-1 leading-relaxed">{prompt}</p>
                       <button onClick={() => copyText(prompt, 100 + i)} className="p-2 bg-white/5 rounded-lg hover:bg-white/10 transition-all shrink-0">
                         {copiedIdx === 100 + i ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} className={copyErrorIdx === 100 + i ? 'text-amber-400' : 'text-slate-500'} />}
@@ -444,19 +444,19 @@ export default function KeywordResearch() {
             {/* Real Data Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {data.questions?.length > 0 && (
-                <div className="bg-slate-900/40 border border-white/5 rounded-2xl p-6">
-                  <div className="flex items-center gap-2 mb-2"><HelpCircle className="text-violet-400" size={18} /><h3 className="text-sm font-bold text-white">Questions People Search</h3><span className="ml-auto text-[9px] font-bold text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full uppercase">10+ Terms</span></div>
+                <div className="bg-[#0d0d0f] border border-white/10 rounded-2xl p-6">
+                  <div className="flex items-center gap-2 mb-2"><HelpCircle className="text-[#FF8A00]" size={18} /><h3 className="text-sm font-bold text-white">Questions People Search</h3><span className="ml-auto text-[9px] font-bold text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full uppercase">10+ Terms</span></div>
                   <p className="text-[11px] text-slate-500 mb-5">{data.questions_basis || 'Search question ideas'}</p>
                   <div className="space-y-2">{data.questions.map((q: string, i: number) => (
                     <div key={i} className="flex items-center gap-3 p-3 bg-white/[0.03] rounded-xl hover:bg-white/[0.06] transition-all cursor-pointer group" onClick={() => goGenerate(q)}>
-                      <ChevronRight size={14} className="text-violet-500/50" /><span className="text-sm text-slate-300 flex-1">{q}</span><Wand2 size={14} className="text-slate-700 group-hover:text-indigo-400 transition-colors" />
+                      <ChevronRight size={14} className="text-orange-500/50" /><span className="text-sm text-slate-300 flex-1">{q}</span><Wand2 size={14} className="text-slate-700 group-hover:text-[#FF5533] transition-colors" />
                     </div>
                   ))}</div>
                 </div>
               )}
 
               {data.keyword_ideas?.length > 0 && (
-                <div className="bg-slate-900/40 border border-white/5 rounded-2xl p-6">
+                <div className="bg-[#0d0d0f] border border-white/10 rounded-2xl p-6">
                   <div className="flex items-center gap-2 mb-5"><Lightbulb className="text-amber-400" size={18} /><h3 className="text-sm font-bold text-white">Keyword Ideas</h3><span className="ml-auto text-[9px] font-bold text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full uppercase">Real</span></div>
                   <div className="flex flex-wrap gap-2">{data.keyword_ideas.map((kw: string, i: number) => (
                     <span key={i} className="px-3 py-2 bg-white/5 border border-white/5 rounded-xl text-xs text-slate-400 hover:text-white hover:border-amber-500/20 transition-all cursor-pointer" onClick={() => goGenerate(kw)}>{kw}</span>
@@ -465,18 +465,18 @@ export default function KeywordResearch() {
               )}
 
               {data.comparisons?.length > 0 && (
-                <div className="bg-slate-900/40 border border-white/5 rounded-2xl p-6">
+                <div className="bg-[#0d0d0f] border border-white/10 rounded-2xl p-6">
                   <div className="flex items-center gap-2 mb-5"><GitCompare className="text-cyan-400" size={18} /><h3 className="text-sm font-bold text-white">Comparisons</h3><span className="ml-auto text-[9px] font-bold text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full uppercase">Real</span></div>
                   <div className="space-y-2">{data.comparisons.map((c: string, i: number) => (
                     <div key={i} className="flex items-center gap-3 p-3 bg-white/[0.03] rounded-xl hover:bg-white/[0.06] transition-all cursor-pointer group" onClick={() => goGenerate(c)}>
-                      <ChevronRight size={14} className="text-cyan-500/50" /><span className="text-sm text-slate-300 flex-1">{c}</span><Wand2 size={14} className="text-slate-700 group-hover:text-indigo-400 transition-colors" />
+                      <ChevronRight size={14} className="text-cyan-500/50" /><span className="text-sm text-slate-300 flex-1">{c}</span><Wand2 size={14} className="text-slate-700 group-hover:text-[#FF5533] transition-colors" />
                     </div>
                   ))}</div>
                 </div>
               )}
 
               {data.related_keywords?.length > 0 && (
-                <div className="bg-slate-900/40 border border-white/5 rounded-2xl p-6">
+                <div className="bg-[#0d0d0f] border border-white/10 rounded-2xl p-6">
                   <div className="flex items-center gap-2 mb-5"><MessageCircle className="text-pink-400" size={18} /><h3 className="text-sm font-bold text-white">Related Searches</h3><span className="ml-auto text-[9px] font-bold text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full uppercase">Real</span></div>
                   <div className="flex flex-wrap gap-2">{data.related_keywords.map((kw: string, i: number) => (
                     <span key={i} className="px-3 py-2 bg-white/5 border border-white/5 rounded-xl text-xs text-slate-400 hover:text-white hover:border-pink-500/20 transition-all cursor-pointer" onClick={() => goGenerate(kw)}>{kw}</span>
@@ -485,12 +485,12 @@ export default function KeywordResearch() {
               )}
 
               {data.content_angles?.length > 0 && (
-                <div className="bg-slate-900/40 border border-white/5 rounded-2xl p-6 lg:col-span-2">
-                  <div className="flex items-center gap-2 mb-5"><Sparkles className="text-indigo-400" size={18} /><h3 className="text-sm font-bold text-white">Content Ideas for Your Business</h3></div>
+                <div className="bg-[#0d0d0f] border border-white/10 rounded-2xl p-6 lg:col-span-2">
+                  <div className="flex items-center gap-2 mb-5"><Sparkles className="text-[#FF5533]" size={18} /><h3 className="text-sm font-bold text-white">Content Ideas for Your Business</h3></div>
                   <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-3">{data.content_angles.map((a: string, i: number) => (
-                    <div key={i} className="p-4 bg-white/[0.03] border border-white/5 rounded-xl hover:border-indigo-500/20 transition-all cursor-pointer group" onClick={() => goGenerate(a)}>
+                    <div key={i} className="p-4 bg-white/[0.03] border border-white/5 rounded-xl hover:border-[#FF5533]/30 transition-all cursor-pointer group" onClick={() => goGenerate(a)}>
                       <p className="text-sm text-slate-300 group-hover:text-white leading-relaxed">{a}</p>
-                      <div className="mt-3 flex items-center gap-1 text-[9px] font-bold text-indigo-500 uppercase opacity-0 group-hover:opacity-100 transition-opacity">Generate <ArrowRight size={10} /></div>
+                      <div className="mt-3 flex items-center gap-1 text-[9px] font-bold text-[#FF5533] uppercase opacity-0 group-hover:opacity-100 transition-opacity">Generate <ArrowRight size={10} /></div>
                     </div>
                   ))}</div>
                 </div>

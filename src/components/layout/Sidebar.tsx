@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import BrandLogo from '@/components/layout/BrandLogo';
 import { 
   LayoutDashboard, 
   Zap, 
@@ -366,17 +367,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed }: SidebarProps) {
             "p-6 flex items-center select-none",
             isCollapsed ? "lg:flex-col lg:gap-4 lg:px-2 lg:justify-center" : "justify-between gap-3"
           )}>
-            <Link href="/dashboard" className="flex items-center gap-3 group cursor-pointer">
-              <div className="w-8 h-8 bg-primary rounded flex items-center justify-center shadow-md group-hover:scale-105 transition-transform duration-300">
-                <Zap className="text-white" fill="white" size={18} />
-              </div>
-              <h1 className={cn(
-                "text-lg font-bold text-foreground tracking-tight group-hover:text-primary transition-colors duration-300 whitespace-nowrap",
-                isCollapsed ? "lg:hidden" : "block"
-              )}>
-                GrowthPilot AI
-              </h1>
-            </Link>
+            <BrandLogo href="/dashboard" collapsed={isCollapsed} imgClassName="h-8 w-auto" />
             <button
               type="button"
               onClick={() => setIsCollapsed(!isCollapsed)}
@@ -543,7 +534,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed }: SidebarProps) {
                           "ml-auto text-[10px] px-1.5 py-0.5 rounded font-bold",
                           isCollapsed ? "lg:hidden" : "block",
                           item.tag === 'New' ? "bg-emerald-500/20 text-emerald-400" : 
-                          item.tag === 'Core' ? "bg-fuchsia-500/20 text-fuchsia-300" :
+                          item.tag === 'Core' ? "bg-orange-500/20 text-[#FF5533]" :
                           "bg-orange-500/20 text-orange-400"
                         )}>
                           {item.tag}
@@ -614,7 +605,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed }: SidebarProps) {
                     {avatarUrl ? (
                       <img src={avatarUrl} alt="Avatar" className="w-9 h-9 shrink-0 rounded-full object-cover shadow-sm select-none" />
                     ) : (
-                      <div className="w-9 h-9 shrink-0 flex items-center justify-center rounded-full bg-purple-600 text-white font-bold text-sm shadow-sm select-none font-black">
+                      <div className="w-9 h-9 shrink-0 flex items-center justify-center rounded-full bg-gradient-to-r from-[#FF473A] to-[#FF8526] text-white font-bold text-sm shadow-sm select-none font-black">
                         {getInitials(userName)}
                       </div>
                     )}
@@ -724,7 +715,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed }: SidebarProps) {
                 type="button"
                 onClick={() => setProfileMenuOpen(!profileMenuOpen)}
                 title={userName}
-                className="flex items-center justify-center w-10 h-10 rounded-full hover:bg-muted transition-all cursor-pointer shadow-sm bg-purple-600 border-none select-none p-0 overflow-hidden"
+                className="flex items-center justify-center w-10 h-10 rounded-full hover:bg-muted transition-all cursor-pointer shadow-sm bg-gradient-to-r from-[#FF473A] to-[#FF8526] border-none select-none p-0 overflow-hidden"
               >
                 {avatarUrl ? (
                   <img src={avatarUrl} alt="Avatar" className="w-10 h-10 object-cover rounded-full" />
@@ -742,7 +733,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed }: SidebarProps) {
                   {avatarUrl ? (
                     <img src={avatarUrl} alt="Avatar" className="w-9 h-9 shrink-0 rounded-full object-cover shadow-sm select-none" />
                   ) : (
-                    <div className="w-9 h-9 shrink-0 flex items-center justify-center rounded-full bg-purple-600 text-white font-bold text-sm shadow-sm select-none font-black">
+                    <div className="w-9 h-9 shrink-0 flex items-center justify-center rounded-full bg-gradient-to-r from-[#FF473A] to-[#FF8526] text-white font-bold text-sm shadow-sm select-none font-black">
                       {getInitials(userName)}
                     </div>
                   )}
@@ -770,7 +761,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed }: SidebarProps) {
             className="absolute inset-0 cursor-default bg-transparent border-none outline-none"
           />
           
-          <div className="bg-[#0b0f1a]/95 border border-white/10 rounded-3xl p-8 max-w-4xl w-full relative z-[110] shadow-2xl flex flex-col gap-6 max-h-[90vh] overflow-y-auto custom-scrollbar text-left">
+          <div className="bg-[#0d0d0f]/95 border border-white/10 rounded-3xl p-8 max-w-4xl w-full relative z-[110] shadow-2xl flex flex-col gap-6 max-h-[90vh] overflow-y-auto custom-scrollbar text-left">
             {paymentStage === 'plan_select' && (
               <button
                 type="button"
@@ -800,7 +791,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed }: SidebarProps) {
                       <div className="flex items-center justify-between mb-4">
                         <h3 className="font-bold text-lg text-white">Free Trial</h3>
                         {userPlan !== 'Plus' && (
-                          <span className="bg-blue-500/10 text-blue-400 border border-blue-500/20 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">
+                          <span className="bg-orange-500/10 text-[#FF5533] border border-orange-500/20 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">
                             Active
                           </span>
                         )}
@@ -815,19 +806,19 @@ export default function Sidebar({ isCollapsed, setIsCollapsed }: SidebarProps) {
                       
                       <ul className="space-y-3 mb-6">
                         <li className="flex items-center gap-2.5 text-xs text-white/70">
-                          <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                          <div className="w-1.5 h-1.5 rounded-full bg-[#FF5533]" />
                           <span><strong>SEO Tool</strong>: 5,000 words limit</span>
                         </li>
                         <li className="flex items-center gap-2.5 text-xs text-white/70">
-                          <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                          <div className="w-1.5 h-1.5 rounded-full bg-[#FF5533]" />
                           <span><strong>Marketing Suite</strong>: Max 3 runs limit</span>
                         </li>
                         <li className="flex items-center gap-2.5 text-xs text-white/70">
-                          <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                          <div className="w-1.5 h-1.5 rounded-full bg-[#FF5533]" />
                           <span><strong>Keywords Tool</strong>: Max 3 reports limit</span>
                         </li>
                         <li className="flex items-center gap-2.5 text-xs text-white/70">
-                          <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                          <div className="w-1.5 h-1.5 rounded-full bg-[#FF5533]" />
                           <span><strong>Brand Brain</strong>: Max 1 profile context</span>
                         </li>
                       </ul>
@@ -843,7 +834,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed }: SidebarProps) {
                   </div>
 
                   {/* Plus Monthly Plan Card */}
-                  <div className="bg-gradient-to-br from-blue-500/5 to-purple-500/5 border border-primary/20 rounded-2xl p-6 flex flex-col justify-between relative overflow-hidden shadow-lg shadow-primary/5">
+                  <div className="bg-gradient-to-br from-orange-500/5 to-amber-500/5 border border-primary/20 rounded-2xl p-6 flex flex-col justify-between relative overflow-hidden shadow-lg shadow-primary/5">
                     <div>
                       <div className="flex items-center justify-between mb-4">
                         <h3 className="font-bold text-lg text-white">Plus Monthly</h3>
@@ -901,7 +892,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed }: SidebarProps) {
                   </div>
 
                   {/* Plus Lifetime Plan Card */}
-                  <div className="bg-gradient-to-br from-indigo-500/10 to-purple-500/10 border-2 border-primary rounded-2xl p-6 flex flex-col justify-between relative overflow-hidden shadow-2xl shadow-primary/10">
+                  <div className="bg-gradient-to-br from-orange-500/10 to-amber-500/10 border-2 border-primary rounded-2xl p-6 flex flex-col justify-between relative overflow-hidden shadow-2xl shadow-primary/10">
                     <div className="absolute right-0 top-0 bg-primary text-white text-[9px] font-bold px-4 py-1 rounded-bl-xl uppercase tracking-wider">
                       Best Value
                     </div>
@@ -955,7 +946,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed }: SidebarProps) {
                       <button
                         type="button"
                         onClick={() => handleStartPayment('lifetime')}
-                        className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white py-3 rounded-xl font-black text-xs shadow-lg shadow-blue-500/10 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer text-center"
+                        className="w-full bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] hover:from-[#FF5547] hover:to-[#FF9036] text-white py-3 rounded-xl font-black text-xs shadow-lg shadow-[#FF5533]/25 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer text-center"
                       >
                         Buy Lifetime Access
                       </button>
@@ -1112,7 +1103,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed }: SidebarProps) {
                     {paymentMethod === 'card' && (
                       <form onSubmit={handlePay} className="space-y-4">
                         {/* Glassmorphic Card Preview */}
-                        <div className="relative h-44 w-full bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-950 border border-white/10 rounded-2xl p-5 overflow-hidden flex flex-col justify-between shadow-2xl">
+                        <div className="relative h-44 w-full bg-gradient-to-br from-neutral-900 via-stone-900 to-neutral-950 border border-white/10 rounded-2xl p-5 overflow-hidden flex flex-col justify-between shadow-2xl">
                           {/* Shine overlays */}
                           <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/5 to-white/0 pointer-events-none" />
                           <div className="absolute -right-16 -top-16 h-36 w-36 rounded-full bg-primary/20 blur-2xl" />

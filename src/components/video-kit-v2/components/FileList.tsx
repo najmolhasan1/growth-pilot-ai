@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -46,7 +46,7 @@ export default function FileList({ uploads, selectedId, onSelect, onDelete }: Fi
       <div className="mb-6 flex flex-col justify-between gap-4 lg:flex-row lg:items-start">
         <div>
           <h2 className="text-lg font-bold font-display text-slate-800 flex items-center gap-2">
-            <FileClock className="w-5 h-5 text-blue-600" />
+            <FileClock className="w-5 h-5 text-[#FF5533]" />
             Transcription Library
           </h2>
           <p className="text-xs text-slate-400 font-sans mt-0.5">Manage and organize processed transcripts, summaries and translated audio assets</p>
@@ -59,7 +59,7 @@ export default function FileList({ uploads, selectedId, onSelect, onDelete }: Fi
             onClick={() => setFileFilter('all')}
             className={`whitespace-nowrap rounded-lg px-3.5 py-1.5 text-xs font-semibold transition-all cursor-pointer ${
               fileFilter === 'all'
-                ? 'bg-white text-blue-600 shadow-xs'
+                ? 'bg-white text-[#FF5533] shadow-xs'
                 : 'text-slate-500 hover:text-slate-800'
             }`}
           >
@@ -70,7 +70,7 @@ export default function FileList({ uploads, selectedId, onSelect, onDelete }: Fi
             onClick={() => setFileFilter('video')}
             className={`flex cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-lg px-3.5 py-1.5 text-xs font-semibold transition-all ${
               fileFilter === 'video'
-                ? 'bg-white text-blue-600 shadow-xs'
+                ? 'bg-white text-[#FF5533] shadow-xs'
                 : 'text-slate-400 hover:text-slate-800'
             }`}
           >
@@ -82,7 +82,7 @@ export default function FileList({ uploads, selectedId, onSelect, onDelete }: Fi
             onClick={() => setFileFilter('audio')}
             className={`flex cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-lg px-3.5 py-1.5 text-xs font-semibold transition-all ${
               fileFilter === 'audio'
-                ? 'bg-white text-blue-600 shadow-xs'
+                ? 'bg-white text-[#FF5533] shadow-xs'
                 : 'text-slate-400 hover:text-slate-800'
             }`}
           >
@@ -127,7 +127,7 @@ export default function FileList({ uploads, selectedId, onSelect, onDelete }: Fi
                 onClick={() => onSelect(u.id)}
                 className={`group relative flex cursor-pointer items-center justify-between rounded-2xl border p-3.5 transition-all sm:p-4 ${
                   isSelected 
-                    ? 'border-blue-500 bg-blue-50/20 ring-1 ring-blue-500' 
+                    ? 'border-[#FF5533] bg-orange-500/10/20 ring-1 ring-blue-500' 
                     : 'border-slate-150 hover:border-slate-250 hover:bg-slate-50/50'
                 }`}
               >
@@ -135,14 +135,14 @@ export default function FileList({ uploads, selectedId, onSelect, onDelete }: Fi
                   {/* Media Type Indicator */}
                   <div className={`p-2.5 rounded-lg shrink-0 ${
                     u.fileType === 'video' 
-                      ? 'bg-blue-50 text-blue-600 border border-blue-100/20' 
+                      ? 'bg-orange-500/10 text-[#FF5533] border border-orange-500/20' 
                       : 'bg-amber-50 text-amber-600 border border-amber-100/20'
                   }`}>
                     {u.fileType === 'video' ? <Video className="w-4.5 h-4.5" /> : <Music className="w-4.5 h-4.5" />}
                   </div>
 
                   <div className="min-w-0">
-                    <p className="font-bold text-slate-805 text-sm truncate pr-2 group-hover:text-blue-600 transition-colors">
+                    <p className="font-bold text-slate-805 text-sm truncate pr-2 group-hover:text-[#FF5533] transition-colors">
                       {u.fileName}
                     </p>
                     
@@ -157,7 +157,7 @@ export default function FileList({ uploads, selectedId, onSelect, onDelete }: Fi
                         {u.duration}
                       </span>
                       <span>•</span>
-                      <span className="bg-blue-50 text-blue-700/90 font-sans font-semibold text-[10px] px-1.5 py-0.5 rounded shrink-0">
+                      <span className="bg-orange-500/10 text-[#FF5533]/90 font-sans font-semibold text-[10px] px-1.5 py-0.5 rounded shrink-0">
                         {u.originalLanguage}
                       </span>
                     </div>
@@ -199,7 +199,7 @@ export default function FileList({ uploads, selectedId, onSelect, onDelete }: Fi
                     <Trash2 className="w-4 h-4" />
                   </button>
                   <ChevronRight className={`w-4 h-4 transition-transform shrink-0 ${
-                    isSelected ? 'text-blue-600 translate-x-0.5' : 'text-slate-300'
+                    isSelected ? 'text-[#FF5533] translate-x-0.5' : 'text-slate-300'
                   }`} />
                 </div>
               </div>

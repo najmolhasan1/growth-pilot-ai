@@ -382,7 +382,7 @@ function ToolWorkspaceContent() {
   }
 
   return (
-    <div className="min-h-screen bg-[#030712] p-6 lg:p-10">
+    <div className="min-h-screen bg-[#030303] p-6 lg:p-10">
       <div className="mx-auto max-w-7xl">
         {/* Back and Breadcrumbs Navigation */}
         <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
@@ -393,14 +393,14 @@ function ToolWorkspaceContent() {
             <ArrowLeft size={16} /> Back to Marketing Suite
           </Link>
           <div className="text-xs font-bold text-white/30">
-            <span>Marketing Suite</span> <span className="mx-1.5">/</span> <span className="text-fuchsia-300">{activeTool.label}</span>
+            <span>Marketing Suite</span> <span className="mx-1.5">/</span> <span className="text-[#FF5533]">{activeTool.label}</span>
           </div>
         </div>
 
         {/* Workspace Title Header */}
         <div className="mb-8 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between border-b border-white/5 pb-6">
           <div>
-            <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-fuchsia-500/20 bg-fuchsia-500/10 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-fuchsia-300">
+            <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-[#FF5533]">
               {activeTool.category}
             </div>
             <h1 className="text-3xl font-black tracking-tight text-white">
@@ -431,7 +431,7 @@ function ToolWorkspaceContent() {
                 <select
                   value={language}
                   onChange={event => setLanguage(event.target.value)}
-                  className="rounded-xl border border-white/10 bg-[#0d1117] px-3 py-2 text-xs font-bold text-white outline-none cursor-pointer"
+                  className="rounded-xl border border-white/10 bg-[#0d0d0f] px-3 py-2 text-xs font-bold text-white outline-none cursor-pointer focus:border-[#FF5533]/50"
                 >
                   <option>English</option>
                   <option>Bengali</option>
@@ -451,14 +451,14 @@ function ToolWorkspaceContent() {
                         onChange={event => updateInput(field.key, event.target.value)}
                         placeholder={field.placeholder}
                         rows={4}
-                        className="w-full resize-y rounded-2xl border border-white/10 bg-[#0d1117] px-4 py-3 text-sm leading-6 text-white outline-none transition placeholder:text-white/20 focus:border-fuchsia-400/70"
+                        className="w-full resize-y rounded-2xl border border-white/10 bg-[#0d0d0f] px-4 py-3 text-sm leading-6 text-white outline-none transition placeholder:text-white/20 focus:border-[#FF5533]/60 focus:ring-1 focus:ring-[#FF5533]/20"
                       />
                     ) : (
                       <input
                         value={inputs[field.key] || ''}
                         onChange={event => updateInput(field.key, event.target.value)}
                         placeholder={field.placeholder}
-                        className="w-full rounded-2xl border border-white/10 bg-[#0d1117] px-4 py-3 text-sm text-white outline-none transition placeholder:text-white/20 focus:border-fuchsia-400/70"
+                        className="w-full rounded-2xl border border-white/10 bg-[#0d0d0f] px-4 py-3 text-sm text-white outline-none transition placeholder:text-white/20 focus:border-[#FF5533]/60 focus:ring-1 focus:ring-[#FF5533]/20"
                       />
                     )}
                   </div>
@@ -473,7 +473,7 @@ function ToolWorkspaceContent() {
 
               <button
                 disabled={loading}
-                className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-fuchsia-600 px-6 py-4 text-sm font-black text-white shadow-xl shadow-fuchsia-500/20 transition hover:bg-fuchsia-500 disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer"
+                className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] px-6 py-4 text-sm font-black text-white shadow-xl shadow-[#FF5533]/25 transition hover:from-[#FF5547] hover:to-[#FF9036] disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer"
               >
                 {loading ? <Loader2 className="animate-spin" size={18} /> : <Wand2 size={18} />}
                 {loading ? 'Generating Expert Output...' : 'Generate Expert Output'}
@@ -498,13 +498,13 @@ function ToolWorkspaceContent() {
               </div>
 
               {toolSavedAssets.length === 0 ? (
-                <p className="rounded-2xl border border-dashed border-white/10 bg-[#0d1117] p-4 text-xs leading-5 text-white/35">
+                <p className="rounded-2xl border border-dashed border-white/10 bg-[#0d0d0f] p-4 text-xs leading-5 text-white/35">
                   Saved outputs for {activeTool.label} will appear here.
                 </p>
               ) : (
                 <div className="max-h-[300px] space-y-3 overflow-y-auto pr-1">
                   {toolSavedAssets.map(asset => (
-                    <div key={asset.id} className="rounded-2xl border border-white/10 bg-[#0d1117] p-4">
+                    <div key={asset.id} className="rounded-2xl border border-white/10 bg-[#0d0d0f] p-4">
                       <button
                         type="button"
                         onClick={() => loadAsset(asset)}
@@ -526,7 +526,7 @@ function ToolWorkspaceContent() {
                         <button
                           type="button"
                           onClick={() => downloadAsset(asset, 'md')}
-                          className="rounded-xl bg-indigo-500/10 px-2.5 py-1.5 text-indigo-250 hover:bg-indigo-500/20 cursor-pointer"
+                          className="rounded-xl bg-orange-500/10 px-2.5 py-1.5 text-[#FF5533] hover:bg-orange-500/20 cursor-pointer"
                           aria-label={`Download ${asset.title}`}
                         >
                           <Download size={13} />
@@ -553,7 +553,7 @@ function ToolWorkspaceContent() {
               <div>
                 <p className="text-[10px] font-bold uppercase tracking-widest text-white/35">Output</p>
                 <h2 className="mt-0.5 flex items-center gap-2 text-xl font-black text-white">
-                  <Megaphone size={20} className="text-fuchsia-300" /> Expert Draft Workspace
+                  <Megaphone size={20} className="text-[#FF5533]" /> Expert Draft Workspace
                 </h2>
               </div>
               {fullOutput && (
@@ -571,7 +571,7 @@ function ToolWorkspaceContent() {
                           key={format}
                           type="button"
                           onClick={() => downloadAsset(currentAsset, format)}
-                          className="inline-flex items-center justify-center gap-1.5 rounded-2xl border border-white/10 bg-white/[0.04] px-3 py-3 text-xs font-black uppercase text-white/60 transition hover:bg-indigo-500/10 hover:text-indigo-200 cursor-pointer"
+                          className="inline-flex items-center justify-center gap-1.5 rounded-2xl border border-white/10 bg-white/[0.04] px-3 py-3 text-xs font-black uppercase text-white/60 transition hover:bg-orange-500/10 hover:text-[#FF5533] cursor-pointer"
                         >
                           <Download size={13} /> {format}
                         </button>
@@ -589,8 +589,8 @@ function ToolWorkspaceContent() {
             )}
 
             {!loading && !fullOutput && (
-              <div className="flex min-h-[400px] flex-col items-center justify-center rounded-3xl border border-dashed border-white/10 bg-[#0d1117]/60 p-8 text-center">
-                <Sparkles size={34} className="mb-4 text-fuchsia-300" />
+              <div className="flex min-h-[400px] flex-col items-center justify-center rounded-3xl border border-dashed border-white/10 bg-[#0d0d0f]/60 p-8 text-center">
+                <Sparkles size={34} className="mb-4 text-[#FF5533]" />
                 <h3 className="text-lg font-black text-white">Ready for Generation</h3>
                 <p className="mt-2 max-w-md text-xs leading-6 text-white/40">
                   Fill in the parameters on the left and click generate. GrowthPilot AI will assemble the strategy, content templates, and checklists instantly.
@@ -599,8 +599,8 @@ function ToolWorkspaceContent() {
             )}
 
             {loading && (
-              <div className="flex min-h-[400px] flex-col items-center justify-center rounded-3xl border border-white/10 bg-[#0d1117]/60 p-8 text-center">
-                <Loader2 className="mb-4 animate-spin text-fuchsia-300" size={34} />
+              <div className="flex min-h-[400px] flex-col items-center justify-center rounded-3xl border border-white/10 bg-[#0d0d0f]/60 p-8 text-center">
+                <Loader2 className="mb-4 animate-spin text-[#FF5533]" size={34} />
                 <h3 className="text-lg font-black text-white">Analyzing & Planning Output...</h3>
                 <p className="mt-2 max-w-md text-xs leading-6 text-white/40">
                   Formulating messaging, hooks, CTA angles, and quality reviews based on your target segment.
@@ -648,10 +648,10 @@ function ToolWorkspaceContent() {
                     <ResultCard title="Primary Output" body={result.primaryOutput} large />
                     
                     {toolId === 'product_photography' && (
-                      <section className="rounded-2xl border border-fuchsia-400/20 bg-fuchsia-500/5 p-5">
+                      <section className="rounded-2xl border border-orange-500/20 bg-orange-500/5 p-5">
                         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                           <div>
-                            <h3 className="text-[11px] font-black uppercase tracking-widest text-fuchsia-200/80">
+                            <h3 className="text-[11px] font-black uppercase tracking-widest text-[#FF7A45]">
                               Product Image Generator
                             </h3>
                             <p className="mt-2 text-xs leading-5 text-white/55">
@@ -662,7 +662,7 @@ function ToolWorkspaceContent() {
                             <select
                               value={imageAspectRatio}
                               onChange={event => setImageAspectRatio(event.target.value)}
-                              className="rounded-2xl border border-white/10 bg-[#0d1117] px-4 py-3 text-xs font-black text-white outline-none cursor-pointer"
+                              className="rounded-2xl border border-white/10 bg-[#0d0d0f] px-4 py-3 text-xs font-black text-white outline-none cursor-pointer"
                             >
                               <option value="1:1">Square 1:1</option>
                               <option value="4:3">Landscape 4:3</option>
@@ -674,7 +674,7 @@ function ToolWorkspaceContent() {
                               type="button"
                               onClick={generateProductImages}
                               disabled={imageLoading}
-                              className="inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-fuchsia-600 to-blue-600 px-5 py-3 text-xs font-black text-white shadow-lg shadow-fuchsia-500/20 transition hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer"
+                              className="inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] px-5 py-3 text-xs font-black text-white shadow-lg shadow-[#FF5533]/25 transition hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer"
                             >
                               {imageLoading ? <Loader2 className="animate-spin" size={16} /> : <Sparkles size={16} />}
                               {imageLoading ? 'Generating Images...' : 'Generate Product Images'}
@@ -691,7 +691,7 @@ function ToolWorkspaceContent() {
                         {generatedImages.length > 0 && (
                           <div className="mt-5 grid gap-4 md:grid-cols-2">
                             {generatedImages.map(image => (
-                              <div key={image.id} className="overflow-hidden rounded-2xl border border-white/10 bg-[#0d1117]">
+                              <div key={image.id} className="overflow-hidden rounded-2xl border border-white/10 bg-[#0d0d0f]">
                                 <Image
                                   src={image.dataUrl}
                                   alt={image.label}
@@ -738,8 +738,8 @@ function ToolWorkspaceContent() {
 
 function ResultCard({ title, body, items, large }: { title: string; body?: string; items?: string[]; large?: boolean }) {
   return (
-    <section className="rounded-2xl border border-white/10 bg-[#0d1117] p-5">
-      <h3 className="mb-3 text-[11px] font-black uppercase tracking-widest text-fuchsia-200/70">{title}</h3>
+    <section className="rounded-2xl border border-white/10 bg-[#0d0d0f] p-5">
+      <h3 className="mb-3 text-[11px] font-black uppercase tracking-widest text-[#FF7A45]">{title}</h3>
       {body && (
         <div className={`whitespace-pre-wrap text-sm leading-7 text-white/80 ${large ? 'text-[15px]' : ''}`}>
           {body}
@@ -749,7 +749,7 @@ function ResultCard({ title, body, items, large }: { title: string; body?: strin
         <ul className="space-y-2">
           {items.map((item, index) => (
             <li key={`${title}-${index}`} className="flex gap-3 text-sm leading-6 text-white/75">
-              <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-fuchsia-300" />
+              <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[#FF5533]" />
               <span>{item}</span>
             </li>
           ))}
@@ -761,7 +761,7 @@ function ResultCard({ title, body, items, large }: { title: string; body?: strin
 
 export default function ToolWorkspacePage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-[#030712] p-8 text-white/40 flex items-center justify-center">Loading marketing workspace...</div>}>
+    <Suspense fallback={<div className="min-h-screen bg-[#030303] p-8 text-white/40 flex items-center justify-center">Loading marketing workspace...</div>}>
       <ToolWorkspaceContent />
     </Suspense>
   );

@@ -960,13 +960,13 @@ export default function WebsiteAnalyzerPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-4 md:p-8">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#030303] p-4 md:p-8">
       {/* Header */}
       <div className="max-w-7xl mx-auto mb-8">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-6 border-b border-slate-200/70 dark:border-slate-800/80">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-6 border-b border-slate-200/70 dark:border-white/10/80">
           <div>
             <div className="flex items-center gap-2 mb-1.5">
-              <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20">
+              <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-orange-500/10 text-[#FF5533] dark:text-[#FF7A45] border border-orange-500/30">
                 SEO Intelligence Suite
               </span>
               <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
@@ -983,10 +983,10 @@ export default function WebsiteAnalyzerPage() {
 
           {/* Quick Technical Toolset */}
           <div className="flex flex-wrap items-center gap-2.5">
-            <div className="flex items-center p-1 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+            <div className="flex items-center p-1 bg-white dark:bg-[#0d0d0f] rounded-xl border border-slate-200 dark:border-white/10 shadow-sm">
               <button
                 onClick={() => setShowRobotsModal(true)}
-                className="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all flex items-center gap-1.5"
+                className="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-[#FF5533] dark:hover:text-[#FF7A45] hover:bg-slate-50 dark:hover:bg-slate-800 transition-all flex items-center gap-1.5"
               >
                 <FileCode className="w-3.5 h-3.5 text-emerald-500" />
                 Robots.txt
@@ -996,9 +996,9 @@ export default function WebsiteAnalyzerPage() {
 
               <button
                 onClick={() => setShowSchemaModal(true)}
-                className="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all flex items-center gap-1.5"
+                className="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-[#FF5533] dark:hover:text-[#FF7A45] hover:bg-slate-50 dark:hover:bg-slate-800 transition-all flex items-center gap-1.5"
               >
-                <Code className="w-3.5 h-3.5 text-indigo-500" />
+                <Code className="w-3.5 h-3.5 text-[#FF5533]" />
                 Schema
               </button>
 
@@ -1006,7 +1006,7 @@ export default function WebsiteAnalyzerPage() {
 
               <button
                 onClick={() => setShowSecurityModal(true)}
-                className="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all flex items-center gap-1.5"
+                className="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-[#FF5533] dark:hover:text-[#FF7A45] hover:bg-slate-50 dark:hover:bg-slate-800 transition-all flex items-center gap-1.5"
               >
                 <ShieldCheck className="w-3.5 h-3.5 text-amber-500" />
                 Security
@@ -1016,7 +1016,7 @@ export default function WebsiteAnalyzerPage() {
             {report && (
               <button
                 onClick={() => window.print()}
-                className="px-3.5 py-2 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white transition-all shadow-sm flex items-center gap-1.5"
+                className="px-3.5 py-2 rounded-xl text-xs font-bold bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] hover:from-[#FF5547] hover:to-[#FF9036] text-white transition-all shadow-sm flex items-center gap-1.5"
               >
                 <Printer className="w-3.5 h-3.5" />
                 Export PDF
@@ -1027,18 +1027,18 @@ export default function WebsiteAnalyzerPage() {
 
         {/* Modern Segmented Mode Navigation Bar */}
         <div className="mt-6">
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 p-1.5 bg-slate-200/60 dark:bg-slate-900/90 rounded-2xl border border-slate-300/60 dark:border-slate-800 shadow-sm">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 p-1.5 bg-slate-200/60 dark:bg-[#0d0d0f]/90 rounded-2xl border border-slate-300/60 dark:border-white/10 shadow-sm">
             
             {/* Mode 1: Single URL */}
             <button
               onClick={() => setAuditMode('single')}
               className={`flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl font-bold text-xs transition-all ${
                 auditMode === 'single'
-                  ? 'bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 shadow-sm'
+                  ? 'bg-white dark:bg-slate-800 text-[#FF5533] dark:text-[#FF7A45] shadow-sm'
                   : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/40 dark:hover:bg-slate-800/40'
               }`}
             >
-              <Globe className="w-4 h-4 flex-shrink-0 text-indigo-500" />
+              <Globe className="w-4 h-4 flex-shrink-0 text-[#FF5533]" />
               <span>Site Audit</span>
             </button>
 
@@ -1110,13 +1110,13 @@ export default function WebsiteAnalyzerPage() {
         </div>
 
         {/* Unified Enterprise Input Card */}
-        <div className="mt-5 bg-white dark:bg-slate-900 p-5 md:p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+        <div className="mt-5 bg-white dark:bg-[#0d0d0f] p-5 md:p-6 rounded-3xl border border-slate-200 dark:border-white/10 shadow-sm space-y-4">
           
           {/* Card Context Header */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-white/10">
             <div className="flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-700 dark:text-slate-200">
-                {auditMode === 'single' && <Globe className="w-4 h-4 text-indigo-500" />}
+                {auditMode === 'single' && <Globe className="w-4 h-4 text-[#FF5533]" />}
                 {auditMode === 'compare' && <Swords className="w-4 h-4 text-rose-500" />}
                 {auditMode === 'sitemap' && <Network className="w-4 h-4 text-sky-500" />}
                 {auditMode === 'backlinks' && <Link2 className="w-4 h-4 text-emerald-500" />}
@@ -1146,7 +1146,7 @@ export default function WebsiteAnalyzerPage() {
             {/* Contextual Sub-Tab Selector for Mode 5 */}
             {auditMode === 'blog-serp' && (
               <div className="flex flex-wrap items-center gap-2">
-                <div className="p-1 bg-slate-100 dark:bg-slate-950 rounded-xl border border-slate-200/60 dark:border-slate-800 flex items-center gap-1">
+                <div className="p-1 bg-slate-100 dark:bg-[#030303] rounded-xl border border-slate-200/60 dark:border-white/10 flex items-center gap-1">
                   <button
                     type="button"
                     onClick={() => setBlogSubTab('directory')}
@@ -1174,7 +1174,7 @@ export default function WebsiteAnalyzerPage() {
                 <button
                   type="button"
                   onClick={() => setShowGscModal(true)}
-                  className="px-3 py-1.5 rounded-xl text-xs font-bold border border-indigo-200 dark:border-indigo-800/80 bg-indigo-50/50 dark:bg-indigo-950/40 hover:bg-indigo-100/70 text-indigo-700 dark:text-indigo-300 transition-all flex items-center gap-1.5 shadow-sm"
+                  className="px-3 py-1.5 rounded-xl text-xs font-bold border border-orange-500/30 bg-orange-500/10 hover:bg-orange-500/20 text-[#FF5533] dark:text-[#FF7A45] transition-all flex items-center gap-1.5 shadow-sm"
                 >
                   <span className={`w-2 h-2 rounded-full ${gscConnected ? 'bg-emerald-500' : 'bg-amber-400'}`} />
                   {gscConnected ? 'GSC Connected' : 'Connect GSC'}
@@ -1184,7 +1184,7 @@ export default function WebsiteAnalyzerPage() {
 
             {/* Contextual Sub-Tab Selector for Mode 6 */}
             {auditMode === 'optimizer' && (
-              <div className="p-1 bg-slate-100 dark:bg-slate-950 rounded-xl border border-slate-200/60 dark:border-slate-800 flex items-center gap-1">
+              <div className="p-1 bg-slate-100 dark:bg-[#030303] rounded-xl border border-slate-200/60 dark:border-white/10 flex items-center gap-1">
                 <button
                   type="button"
                   onClick={() => setOptimizerInputMode('url')}
@@ -1222,13 +1222,13 @@ export default function WebsiteAnalyzerPage() {
                   value={urlInput}
                   onChange={(e) => setUrlInput(e.target.value)}
                   disabled={scanning}
-                  className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                  className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#030303] text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#FF5533]/20 focus:border-[#FF5533]/60"
                 />
               </div>
               <button
                 type="submit"
                 disabled={scanning || !urlInput.trim()}
-                className="px-6 py-3 rounded-xl font-bold text-xs sm:text-sm bg-indigo-600 hover:bg-indigo-700 text-white transition-all shadow-md shadow-indigo-600/20 flex items-center justify-center gap-2 disabled:opacity-50"
+                className="px-6 py-3 rounded-xl font-bold text-xs sm:text-sm bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] hover:from-[#FF5547] hover:to-[#FF9036] text-white transition-all shadow-md shadow-[#FF5533]/25 flex items-center justify-center gap-2 disabled:opacity-50"
               >
                 {scanning ? (
                   <>
@@ -1249,14 +1249,14 @@ export default function WebsiteAnalyzerPage() {
           {auditMode === 'compare' && (
             <form onSubmit={handleCompare} className="flex flex-col md:flex-row items-center gap-3">
               <div className="relative flex-1 w-full">
-                <Globe className="absolute left-3.5 top-3.5 w-4 h-4 text-indigo-500" />
+                <Globe className="absolute left-3.5 top-3.5 w-4 h-4 text-[#FF5533]" />
                 <input
                   type="text"
                   placeholder="Your Website URL (e.g. yourbrand.com)"
                   value={urlInput}
                   onChange={(e) => setUrlInput(e.target.value)}
                   disabled={comparing}
-                  className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                  className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#030303] text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#FF5533]/20 focus:border-[#FF5533]/60"
                 />
               </div>
 
@@ -1272,14 +1272,14 @@ export default function WebsiteAnalyzerPage() {
                   value={competitorUrlInput}
                   onChange={(e) => setCompetitorUrlInput(e.target.value)}
                   disabled={comparing}
-                  className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500"
+                  className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#030303] text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500"
                 />
               </div>
 
               <button
                 type="submit"
                 disabled={comparing || !urlInput.trim() || !competitorUrlInput.trim()}
-                className="w-full md:w-auto px-6 py-3 rounded-xl font-bold text-xs sm:text-sm bg-gradient-to-r from-indigo-600 to-rose-600 hover:from-indigo-700 hover:to-rose-700 text-white transition-all shadow-md flex items-center justify-center gap-2 disabled:opacity-50"
+                className="w-full md:w-auto px-6 py-3 rounded-xl font-bold text-xs sm:text-sm bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] hover:from-[#FF5547] hover:to-[#FF9036] text-white transition-all shadow-md shadow-[#FF5533]/25 flex items-center justify-center gap-2 disabled:opacity-50"
               >
                 {comparing ? (
                   <>
@@ -1307,7 +1307,7 @@ export default function WebsiteAnalyzerPage() {
                   value={urlInput}
                   onChange={(e) => setUrlInput(e.target.value)}
                   disabled={sitemapScanning}
-                  className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500"
+                  className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#030303] text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500"
                 />
               </div>
               <button
@@ -1341,7 +1341,7 @@ export default function WebsiteAnalyzerPage() {
                   value={urlInput}
                   onChange={(e) => setUrlInput(e.target.value)}
                   disabled={backlinkScanning}
-                  className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                  className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#030303] text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
                 />
               </div>
               <button
@@ -1376,13 +1376,13 @@ export default function WebsiteAnalyzerPage() {
                     value={urlInput}
                     onChange={(e) => setUrlInput(e.target.value)}
                     disabled={allBlogsScanning}
-                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#030303] text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
                   />
                 </div>
                 <button
                   type="submit"
                   disabled={allBlogsScanning || !urlInput.trim()}
-                  className="px-6 py-3 rounded-xl font-bold text-xs sm:text-sm bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white transition-all shadow-md shadow-purple-600/20 flex items-center justify-center gap-2 disabled:opacity-50"
+                  className="px-6 py-3 rounded-xl font-bold text-xs sm:text-sm bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] hover:from-[#FF5547] hover:to-[#FF9036] text-white transition-all shadow-md shadow-[#FF5533]/25 flex items-center justify-center gap-2 disabled:opacity-50"
                 >
                   {allBlogsScanning ? (
                     <>
@@ -1407,13 +1407,13 @@ export default function WebsiteAnalyzerPage() {
                     value={urlInput}
                     onChange={(e) => setUrlInput(e.target.value)}
                     disabled={blogSerpScanning}
-                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#030303] text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
                   />
                 </div>
                 <button
                   type="submit"
                   disabled={blogSerpScanning || !urlInput.trim()}
-                  className="px-6 py-3 rounded-xl font-bold text-xs sm:text-sm bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white transition-all shadow-md shadow-purple-600/20 flex items-center justify-center gap-2 disabled:opacity-50"
+                  className="px-6 py-3 rounded-xl font-bold text-xs sm:text-sm bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] hover:from-[#FF5547] hover:to-[#FF9036] text-white transition-all shadow-md shadow-[#FF5533]/25 flex items-center justify-center gap-2 disabled:opacity-50"
                 >
                   {blogSerpScanning ? (
                     <>
@@ -1443,7 +1443,7 @@ export default function WebsiteAnalyzerPage() {
                     value={urlInput}
                     onChange={(e) => setUrlInput(e.target.value)}
                     disabled={optimizerScanning}
-                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500"
+                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#030303] text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500"
                   />
                 </div>
               ) : (
@@ -1454,7 +1454,7 @@ export default function WebsiteAnalyzerPage() {
                     value={liveArticleText}
                     onChange={(e) => handleLiveTextChange(e.target.value)}
                     disabled={optimizerScanning}
-                    className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 font-mono"
+                    className="w-full p-3 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#030303] text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 font-mono"
                   />
                 </div>
               )}
@@ -1466,7 +1466,7 @@ export default function WebsiteAnalyzerPage() {
                   value={optimizerKeyword}
                   onChange={(e) => setOptimizerKeyword(e.target.value)}
                   disabled={optimizerScanning}
-                  className="w-full px-3.5 py-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500"
+                  className="w-full px-3.5 py-3 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#030303] text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500"
                 />
               </div>
 
@@ -1492,19 +1492,19 @@ export default function WebsiteAnalyzerPage() {
 
           {/* Scanning Progress Timeline */}
           {scanning && (
-            <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800">
+            <div className="mt-4 pt-3 border-t border-slate-100 dark:border-white/10">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-[11px] font-medium text-slate-500">
-                <span className={`flex items-center gap-1.5 ${scanStep >= 1 ? 'text-indigo-600 dark:text-indigo-400 font-bold' : ''}`}>
+                <span className={`flex items-center gap-1.5 ${scanStep >= 1 ? 'text-[#FF5533] dark:text-[#FF7A45] font-bold' : ''}`}>
                   {scanStep > 1 ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Loader2 className="w-3.5 h-3.5 animate-spin" />}
                   1. Crawling DOM & Headers
                 </span>
-                <span className={`flex items-center gap-1.5 ${scanStep >= 2 ? 'text-indigo-600 dark:text-indigo-400 font-bold' : ''}`}>
+                <span className={`flex items-center gap-1.5 ${scanStep >= 2 ? 'text-[#FF5533] dark:text-[#FF7A45] font-bold' : ''}`}>
                   {scanStep > 2 ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : scanStep === 2 ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : '2. Measuring Web Vitals'}
                 </span>
-                <span className={`flex items-center gap-1.5 ${scanStep >= 3 ? 'text-indigo-600 dark:text-indigo-400 font-bold' : ''}`}>
+                <span className={`flex items-center gap-1.5 ${scanStep >= 3 ? 'text-[#FF5533] dark:text-[#FF7A45] font-bold' : ''}`}>
                   {scanStep > 3 ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : scanStep === 3 ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : '3. Schema & Keywords Gap'}
                 </span>
-                <span className={`flex items-center gap-1.5 ${scanStep >= 4 ? 'text-indigo-600 dark:text-indigo-400 font-bold' : ''}`}>
+                <span className={`flex items-center gap-1.5 ${scanStep >= 4 ? 'text-[#FF5533] dark:text-[#FF7A45] font-bold' : ''}`}>
                   {scanStep >= 4 ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : '4. Compiling Health Score'}
                 </span>
               </div>
@@ -1520,9 +1520,9 @@ export default function WebsiteAnalyzerPage() {
 
           {/* Quick Recent Audits History Bar */}
           {recentAudits.length > 0 && !scanning && !comparing && !sitemapScanning && !backlinkScanning && !blogSerpScanning && !optimizerScanning && !allBlogsScanning && (
-            <div className="mt-4 pt-3.5 border-t border-slate-100 dark:border-slate-800/80 flex flex-wrap items-center gap-2">
+            <div className="mt-4 pt-3.5 border-t border-slate-100 dark:border-white/10/80 flex flex-wrap items-center gap-2">
               <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider flex items-center gap-1.5 mr-1">
-                <Clock className="w-3.5 h-3.5 text-indigo-500" /> Recent Scans:
+                <Clock className="w-3.5 h-3.5 text-[#FF5533]" /> Recent Scans:
               </span>
               {recentAudits.map((item) => (
                 <button
@@ -1532,9 +1532,9 @@ export default function WebsiteAnalyzerPage() {
                     setReport(item.result);
                     setAuditMode('single');
                   }}
-                  className="group px-3 py-1 rounded-lg text-xs font-semibold bg-slate-100/80 dark:bg-slate-800/80 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 hover:text-indigo-600 dark:hover:text-indigo-400 border border-slate-200/60 dark:border-slate-700/60 transition-all text-slate-700 dark:text-slate-300 flex items-center gap-2 shadow-sm"
+                  className="group px-3 py-1 rounded-lg text-xs font-semibold bg-slate-100/80 dark:bg-slate-800/80 hover:bg-orange-500/10 hover:text-[#FF5533] dark:hover:text-[#FF7A45] border border-slate-200/60 dark:border-slate-700/60 transition-all text-slate-700 dark:text-slate-300 flex items-center gap-2 shadow-sm"
                 >
-                  <Globe className="w-3 h-3 text-slate-400 group-hover:text-indigo-500 transition-colors" />
+                  <Globe className="w-3 h-3 text-slate-400 group-hover:text-[#FF5533] transition-colors" />
                   <span>{item.result.domain}</span>
                   <span className={`text-[10px] font-black px-1.5 py-0.2 rounded ${
                     (item.result.audit.healthScore ?? 80) >= 80 
@@ -1558,7 +1558,7 @@ export default function WebsiteAnalyzerPage() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
             
             {/* Site Health Dial */}
-            <div className="lg:col-span-4 bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center gap-6">
+            <div className="lg:col-span-4 bg-white dark:bg-[#0d0d0f] p-6 rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm flex items-center gap-6">
               <div className="relative w-24 h-24 flex items-center justify-center flex-shrink-0">
                 <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
                   <path
@@ -1614,7 +1614,7 @@ export default function WebsiteAnalyzerPage() {
             </div>
 
             {/* Quick 3-Tier Issues Count */}
-            <div className="lg:col-span-4 bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between">
+            <div className="lg:col-span-4 bg-white dark:bg-[#0d0d0f] p-5 rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm flex flex-col justify-between">
               <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
                 SEMrush Issue Hierarchy
               </span>
@@ -1659,14 +1659,14 @@ export default function WebsiteAnalyzerPage() {
 
               <div className="text-[11px] text-slate-400 flex items-center justify-between">
                 <span>Click any badge to view fixes</span>
-                <span className="text-indigo-600 dark:text-indigo-400 font-semibold cursor-pointer" onClick={() => setActiveTab('issues')}>
+                <span className="text-[#FF5533] dark:text-[#FF7A45] font-semibold cursor-pointer" onClick={() => setActiveTab('issues')}>
                   View all &rarr;
                 </span>
               </div>
             </div>
 
             {/* 4 Core Pillars Score Card */}
-            <div className="lg:col-span-4 bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between">
+            <div className="lg:col-span-4 bg-white dark:bg-[#0d0d0f] p-5 rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm flex flex-col justify-between">
               <span className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
                 4 Pillars Diagnostic
               </span>
@@ -1701,7 +1701,7 @@ export default function WebsiteAnalyzerPage() {
           </div>
 
           {/* Interactive Navigation Tabs */}
-          <div className="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-1 overflow-x-auto">
+          <div className="flex items-center gap-2 border-b border-slate-200 dark:border-white/10 pb-1 overflow-x-auto">
             {[
               { id: 'overview', label: 'Executive Overview', icon: Layers },
               { id: 'issues', label: `Issues & Fixes (${allErrors.length + allWarnings.length + allNotices.length})`, icon: AlertTriangle },
@@ -1718,7 +1718,7 @@ export default function WebsiteAnalyzerPage() {
                   onClick={() => setActiveTab(tab.id as any)}
                   className={`relative flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs whitespace-nowrap transition-all ${
                     isActive
-                      ? 'bg-indigo-600 text-white shadow-sm'
+                      ? 'bg-[#FF5533] text-white shadow-sm'
                       : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-900'
                   }`}
                 >
@@ -1739,7 +1739,7 @@ export default function WebsiteAnalyzerPage() {
             <div className="space-y-6">
               {/* Quick Signal Checkpoints */}
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-                <div className="bg-white dark:bg-slate-900 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800">
+                <div className="bg-white dark:bg-[#0d0d0f] p-3.5 rounded-xl border border-slate-200 dark:border-white/10">
                   <span className="text-[11px] text-slate-400 block mb-1">HTTPS Status</span>
                   <div className="flex items-center gap-1.5 font-bold text-xs text-slate-800 dark:text-slate-200">
                     {report.crawled.isHttps ? (
@@ -1751,7 +1751,7 @@ export default function WebsiteAnalyzerPage() {
                   </div>
                 </div>
 
-                <div className="bg-white dark:bg-slate-900 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800">
+                <div className="bg-white dark:bg-[#0d0d0f] p-3.5 rounded-xl border border-slate-200 dark:border-white/10">
                   <span className="text-[11px] text-slate-400 block mb-1">Schema.org</span>
                   <div className="flex items-center gap-1.5 font-bold text-xs text-slate-800 dark:text-slate-200">
                     {report.crawled.hasSchema ? (
@@ -1763,7 +1763,7 @@ export default function WebsiteAnalyzerPage() {
                   </div>
                 </div>
 
-                <div className="bg-white dark:bg-slate-900 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800">
+                <div className="bg-white dark:bg-[#0d0d0f] p-3.5 rounded-xl border border-slate-200 dark:border-white/10">
                   <span className="text-[11px] text-slate-400 block mb-1">Robots.txt</span>
                   <div className="flex items-center gap-1.5 font-bold text-xs text-slate-800 dark:text-slate-200">
                     {report.crawled.hasRobotsTxt ? (
@@ -1775,7 +1775,7 @@ export default function WebsiteAnalyzerPage() {
                   </div>
                 </div>
 
-                <div className="bg-white dark:bg-slate-900 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800">
+                <div className="bg-white dark:bg-[#0d0d0f] p-3.5 rounded-xl border border-slate-200 dark:border-white/10">
                   <span className="text-[11px] text-slate-400 block mb-1">Sitemap.xml</span>
                   <div className="flex items-center gap-1.5 font-bold text-xs text-slate-800 dark:text-slate-200">
                     {report.crawled.hasSitemap ? (
@@ -1787,18 +1787,18 @@ export default function WebsiteAnalyzerPage() {
                   </div>
                 </div>
 
-                <div className="bg-white dark:bg-slate-900 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800">
+                <div className="bg-white dark:bg-[#0d0d0f] p-3.5 rounded-xl border border-slate-200 dark:border-white/10">
                   <span className="text-[11px] text-slate-400 block mb-1">Page Load (TTFB)</span>
                   <div className="flex items-center gap-1.5 font-bold text-xs text-slate-800 dark:text-slate-200">
-                    <Clock className="w-4 h-4 text-indigo-500" />
+                    <Clock className="w-4 h-4 text-[#FF5533]" />
                     {report.crawled.loadTimeMs} ms
                   </div>
                 </div>
 
-                <div className="bg-white dark:bg-slate-900 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800">
+                <div className="bg-white dark:bg-[#0d0d0f] p-3.5 rounded-xl border border-slate-200 dark:border-white/10">
                   <span className="text-[11px] text-slate-400 block mb-1">Word Count</span>
                   <div className="flex items-center gap-1.5 font-bold text-xs text-slate-800 dark:text-slate-200">
-                    <FileText className="w-4 h-4 text-indigo-500" />
+                    <FileText className="w-4 h-4 text-[#FF5533]" />
                     {report.crawled.wordCount} words
                   </div>
                 </div>
@@ -1806,22 +1806,22 @@ export default function WebsiteAnalyzerPage() {
 
               {/* Headings & Meta Breakdown */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                <div className="bg-white dark:bg-[#0d0d0f] p-5 rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm">
                   <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center gap-2">
-                    <Tag className="w-4 h-4 text-indigo-600" /> Meta Tags Inspection
+                    <Tag className="w-4 h-4 text-[#FF5533]" /> Meta Tags Inspection
                   </h4>
 
                   <div className="space-y-3 text-xs">
                     <div>
                       <span className="font-semibold text-slate-500 dark:text-slate-400 block mb-1">Title Tag ({report.crawled.title.length} chars)</span>
-                      <p className="p-2.5 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800 font-medium text-slate-800 dark:text-slate-200">
+                      <p className="p-2.5 rounded-lg bg-slate-50 dark:bg-[#030303] border border-slate-100 dark:border-white/10 font-medium text-slate-800 dark:text-slate-200">
                         {report.crawled.title || <span className="text-rose-500 italic">Missing Title Tag</span>}
                       </p>
                     </div>
 
                     <div>
                       <span className="font-semibold text-slate-500 dark:text-slate-400 block mb-1">Meta Description ({report.crawled.description.length} chars)</span>
-                      <p className="p-2.5 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800 text-slate-700 dark:text-slate-300">
+                      <p className="p-2.5 rounded-lg bg-slate-50 dark:bg-[#030303] border border-slate-100 dark:border-white/10 text-slate-700 dark:text-slate-300">
                         {report.crawled.description || <span className="text-amber-500 italic">No Meta Description Tag Configured</span>}
                       </p>
                     </div>
@@ -1839,9 +1839,9 @@ export default function WebsiteAnalyzerPage() {
                   </div>
                 </div>
 
-                <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                <div className="bg-white dark:bg-[#0d0d0f] p-5 rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm">
                   <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center gap-2">
-                    <List className="w-4 h-4 text-indigo-600" /> Heading Hierarchy & Content Signals
+                    <List className="w-4 h-4 text-[#FF5533]" /> Heading Hierarchy & Content Signals
                   </h4>
 
                   <div className="space-y-3 text-xs">
@@ -1851,7 +1851,7 @@ export default function WebsiteAnalyzerPage() {
                       </span>
                       {report.crawled.h1s.length > 0 ? (
                         report.crawled.h1s.map((h1, i) => (
-                          <p key={i} className="p-2 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800 font-bold text-slate-900 dark:text-white mb-1">
+                          <p key={i} className="p-2 rounded-lg bg-slate-50 dark:bg-[#030303] border border-slate-100 dark:border-white/10 font-bold text-slate-900 dark:text-white mb-1">
                             "{h1}"
                           </p>
                         ))
@@ -1863,23 +1863,23 @@ export default function WebsiteAnalyzerPage() {
                     </div>
 
                     <div className="grid grid-cols-5 gap-1.5 pt-2 text-center">
-                      <div className="p-2 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800">
+                      <div className="p-2 rounded-lg bg-slate-50 dark:bg-[#030303] border border-slate-100 dark:border-white/10">
                         <span className="text-[10px] text-slate-400 block">H2</span>
                         <span className="font-black text-xs">{report.crawled.headings.h2}</span>
                       </div>
-                      <div className="p-2 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800">
+                      <div className="p-2 rounded-lg bg-slate-50 dark:bg-[#030303] border border-slate-100 dark:border-white/10">
                         <span className="text-[10px] text-slate-400 block">H3</span>
                         <span className="font-black text-xs">{report.crawled.headings.h3}</span>
                       </div>
-                      <div className="p-2 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800">
+                      <div className="p-2 rounded-lg bg-slate-50 dark:bg-[#030303] border border-slate-100 dark:border-white/10">
                         <span className="text-[10px] text-slate-400 block">H4</span>
                         <span className="font-black text-xs">{report.crawled.headings.h4}</span>
                       </div>
-                      <div className="p-2 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800">
+                      <div className="p-2 rounded-lg bg-slate-50 dark:bg-[#030303] border border-slate-100 dark:border-white/10">
                         <span className="text-[10px] text-slate-400 block">Images</span>
                         <span className="font-black text-xs">{report.crawled.images.total}</span>
                       </div>
-                      <div className="p-2 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800">
+                      <div className="p-2 rounded-lg bg-slate-50 dark:bg-[#030303] border border-slate-100 dark:border-white/10">
                         <span className="text-[10px] text-slate-400 block">Links</span>
                         <span className="font-black text-xs">{report.crawled.links.total}</span>
                       </div>
@@ -1901,7 +1901,7 @@ export default function WebsiteAnalyzerPage() {
                     className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all ${
                       issueFilter === 'all'
                         ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-950'
-                        : 'border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400'
+                        : 'border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-400'
                     }`}
                   >
                     All Issues ({allErrors.length + allWarnings.length + allNotices.length})
@@ -1953,7 +1953,7 @@ export default function WebsiteAnalyzerPage() {
                   return (
                     <div
                       key={idx}
-                      className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-4 transition-all shadow-sm"
+                      className="bg-white dark:bg-[#0d0d0f] rounded-xl border border-slate-200 dark:border-white/10 p-4 transition-all shadow-sm"
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex items-start gap-3">
@@ -2000,7 +2000,7 @@ export default function WebsiteAnalyzerPage() {
 
                       {/* Expanded Section: How to fix & 1-Click Code */}
                       {isExpanded && (
-                        <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 space-y-3">
+                        <div className="mt-4 pt-4 border-t border-slate-100 dark:border-white/10 space-y-3">
                           <div className="text-xs">
                             <span className="font-bold text-slate-700 dark:text-slate-300 block mb-1">
                               💡 How to Fix:
@@ -2014,12 +2014,12 @@ export default function WebsiteAnalyzerPage() {
                             <div className="p-3 rounded-xl bg-slate-950 text-slate-200 text-xs font-mono">
                               <div className="flex items-center justify-between mb-2">
                                 <span className="text-[10px] text-slate-400 font-sans font-semibold flex items-center gap-1.5">
-                                  <Code className="w-3.5 h-3.5 text-indigo-400" />
+                                  <Code className="w-3.5 h-3.5 text-[#FF7A45]" />
                                   1-Click Code Fix (Paste into &lt;head&gt;):
                                 </span>
                                 <button
                                   onClick={() => copyCode(issue.codeFix!, issue.id || `code-${idx}`)}
-                                  className="text-[11px] font-sans font-bold text-indigo-400 hover:text-indigo-300 flex items-center gap-1"
+                                  className="text-[11px] font-sans font-bold text-[#FF7A45] hover:text-[#FFA07A] flex items-center gap-1"
                                 >
                                   {copiedCodeId === (issue.id || `code-${idx}`) ? (
                                     <>
@@ -2052,11 +2052,11 @@ export default function WebsiteAnalyzerPage() {
           {activeTab === 'keywords' && (
             <div className="space-y-6">
               {/* Organic Keywords Table */}
-              <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm">
+              <div className="bg-white dark:bg-[#0d0d0f] rounded-2xl border border-slate-200 dark:border-white/10 p-5 shadow-sm">
                 <div className="flex items-center justify-between mb-4">
                   <div>
                     <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                      <TrendingUp className="w-4 h-4 text-indigo-600" />
+                      <TrendingUp className="w-4 h-4 text-[#FF5533]" />
                       Page Target Keywords (SEMrush Keyword Extractor)
                     </h3>
                     <p className="text-xs text-slate-500">
@@ -2071,7 +2071,7 @@ export default function WebsiteAnalyzerPage() {
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-xs">
                     <thead>
-                      <tr className="border-b border-slate-100 dark:border-slate-800 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                      <tr className="border-b border-slate-100 dark:border-white/10 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
                         <th className="pb-3">Keyword</th>
                         <th className="pb-3">Search Intent</th>
                         <th className="pb-3">Est. KD %</th>
@@ -2111,7 +2111,7 @@ export default function WebsiteAnalyzerPage() {
                             {kw.estimatedVolume}
                           </td>
                           <td className="py-3">
-                            <span className="font-bold text-indigo-600 dark:text-indigo-400">
+                            <span className="font-bold text-[#FF5533] dark:text-[#FF7A45]">
                               {kw.relevanceScore}/100
                             </span>
                           </td>
@@ -2124,7 +2124,7 @@ export default function WebsiteAnalyzerPage() {
 
               {/* Content Gap Opportunities */}
               {report.audit.contentGaps && report.audit.contentGaps.length > 0 && (
-                <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm">
+                <div className="bg-white dark:bg-[#0d0d0f] rounded-2xl border border-slate-200 dark:border-white/10 p-5 shadow-sm">
                   <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2 mb-1">
                     <Sparkles className="w-4 h-4 text-amber-500" />
                     Content Gap Opportunities (Topics Competitors Rank For)
@@ -2135,9 +2135,9 @@ export default function WebsiteAnalyzerPage() {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {report.audit.contentGaps.map((gap, idx) => (
-                      <div key={idx} className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
+                      <div key={idx} className="p-3.5 rounded-xl bg-slate-50 dark:bg-[#030303] border border-slate-200 dark:border-white/10">
                         <div className="font-bold text-xs text-slate-900 dark:text-white mb-1 flex items-center gap-1.5">
-                          <span className="text-indigo-600 font-black">•</span>
+                          <span className="text-[#FF5533] font-black">•</span>
                           {gap.topic}
                         </div>
                         <p className="text-xs text-slate-600 dark:text-slate-400">
@@ -2156,7 +2156,7 @@ export default function WebsiteAnalyzerPage() {
             <div className="space-y-6">
               {/* Web Vitals Gauges */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                <div className="bg-white dark:bg-[#0d0d0f] p-5 rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm">
                   <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">
                     LCP (Largest Contentful Paint)
                   </span>
@@ -2173,7 +2173,7 @@ export default function WebsiteAnalyzerPage() {
                   </p>
                 </div>
 
-                <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                <div className="bg-white dark:bg-[#0d0d0f] p-5 rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm">
                   <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">
                     CLS (Cumulative Layout Shift)
                   </span>
@@ -2190,7 +2190,7 @@ export default function WebsiteAnalyzerPage() {
                   </p>
                 </div>
 
-                <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                <div className="bg-white dark:bg-[#0d0d0f] p-5 rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm">
                   <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">
                     TTFB (Time to First Byte)
                   </span>
@@ -2207,7 +2207,7 @@ export default function WebsiteAnalyzerPage() {
                   </p>
                 </div>
 
-                <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                <div className="bg-white dark:bg-[#0d0d0f] p-5 rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm">
                   <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">
                     Page Weight & Assets
                   </span>
@@ -2224,10 +2224,10 @@ export default function WebsiteAnalyzerPage() {
               </div>
 
               {/* Schema.org Validator */}
-              <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+              <div className="bg-white dark:bg-[#0d0d0f] p-5 rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm">
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                    <Code className="w-4 h-4 text-indigo-600" />
+                    <Code className="w-4 h-4 text-[#FF5533]" />
                     Schema.org (JSON-LD) Structured Data Inspector
                   </h3>
                   <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${
@@ -2240,7 +2240,7 @@ export default function WebsiteAnalyzerPage() {
                 {report.crawled.schemas && report.crawled.schemas.length > 0 ? (
                   <div className="flex flex-wrap gap-2">
                     {report.crawled.schemas.map((schema, idx) => (
-                      <span key={idx} className="px-3 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 font-mono text-xs font-semibold border border-indigo-200 dark:border-indigo-800">
+                      <span key={idx} className="px-3 py-1 rounded-lg bg-orange-500/10 text-[#FF5533] dark:text-[#FFA07A] font-mono text-xs font-semibold border border-orange-500/30">
                         @{schema}
                       </span>
                     ))}
@@ -2274,7 +2274,7 @@ export default function WebsiteAnalyzerPage() {
                       onClick={() => setSocialPlatform(p)}
                       className={`px-3 py-1.5 rounded-lg text-xs font-bold capitalize transition-all ${
                         socialPlatform === p
-                          ? 'bg-indigo-600 text-white'
+                          ? 'bg-[#FF5533] text-white'
                           : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
                       }`}
                     >
@@ -2285,7 +2285,7 @@ export default function WebsiteAnalyzerPage() {
               </div>
 
               {/* Social Card Mockup */}
-              <div className="max-w-xl mx-auto bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-lg">
+              <div className="max-w-xl mx-auto bg-white dark:bg-[#0d0d0f] rounded-2xl border border-slate-200 dark:border-white/10 overflow-hidden shadow-lg">
                 {/* Image Area */}
                 <div className="w-full h-56 bg-slate-100 dark:bg-slate-800 flex items-center justify-center overflow-hidden relative">
                   {report.crawled.ogImage ? (
@@ -2306,7 +2306,7 @@ export default function WebsiteAnalyzerPage() {
                 </div>
 
                 {/* Content Area */}
-                <div className="p-4 bg-slate-50 dark:bg-slate-950">
+                <div className="p-4 bg-slate-50 dark:bg-[#030303]">
                   <span className="text-[10px] uppercase font-mono font-bold text-slate-400 block mb-1">
                     {report.domain}
                   </span>
@@ -2325,7 +2325,7 @@ export default function WebsiteAnalyzerPage() {
           {activeTab === 'copywriting' && (
             <div className="space-y-6">
               {/* Value Proposition */}
-              <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+              <div className="bg-white dark:bg-[#0d0d0f] p-5 rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm">
                 <h3 className="text-sm font-bold text-slate-900 dark:text-white mb-2">
                   Value Proposition & Positioning Critique
                 </h3>
@@ -2340,14 +2340,14 @@ export default function WebsiteAnalyzerPage() {
                   Conversion-Focused Headline Rewrites
                 </h4>
                 {report.audit.copywritingSuggestions.headlineTweaks.map((hw, i) => (
-                  <div key={i} className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                  <div key={i} className="bg-white dark:bg-[#0d0d0f] p-4 rounded-xl border border-slate-200 dark:border-white/10 shadow-sm">
                     <div className="text-xs text-slate-400 line-through mb-1">
                       Original: "{hw.original}"
                     </div>
-                    <div className="text-sm font-bold text-indigo-600 dark:text-indigo-400 mb-2">
+                    <div className="text-sm font-bold text-[#FF5533] dark:text-[#FF7A45] mb-2">
                       Suggested: "{hw.suggested}"
                     </div>
-                    <p className="text-xs text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-950 p-2.5 rounded-lg">
+                    <p className="text-xs text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-[#030303] p-2.5 rounded-lg">
                       <span className="font-semibold text-slate-700 dark:text-slate-300">Why it converts: </span>
                       {hw.reason}
                     </p>
@@ -2356,11 +2356,11 @@ export default function WebsiteAnalyzerPage() {
               </div>
 
               {/* Local Market Advice */}
-              <div className="bg-indigo-50 dark:bg-indigo-950/40 p-5 rounded-2xl border border-indigo-100 dark:border-indigo-900/50">
-                <h4 className="text-xs font-bold text-indigo-700 dark:text-indigo-300 uppercase tracking-wider mb-2">
+              <div className="bg-orange-500/10 p-5 rounded-2xl border border-orange-500/20">
+                <h4 className="text-xs font-bold text-[#FF5533] dark:text-[#FFA07A] uppercase tracking-wider mb-2">
                   Regional & Local Market Optimization (Bangladesh / South Asia)
                 </h4>
-                <p className="text-xs text-indigo-900 dark:text-indigo-200 leading-relaxed">
+                <p className="text-xs text-orange-950 dark:text-orange-200 leading-relaxed">
                   {report.audit.copywritingSuggestions.localMarketAdvice}
                 </p>
               </div>
@@ -2374,7 +2374,7 @@ export default function WebsiteAnalyzerPage() {
       {auditMode === 'compare' && comparisonResult && (
         <div className="max-w-7xl mx-auto space-y-6 mt-6">
           {/* Battle Header */}
-          <div className="bg-gradient-to-r from-indigo-900 via-slate-900 to-rose-950 p-6 rounded-3xl border border-slate-800 text-white shadow-xl">
+          <div className="bg-gradient-to-r from-[#0d0d0f] via-[#141418] to-[#0d0d0f] p-6 rounded-3xl border border-slate-800 text-white shadow-xl">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
                 <span className="px-3 py-1 rounded-full text-xs font-black bg-rose-500 text-white uppercase tracking-wider">
@@ -2391,10 +2391,10 @@ export default function WebsiteAnalyzerPage() {
               {/* Head to Head Health Dials */}
               <div className="flex items-center gap-6">
                 <div className="text-center">
-                  <div className="text-xs font-bold text-indigo-300 mb-1 truncate max-w-[120px]">
+                  <div className="text-xs font-bold text-[#FFA07A] mb-1 truncate max-w-[120px]">
                     {comparisonResult.target.domain}
                   </div>
-                  <div className="text-3xl font-black text-indigo-400">
+                  <div className="text-3xl font-black text-[#FF7A45]">
                     {comparisonResult.analysis.targetHealthScore}%
                   </div>
                   <div className="text-[10px] uppercase font-bold text-slate-400">Health</div>
@@ -2429,13 +2429,13 @@ export default function WebsiteAnalyzerPage() {
               const isTie = winner === 'tie';
 
               return (
-                <div key={cat.key} className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                <div key={cat.key} className="bg-white dark:bg-[#0d0d0f] p-4 rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm">
                   <div className="flex items-center justify-between text-xs text-slate-400 mb-2">
                     <span className="font-semibold flex items-center gap-1.5">
                       <Icon className="w-3.5 h-3.5" />
                       {cat.category}
                     </span>
-                    <Trophy className={`w-3.5 h-3.5 ${isTargetWinner ? 'text-indigo-500' : isTie ? 'text-amber-500' : 'text-rose-500'}`} />
+                    <Trophy className={`w-3.5 h-3.5 ${isTargetWinner ? 'text-[#FF5533]' : isTie ? 'text-amber-500' : 'text-rose-500'}`} />
                   </div>
                   <div className="text-sm font-extrabold text-slate-900 dark:text-white capitalize">
                     {isTie ? 'Draw / Tie' : isTargetWinner ? `🏆 ${comparisonResult.target.domain}` : `🏆 ${comparisonResult.competitor.domain}`}
@@ -2452,9 +2452,9 @@ export default function WebsiteAnalyzerPage() {
           </div>
 
           {/* Keyword & Content Gap Analysis */}
-          <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+          <div className="bg-white dark:bg-[#0d0d0f] p-6 rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm">
             <h3 className="text-base font-bold text-slate-900 dark:text-white mb-2 flex items-center gap-2">
-              <TrendingUp className="w-4 h-4 text-indigo-600" />
+              <TrendingUp className="w-4 h-4 text-[#FF5533]" />
               Content & Keyword Gap (Competitor Advantage)
             </h3>
             <p className="text-xs text-slate-500 mb-4">
@@ -2463,7 +2463,7 @@ export default function WebsiteAnalyzerPage() {
 
             <div className="space-y-3">
               {comparisonResult.analysis.contentGap.map((gap, i) => (
-                <div key={i} className="p-4 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
+                <div key={i} className="p-4 rounded-xl bg-slate-50 dark:bg-[#030303] border border-slate-200 dark:border-white/10">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
                     <span className="font-bold text-sm text-slate-900 dark:text-white">
                       {gap.topic}
@@ -2476,7 +2476,7 @@ export default function WebsiteAnalyzerPage() {
                     <span className="font-semibold text-slate-700 dark:text-slate-300">Competitor Strategy: </span>
                     {gap.competitorAngle}
                   </p>
-                  <p className="text-xs text-indigo-600 dark:text-indigo-400 font-medium">
+                  <p className="text-xs text-[#FF5533] dark:text-[#FF7A45] font-medium">
                     <span className="font-semibold">Counter-Action: </span>
                     {gap.actionForTarget}
                   </p>
@@ -2486,7 +2486,7 @@ export default function WebsiteAnalyzerPage() {
           </div>
 
           {/* How to Outrank This Competitor Roadmap */}
-          <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+          <div className="bg-white dark:bg-[#0d0d0f] p-6 rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm">
             <h3 className="text-base font-bold text-slate-900 dark:text-white mb-2 flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-amber-500" />
               "How to Outrank This Competitor" Tactical Action Plan
@@ -2497,10 +2497,10 @@ export default function WebsiteAnalyzerPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {comparisonResult.analysis.outrankBlueprint.map((plan, i) => (
-                <div key={i} className="p-4 rounded-xl bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-100 dark:border-indigo-900/50 flex flex-col justify-between">
+                <div key={i} className="p-4 rounded-xl bg-orange-500/10 border border-orange-500/20 flex flex-col justify-between">
                   <div>
                     <div className="flex items-center justify-between gap-2 mb-2">
-                      <span className="text-[10px] font-extrabold px-2 py-0.5 rounded bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300">
+                      <span className="text-[10px] font-extrabold px-2 py-0.5 rounded bg-orange-500/10 text-[#FF5533] dark:text-[#FFA07A]">
                         {plan.priority} Priority
                       </span>
                       <span className="text-[10px] font-extrabold text-emerald-600 dark:text-emerald-400">
@@ -2524,8 +2524,8 @@ export default function WebsiteAnalyzerPage() {
       {/* MODE 3 VIEW: SITEMAP DEEP SCAN RESULTS */}
       {auditMode === 'sitemap' && sitemapResult && (
         <div className="max-w-7xl mx-auto space-y-6 mt-6">
-          <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-slate-100 dark:border-slate-800">
+          <div className="bg-white dark:bg-[#0d0d0f] p-6 rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-slate-100 dark:border-white/10">
               <div>
                 <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-sky-100 dark:bg-sky-950/80 text-sky-700 dark:text-sky-300">
                   🗺️ Multi-Page Sitemap Crawl
@@ -2540,7 +2540,7 @@ export default function WebsiteAnalyzerPage() {
 
               <div className="flex items-center gap-6">
                 <div className="text-center">
-                  <div className="text-3xl font-black text-indigo-600 dark:text-indigo-400">
+                  <div className="text-3xl font-black text-[#FF5533] dark:text-[#FF7A45]">
                     {sitemapResult.overallScore}%
                   </div>
                   <div className="text-[10px] font-bold text-slate-400 uppercase">Avg Site Score</div>
@@ -2558,7 +2558,7 @@ export default function WebsiteAnalyzerPage() {
             <div className="overflow-x-auto mt-6">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="border-b border-slate-200 dark:border-slate-800 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                  <tr className="border-b border-slate-200 dark:border-white/10 text-[11px] font-bold uppercase tracking-wider text-slate-400">
                     <th className="pb-3 px-3">Page URL</th>
                     <th className="pb-3 px-3">Status</th>
                     <th className="pb-3 px-3">Title Tag</th>
@@ -2572,7 +2572,7 @@ export default function WebsiteAnalyzerPage() {
                   {sitemapResult.pages.map((p, idx) => (
                     <tr key={idx} className="hover:bg-slate-50 dark:hover:bg-slate-950/50">
                       <td className="py-3 px-3 max-w-[200px] truncate font-medium text-slate-900 dark:text-white">
-                        <a href={p.url} target="_blank" rel="noopener noreferrer" className="hover:underline flex items-center gap-1 text-indigo-600 dark:text-indigo-400">
+                        <a href={p.url} target="_blank" rel="noopener noreferrer" className="hover:underline flex items-center gap-1 text-[#FF5533] dark:text-[#FF7A45]">
                           {p.url.replace(/^https?:\/\//, '')}
                           <ExternalLink className="w-3 h-3 flex-shrink-0" />
                         </a>
@@ -2631,7 +2631,7 @@ export default function WebsiteAnalyzerPage() {
       {auditMode === 'backlinks' && backlinkResult && (
         <div className="max-w-7xl mx-auto space-y-6 mt-6">
           {/* Header Card */}
-          <div className="bg-gradient-to-r from-emerald-950 via-slate-900 to-indigo-950 p-6 rounded-3xl border border-slate-800 text-white shadow-xl">
+          <div className="bg-gradient-to-r from-[#0d0d0f] via-[#141418] to-[#0d0d0f] p-6 rounded-3xl border border-slate-800 text-white shadow-xl">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
                 <span className="px-3 py-1 rounded-full text-xs font-black bg-emerald-500 text-slate-950 uppercase tracking-wider">
@@ -2655,7 +2655,7 @@ export default function WebsiteAnalyzerPage() {
                 </div>
 
                 <div className="text-center">
-                  <div className="text-3xl font-black text-indigo-400">
+                  <div className="text-3xl font-black text-[#FF7A45]">
                     {backlinkResult.referringDomains}
                   </div>
                   <div className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">Ref Domains</div>
@@ -2673,7 +2673,7 @@ export default function WebsiteAnalyzerPage() {
 
           {/* Metric KPIs */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+            <div className="bg-white dark:bg-[#0d0d0f] p-5 rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm">
               <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">
                 Estimated Backlinks
               </span>
@@ -2685,19 +2685,19 @@ export default function WebsiteAnalyzerPage() {
               </span>
             </div>
 
-            <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+            <div className="bg-white dark:bg-[#0d0d0f] p-5 rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm">
               <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">
                 Authority Score
               </span>
               <div className="text-2xl font-black text-slate-900 dark:text-white my-1">
                 {backlinkResult.authorityScore}%
               </div>
-              <span className="text-[11px] font-semibold text-indigo-600 dark:text-indigo-400">
+              <span className="text-[11px] font-semibold text-[#FF5533] dark:text-[#FF7A45]">
                 Organic Search Weight
               </span>
             </div>
 
-            <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+            <div className="bg-white dark:bg-[#0d0d0f] p-5 rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm">
               <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">
                 Toxic Link Risk
               </span>
@@ -2709,7 +2709,7 @@ export default function WebsiteAnalyzerPage() {
               </span>
             </div>
 
-            <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+            <div className="bg-white dark:bg-[#0d0d0f] p-5 rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm">
               <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">
                 Link Quality Rating
               </span>
@@ -2725,7 +2725,7 @@ export default function WebsiteAnalyzerPage() {
           {/* Referring Domain Categories & Anchor Text Distribution */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Categories */}
-            <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+            <div className="bg-white dark:bg-[#0d0d0f] p-6 rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm">
               <h3 className="text-sm font-bold text-slate-900 dark:text-white mb-2 flex items-center gap-2">
                 <Network className="w-4 h-4 text-emerald-600" />
                 Referring Website Industries & Niches
@@ -2736,7 +2736,7 @@ export default function WebsiteAnalyzerPage() {
 
               <div className="space-y-3">
                 {backlinkResult.topReferringCategories.map((cat, i) => (
-                  <div key={i} className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-xs">
+                  <div key={i} className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-[#030303] border border-slate-200 dark:border-white/10 text-xs">
                     <span className="font-semibold text-slate-800 dark:text-slate-200">
                       {cat.category}
                     </span>
@@ -2754,9 +2754,9 @@ export default function WebsiteAnalyzerPage() {
             </div>
 
             {/* Anchors */}
-            <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+            <div className="bg-white dark:bg-[#0d0d0f] p-6 rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm">
               <h3 className="text-sm font-bold text-slate-900 dark:text-white mb-2 flex items-center gap-2">
-                <Tag className="w-4 h-4 text-indigo-600" />
+                <Tag className="w-4 h-4 text-[#FF5533]" />
                 Anchor Text Profile (Anti-Spam Safety)
               </h3>
               <p className="text-xs text-slate-500 mb-4">
@@ -2765,14 +2765,14 @@ export default function WebsiteAnalyzerPage() {
 
               <div className="space-y-3">
                 {backlinkResult.anchorTextDistribution.map((anc, i) => (
-                  <div key={i} className="p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
+                  <div key={i} className="p-3 rounded-xl bg-slate-50 dark:bg-[#030303] border border-slate-200 dark:border-white/10">
                     <div className="flex items-center justify-between text-xs mb-1.5">
                       <span className="font-semibold text-slate-800 dark:text-slate-200">{anc.anchor}</span>
-                      <span className="font-mono font-bold text-indigo-600 dark:text-indigo-400">{anc.share}</span>
+                      <span className="font-mono font-bold text-[#FF5533] dark:text-[#FF7A45]">{anc.share}</span>
                     </div>
                     <div className="w-full h-1.5 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden">
                       <div 
-                        className="h-full bg-indigo-600 rounded-full" 
+                        className="h-full bg-[#FF5533] rounded-full" 
                         style={{ width: anc.share }}
                       />
                     </div>
@@ -2783,7 +2783,7 @@ export default function WebsiteAnalyzerPage() {
           </div>
 
           {/* High-Impact Link Building Outreach Roadmap */}
-          <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+          <div className="bg-white dark:bg-[#0d0d0f] p-6 rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm">
             <h3 className="text-base font-bold text-slate-900 dark:text-white mb-2 flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-amber-500" />
               Strategic Link Building & Outreach Blueprint (How to Build High-DA Links)
@@ -2800,7 +2800,7 @@ export default function WebsiteAnalyzerPage() {
                       <span className="text-[10px] font-extrabold px-2 py-0.5 rounded bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300">
                         {road.priority} Priority
                       </span>
-                      <span className="text-[10px] font-extrabold text-indigo-600 dark:text-indigo-400">
+                      <span className="text-[10px] font-extrabold text-[#FF5533] dark:text-[#FF7A45]">
                         {road.estimatedImpact}
                       </span>
                     </div>
@@ -2811,7 +2811,7 @@ export default function WebsiteAnalyzerPage() {
                       <span className="font-semibold text-slate-700 dark:text-slate-300">Target Prospects: </span>
                       {road.targetProspects}
                     </p>
-                    <p className="text-xs text-slate-700 dark:text-slate-300 bg-white/70 dark:bg-slate-900/80 p-2.5 rounded-lg border border-emerald-200/50 dark:border-emerald-900/30">
+                    <p className="text-xs text-slate-700 dark:text-slate-300 bg-white/70 dark:bg-[#0d0d0f]/80 p-2.5 rounded-lg border border-emerald-200/50 dark:border-emerald-900/30">
                       <span className="font-semibold text-emerald-700 dark:text-emerald-400">Outreach Angle: </span>
                       {road.pitchAngle}
                     </p>
@@ -2827,7 +2827,7 @@ export default function WebsiteAnalyzerPage() {
       {auditMode === 'blog-serp' && blogSubTab === 'directory' && allBlogsResult && (
         <div className="max-w-7xl mx-auto space-y-6 mt-6">
           {/* Summary & KPI Top Card */}
-          <div className="bg-gradient-to-r from-purple-950 via-slate-900 to-indigo-950 p-6 rounded-3xl border border-slate-800 text-white shadow-xl">
+          <div className="bg-gradient-to-r from-[#0d0d0f] via-[#141418] to-[#0d0d0f] p-6 rounded-3xl border border-slate-800 text-white shadow-xl">
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
               <div>
                 <div className="flex items-center gap-2 mb-1">
@@ -2885,7 +2885,7 @@ export default function WebsiteAnalyzerPage() {
                 <div className="h-10 w-px bg-slate-800" />
 
                 <div className="text-center">
-                  <div className="text-3xl font-black text-indigo-400">
+                  <div className="text-3xl font-black text-[#FF7A45]">
                     {allBlogsResult.summary.aiCitedPercentage}%
                   </div>
                   <div className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">AI Cited</div>
@@ -2895,8 +2895,8 @@ export default function WebsiteAnalyzerPage() {
           </div>
 
           {/* Table Container & Filter Toolbar */}
-          <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-100 dark:border-slate-800">
+          <div className="bg-white dark:bg-[#0d0d0f] p-6 rounded-3xl border border-slate-200 dark:border-white/10 shadow-sm space-y-4">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-100 dark:border-white/10">
               {/* Search input */}
               <div className="relative flex-1 max-w-md">
                 <Search className="absolute left-3.5 top-3 w-4 h-4 text-slate-400" />
@@ -2905,7 +2905,7 @@ export default function WebsiteAnalyzerPage() {
                   placeholder="Filter by article title, slug, or top keyword..."
                   value={blogSearchQuery}
                   onChange={(e) => setBlogSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                  className="w-full pl-10 pr-4 py-2 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#030303] text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
                 />
               </div>
 
@@ -2923,7 +2923,7 @@ export default function WebsiteAnalyzerPage() {
                 <button
                   type="button"
                   onClick={() => setShowGscModal(true)}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-extrabold bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-100 transition-all shadow-sm"
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-extrabold bg-orange-500/10 border border-orange-500/30 text-[#FF5533] dark:text-[#FFA07A] hover:bg-orange-500/20 transition-all shadow-sm"
                 >
                   <RefreshCw className="w-3.5 h-3.5" />
                   Sync GSC
@@ -3001,7 +3001,7 @@ export default function WebsiteAnalyzerPage() {
                 <select
                   value={blogSortBy}
                   onChange={(e: any) => setBlogSortBy(e.target.value)}
-                  className="px-2.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-xs font-bold text-slate-700 dark:text-slate-200 focus:outline-none"
+                  className="px-2.5 py-1.5 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#030303] text-xs font-bold text-slate-700 dark:text-slate-200 focus:outline-none"
                 >
                   <option value="clicks">Highest Clicks</option>
                   <option value="impressions">Highest Impressions</option>
@@ -3012,9 +3012,9 @@ export default function WebsiteAnalyzerPage() {
             </div>
 
             {/* Performance Table */}
-            <div className="overflow-x-auto rounded-2xl border border-slate-200 dark:border-slate-800">
+            <div className="overflow-x-auto rounded-2xl border border-slate-200 dark:border-white/10">
               <table className="w-full text-left text-xs">
-                <thead className="bg-slate-100 dark:bg-slate-950 text-slate-500 font-extrabold uppercase text-[10px] tracking-wider border-b border-slate-200 dark:border-slate-800">
+                <thead className="bg-slate-100 dark:bg-[#030303] text-slate-500 font-extrabold uppercase text-[10px] tracking-wider border-b border-slate-200 dark:border-white/10">
                   <tr>
                     <th className="p-3.5">Blog Article</th>
                     <th className="p-3.5 text-center">Google Rank</th>
@@ -3058,7 +3058,7 @@ export default function WebsiteAnalyzerPage() {
                             href={blog.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-[11px] text-indigo-600 dark:text-indigo-400 hover:underline truncate block flex items-center gap-1 mt-0.5"
+                            className="text-[11px] text-[#FF5533] dark:text-[#FF7A45] hover:underline truncate block flex items-center gap-1 mt-0.5"
                           >
                             <ExternalLink className="w-3 h-3 flex-shrink-0" />
                             <span className="truncate">{blog.url.replace(/^https?:\/\//, '')}</span>
@@ -3134,7 +3134,7 @@ export default function WebsiteAnalyzerPage() {
                                 setBlogSubTab('single');
                               }}
                               title="Audit SERP in detail"
-                              className="p-1 rounded-lg text-slate-400 hover:text-indigo-600 transition-colors"
+                              className="p-1 rounded-lg text-slate-400 hover:text-[#FF5533] transition-colors"
                             >
                               <ArrowUpRight className="w-4 h-4" />
                             </button>
@@ -3153,7 +3153,7 @@ export default function WebsiteAnalyzerPage() {
       {auditMode === 'blog-serp' && blogSubTab === 'single' && blogSerpResult && (
         <div className="max-w-7xl mx-auto space-y-6 mt-6">
           {/* Header Card */}
-          <div className="bg-gradient-to-r from-purple-950 via-slate-900 to-indigo-950 p-6 rounded-3xl border border-slate-800 text-white shadow-xl">
+          <div className="bg-gradient-to-r from-[#0d0d0f] via-[#141418] to-[#0d0d0f] p-6 rounded-3xl border border-slate-800 text-white shadow-xl">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
                 <div className="flex items-center gap-2 mb-1">
@@ -3211,7 +3211,7 @@ export default function WebsiteAnalyzerPage() {
 
           {/* KPI Metrics */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+            <div className="bg-white dark:bg-[#0d0d0f] p-5 rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm">
               <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">
                 Average CTR%
               </span>
@@ -3223,7 +3223,7 @@ export default function WebsiteAnalyzerPage() {
               </span>
             </div>
 
-            <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+            <div className="bg-white dark:bg-[#0d0d0f] p-5 rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm">
               <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">
                 SERP Health
               </span>
@@ -3235,19 +3235,19 @@ export default function WebsiteAnalyzerPage() {
               </span>
             </div>
 
-            <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+            <div className="bg-white dark:bg-[#0d0d0f] p-5 rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm">
               <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">
                 AI Share of Voice
               </span>
               <div className="text-2xl font-black text-slate-900 dark:text-white my-1">
                 {blogSerpResult.aiCitation.shareOfVoice}
               </div>
-              <span className="text-[11px] font-semibold text-indigo-600 dark:text-indigo-400">
+              <span className="text-[11px] font-semibold text-[#FF5533] dark:text-[#FF7A45]">
                 Conversational Queries
               </span>
             </div>
 
-            <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+            <div className="bg-white dark:bg-[#0d0d0f] p-5 rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm">
               <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">
                 AI Engines Citing
               </span>
@@ -3263,7 +3263,7 @@ export default function WebsiteAnalyzerPage() {
           </div>
 
           {/* Ranking Queries Table */}
-          <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+          <div className="bg-white dark:bg-[#0d0d0f] p-6 rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
@@ -3282,7 +3282,7 @@ export default function WebsiteAnalyzerPage() {
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="border-b border-slate-200 dark:border-slate-800 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                  <tr className="border-b border-slate-200 dark:border-white/10 text-[11px] font-bold uppercase tracking-wider text-slate-400">
                     <th className="pb-3 px-3">Search Query</th>
                     <th className="pb-3 px-3">SERP Rank</th>
                     <th className="pb-3 px-3">Est. Monthly Volume</th>
@@ -3301,7 +3301,7 @@ export default function WebsiteAnalyzerPage() {
                           q.position <= 3 
                             ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300'
                             : q.position <= 10 
-                            ? 'bg-indigo-100 text-indigo-800 dark:bg-indigo-950/80 dark:text-indigo-300'
+                            ? 'bg-orange-500/10 text-[#FF5533] dark:text-[#FF7A45]'
                             : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300'
                         }`}>
                           #{q.position}
@@ -3326,7 +3326,7 @@ export default function WebsiteAnalyzerPage() {
           </div>
 
           {/* GEO (Generative Engine Optimization) Action Blueprint */}
-          <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+          <div className="bg-white dark:bg-[#0d0d0f] p-6 rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm">
             <h3 className="text-base font-bold text-slate-900 dark:text-white mb-2 flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-purple-500" />
               Generative Engine Optimization (GEO) Blueprint: How to Become the #1 AI Cited Source
@@ -3437,9 +3437,9 @@ export default function WebsiteAnalyzerPage() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
             {/* LEFT / CENTER: Interactive Writing Studio (8 Cols) */}
             <div className="lg:col-span-8 space-y-4">
-              <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm p-6 space-y-4">
+              <div className="bg-white dark:bg-[#0d0d0f] rounded-3xl border border-slate-200 dark:border-white/10 shadow-sm p-6 space-y-4">
                 {/* Editor Action Bar */}
-                <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
+                <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-white/10">
                   <div className="flex items-center gap-2">
                     <Edit3 className="w-4 h-4 text-amber-500" />
                     <span className="text-xs font-extrabold text-slate-900 dark:text-white uppercase tracking-wider">
@@ -3501,7 +3501,7 @@ export default function WebsiteAnalyzerPage() {
                     value={liveArticleText}
                     onChange={(e) => handleLiveTextChange(e.target.value)}
                     placeholder="Write or edit your article here... The NLP score and entity frequencies update dynamically as you type!"
-                    className="w-full p-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950 font-mono text-xs sm:text-sm text-slate-900 dark:text-slate-100 leading-relaxed focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 resize-y"
+                    className="w-full p-4 rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50/70 dark:bg-[#030303] font-mono text-xs sm:text-sm text-slate-900 dark:text-slate-100 leading-relaxed focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 resize-y"
                   />
                   <div className="flex items-center justify-between text-[11px] text-slate-400 mt-2 px-1">
                     <span>Markdown formatting supported (# H1, ## H2, - lists, &gt; blockquotes)</span>
@@ -3512,7 +3512,7 @@ export default function WebsiteAnalyzerPage() {
 
               {/* People Also Ask & Missing Questions Accordion */}
               {optimizerResult.missingQuestions && optimizerResult.missingQuestions.length > 0 && (
-                <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm p-6 space-y-3">
+                <div className="bg-white dark:bg-[#0d0d0f] rounded-3xl border border-slate-200 dark:border-white/10 shadow-sm p-6 space-y-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <HelpCircle className="w-4 h-4 text-sky-500" />
@@ -3529,7 +3529,7 @@ export default function WebsiteAnalyzerPage() {
                     {optimizerResult.missingQuestions.map((q, idx) => (
                       <div
                         key={idx}
-                        className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200/80 dark:border-slate-800/80 flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs"
+                        className="p-3.5 rounded-2xl bg-slate-50 dark:bg-[#030303] border border-slate-200/80 dark:border-white/10/80 flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs"
                       >
                         <div>
                           <div className="flex items-center gap-2 mb-1">
@@ -3562,7 +3562,7 @@ export default function WebsiteAnalyzerPage() {
 
               {/* Internal Linking Recommendations */}
               {optimizerResult.internalLinkingSuggestions && optimizerResult.internalLinkingSuggestions.length > 0 && (
-                <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm p-6 space-y-3">
+                <div className="bg-white dark:bg-[#0d0d0f] rounded-3xl border border-slate-200 dark:border-white/10 shadow-sm p-6 space-y-3">
                   <div className="flex items-center gap-2">
                     <Link2 className="w-4 h-4 text-emerald-500" />
                     <h3 className="text-sm font-extrabold text-slate-900 dark:text-white">
@@ -3574,10 +3574,10 @@ export default function WebsiteAnalyzerPage() {
                     {optimizerResult.internalLinkingSuggestions.map((link, idx) => (
                       <div
                         key={idx}
-                        className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200/80 dark:border-slate-800/80 text-xs"
+                        className="p-3 rounded-2xl bg-slate-50 dark:bg-[#030303] border border-slate-200/80 dark:border-white/10/80 text-xs"
                       >
                         <div className="flex items-center justify-between mb-1">
-                          <span className="font-extrabold text-indigo-600 dark:text-indigo-400">
+                          <span className="font-extrabold text-[#FF5533] dark:text-[#FF7A45]">
                             [{link.anchorText}]
                           </span>
                           <span className="text-[10px] font-bold text-slate-500">
@@ -3593,7 +3593,7 @@ export default function WebsiteAnalyzerPage() {
                             navigator.clipboard.writeText(`[${link.anchorText}](/${link.anchorText.toLowerCase().replace(/\\s+/g, '-')})`);
                             alert(`Anchor copied: [${link.anchorText}]`);
                           }}
-                          className="text-[10px] font-bold text-slate-500 hover:text-indigo-600 flex items-center gap-1"
+                          className="text-[10px] font-bold text-slate-500 hover:text-[#FF5533] flex items-center gap-1"
                         >
                           <Copy className="w-3 h-3" />
                           Copy Anchor Markdown
@@ -3608,7 +3608,7 @@ export default function WebsiteAnalyzerPage() {
             {/* RIGHT SIDEBAR: Live SurferSEO-Style NLP Inspector (4 Cols) */}
             <div className="lg:col-span-4 space-y-4">
               {/* Score Breakdown Card */}
-              <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm p-5 space-y-4">
+              <div className="bg-white dark:bg-[#0d0d0f] rounded-3xl border border-slate-200 dark:border-white/10 shadow-sm p-5 space-y-4">
                 <div className="flex items-center justify-between">
                   <h3 className="text-xs font-extrabold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-1.5">
                     <Gauge className="w-4 h-4 text-amber-500" />
@@ -3628,7 +3628,7 @@ export default function WebsiteAnalyzerPage() {
                       <span className="font-mono">{optimizerResult.scoreBreakdown.semanticRelevance}%</span>
                     </div>
                     <div className="w-full h-1.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
-                      <div className="h-full bg-indigo-600 rounded-full" style={{ width: `${optimizerResult.scoreBreakdown.semanticRelevance}%` }} />
+                      <div className="h-full bg-[#FF5533] rounded-full" style={{ width: `${optimizerResult.scoreBreakdown.semanticRelevance}%` }} />
                     </div>
                   </div>
 
@@ -3675,11 +3675,11 @@ export default function WebsiteAnalyzerPage() {
               </div>
 
               {/* NLP Entities & LSI Terms Inspector */}
-              <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm p-5 space-y-4">
+              <div className="bg-white dark:bg-[#0d0d0f] rounded-3xl border border-slate-200 dark:border-white/10 shadow-sm p-5 space-y-4">
                 <div>
                   <div className="flex items-center justify-between mb-1">
                     <h3 className="text-xs font-extrabold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-1.5">
-                      <Layers className="w-4 h-4 text-indigo-500" />
+                      <Layers className="w-4 h-4 text-[#FF5533]" />
                       NLP Entities &amp; LSI Terms
                     </h3>
                     <span className="text-[10px] font-bold text-slate-500">
@@ -3692,7 +3692,7 @@ export default function WebsiteAnalyzerPage() {
                 </div>
 
                 {/* Filter Pills */}
-                <div className="flex items-center gap-1.5 border-b border-slate-100 dark:border-slate-800 pb-2.5">
+                <div className="flex items-center gap-1.5 border-b border-slate-100 dark:border-white/10 pb-2.5">
                   <button
                     type="button"
                     onClick={() => setEntityFilter('all')}
@@ -3763,7 +3763,7 @@ export default function WebsiteAnalyzerPage() {
                               ? 'bg-rose-50/50 dark:bg-rose-950/20 border-rose-200 dark:border-rose-900/40'
                               : isOver
                               ? 'bg-amber-50/50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-900/40'
-                              : 'bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800'
+                              : 'bg-slate-50 dark:bg-[#030303] border-slate-200 dark:border-white/10'
                           }`}
                         >
                           <div className="min-w-0">
@@ -3813,10 +3813,10 @@ export default function WebsiteAnalyzerPage() {
       {/* 1-CLICK ROBOTS.TXT GENERATOR MODAL */}
       {showRobotsModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-          <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 max-w-xl w-full p-6 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+          <div className="bg-white dark:bg-[#0d0d0f] rounded-3xl border border-slate-200 dark:border-white/10 max-w-xl w-full p-6 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-white/10">
               <div className="flex items-center gap-2">
-                <FileCode className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+                <FileCode className="w-5 h-5 text-[#FF5533] dark:text-[#FF7A45]" />
                 <h3 className="font-extrabold text-base text-slate-900 dark:text-white">
                   Technical SEO: 1-Click Robots.txt Generator
                 </h3>
@@ -3830,7 +3830,7 @@ export default function WebsiteAnalyzerPage() {
             </div>
 
             <p className="text-xs text-slate-600 dark:text-slate-400">
-              Generate an optimized, search-engine-friendly <code className="text-indigo-600">robots.txt</code> file tailored for your domain to stop search crawlers from wasting crawl budget on private paths.
+              Generate an optimized, search-engine-friendly <code className="text-[#FF5533]">robots.txt</code> file tailored for your domain to stop search crawlers from wasting crawl budget on private paths.
             </p>
 
             <div className="space-y-3 text-xs">
@@ -3843,7 +3843,7 @@ export default function WebsiteAnalyzerPage() {
                   placeholder="https://yourdomain.com/sitemap.xml"
                   value={customSitemapPath || (report?.domain ? `https://${report.domain}/sitemap.xml` : '')}
                   onChange={(e) => setCustomSitemapPath(e.target.value)}
-                  className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 font-mono text-xs"
+                  className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#030303] font-mono text-xs"
                 />
               </div>
 
@@ -3855,7 +3855,7 @@ export default function WebsiteAnalyzerPage() {
                   rows={3}
                   value={disallowedPaths}
                   onChange={(e) => setDisallowedPaths(e.target.value)}
-                  className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 font-mono text-xs"
+                  className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#030303] font-mono text-xs"
                 />
               </div>
 
@@ -3874,7 +3874,7 @@ Sitemap: ${customSitemapPath || (report?.domain ? `https://${report.domain}/site
               </div>
             </div>
 
-            <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+            <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100 dark:border-white/10">
               <button
                 onClick={() => {
                   const sitemap = customSitemapPath || (report?.domain ? `https://${report.domain}/sitemap.xml` : 'https://example.com/sitemap.xml');
@@ -3882,7 +3882,7 @@ Sitemap: ${customSitemapPath || (report?.domain ? `https://${report.domain}/site
                   navigator.clipboard.writeText(content);
                   alert('Robots.txt content copied to clipboard!');
                 }}
-                className="px-4 py-2 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white transition-all shadow-md flex items-center gap-1.5"
+                className="px-4 py-2 rounded-xl text-xs font-bold bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] hover:from-[#FF5547] hover:to-[#FF9036] text-white transition-all shadow-md shadow-[#FF5533]/20 flex items-center gap-1.5"
               >
                 <Copy className="w-3.5 h-3.5" />
                 Copy Robots.txt
@@ -3895,10 +3895,10 @@ Sitemap: ${customSitemapPath || (report?.domain ? `https://${report.domain}/site
       {/* 1-CLICK SCHEMA.ORG JSON-LD GENERATOR MODAL */}
       {showSchemaModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-          <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 max-w-xl w-full p-6 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+          <div className="bg-white dark:bg-[#0d0d0f] rounded-3xl border border-slate-200 dark:border-white/10 max-w-xl w-full p-6 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-white/10">
               <div className="flex items-center gap-2">
-                <Code className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+                <Code className="w-5 h-5 text-[#FF5533] dark:text-[#FF7A45]" />
                 <h3 className="font-extrabold text-base text-slate-900 dark:text-white">
                   1-Click Schema.org (JSON-LD) Generator
                 </h3>
@@ -3912,14 +3912,14 @@ Sitemap: ${customSitemapPath || (report?.domain ? `https://${report.domain}/site
             </div>
 
             <p className="text-xs text-slate-600 dark:text-slate-400">
-              Ready-to-paste <code className="text-indigo-600 font-mono">Organization</code> and <code className="text-indigo-600 font-mono">WebSite</code> structured data markup to unlock Google Rich Results and Knowledge Graph badges.
+              Ready-to-paste <code className="text-[#FF5533] font-mono">Organization</code> and <code className="text-[#FF5533] font-mono">WebSite</code> structured data markup to unlock Google Rich Results and Knowledge Graph badges.
             </p>
 
             <div className="space-y-3">
               <label className="font-bold text-xs text-slate-700 dark:text-slate-300 block">
                 Structured Data Markup (JSON-LD):
               </label>
-              <pre className="p-3.5 rounded-xl bg-slate-950 text-indigo-300 font-mono text-[11px] overflow-x-auto max-h-64">
+              <pre className="p-3.5 rounded-xl bg-slate-950 text-[#FFA07A] font-mono text-[11px] overflow-x-auto max-h-64">
 {`<script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -3946,14 +3946,14 @@ Sitemap: ${customSitemapPath || (report?.domain ? `https://${report.domain}/site
               </pre>
             </div>
 
-            <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+            <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100 dark:border-white/10">
               <button
                 onClick={() => {
                   const schemaSnippet = `<script type="application/ld+json">\n{\n  "@context": "https://schema.org",\n  "@graph": [\n    {\n      "@type": "Organization",\n      "@id": "https://${report?.domain || 'yourdomain.com'}/#organization",\n      "name": "${report?.crawled.ogTitle || report?.domain || 'Your Brand'}",\n      "url": "https://${report?.domain || 'yourdomain.com'}",\n      "logo": "${report?.crawled.ogImage || 'https://' + (report?.domain || 'yourdomain.com') + '/logo.png'}"\n    },\n    {\n      "@type": "WebSite",\n      "@id": "https://${report?.domain || 'yourdomain.com'}/#website",\n      "url": "https://${report?.domain || 'yourdomain.com'}",\n      "name": "${report?.crawled.title || report?.domain || 'Your Site'}",\n      "publisher": {\n        "@id": "https://${report?.domain || 'yourdomain.com'}/#organization"\n      }\n    }\n  ]\n}\n</script>`;
                   navigator.clipboard.writeText(schemaSnippet);
                   alert('Schema.org JSON-LD copied to clipboard!');
                 }}
-                className="px-4 py-2 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white transition-all shadow-md flex items-center gap-1.5"
+                className="px-4 py-2 rounded-xl text-xs font-bold bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] hover:from-[#FF5547] hover:to-[#FF9036] text-white transition-all shadow-md shadow-[#FF5533]/20 flex items-center gap-1.5"
               >
                 <Copy className="w-3.5 h-3.5" />
                 Copy Schema JSON-LD
@@ -3966,8 +3966,8 @@ Sitemap: ${customSitemapPath || (report?.domain ? `https://${report.domain}/site
       {/* 1-CLICK SECURITY HEADERS GENERATOR MODAL */}
       {showSecurityModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-          <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 max-w-xl w-full p-6 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+          <div className="bg-white dark:bg-[#0d0d0f] rounded-3xl border border-slate-200 dark:border-white/10 max-w-xl w-full p-6 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-white/10">
               <div className="flex items-center gap-2">
                 <ShieldCheck className="w-5 h-5 text-amber-500" />
                 <h3 className="font-extrabold text-base text-slate-900 dark:text-white">
@@ -4011,7 +4011,7 @@ module.exports = {
               </pre>
             </div>
 
-            <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+            <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100 dark:border-white/10">
               <button
                 onClick={() => {
                   const headersConfig = `// Security Headers\nconst securityHeaders = [\n  { key: 'X-Frame-Options', value: 'DENY' },\n  { key: 'X-Content-Type-Options', value: 'nosniff' },\n  { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },\n  { key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains; preload' },\n  { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' }\n];`;
@@ -4031,10 +4031,10 @@ module.exports = {
       {/* GOOGLE SEARCH CONSOLE CONNECT MODAL (PHASE 6) */}
       {showGscModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-          <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 max-w-xl w-full p-6 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+          <div className="bg-white dark:bg-[#0d0d0f] rounded-3xl border border-slate-200 dark:border-white/10 max-w-xl w-full p-6 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-white/10">
               <div className="flex items-center gap-2">
-                <span className="w-6 h-6 rounded-lg bg-indigo-600 flex items-center justify-center text-white text-xs font-black">
+                <span className="w-6 h-6 rounded-lg bg-[#FF5533] flex items-center justify-center text-white text-xs font-black">
                   G
                 </span>
                 <h3 className="font-extrabold text-base text-slate-900 dark:text-white">
@@ -4065,7 +4065,7 @@ module.exports = {
                   value={gscSiteUrl || (report?.domain ? `https://${report.domain}/` : '')}
                   onChange={(e) => setGscSiteUrl(e.target.value)}
                   required
-                  className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 font-mono text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                  className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#030303] font-mono text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#FF5533]/20 focus:border-[#FF5533]/60"
                 />
                 <span className="text-[10px] text-slate-400 mt-0.5 block">
                   Must exactly match the site URL property defined in your Google Search Console.
@@ -4081,17 +4081,17 @@ module.exports = {
                   placeholder="ya29.a0AfH6SM..."
                   value={gscAccessToken}
                   onChange={(e) => setGscAccessToken(e.target.value)}
-                  className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 font-mono text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                  className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#030303] font-mono text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#FF5533]/20 focus:border-[#FF5533]/60"
                 />
                 <span className="text-[10px] text-slate-400 mt-0.5 block">
-                  Token requires scope: <code className="text-indigo-600 font-mono">https://www.googleapis.com/auth/webmasters.readonly</code>
+                  Token requires scope: <code className="text-[#FF5533] font-mono">https://www.googleapis.com/auth/webmasters.readonly</code>
                 </span>
               </div>
 
               <div className="relative flex py-1 items-center">
-                <div className="flex-grow border-t border-slate-200 dark:border-slate-800" />
+                <div className="flex-grow border-t border-slate-200 dark:border-white/10" />
                 <span className="flex-shrink mx-3 text-[10px] font-bold text-slate-400 uppercase">Or Service Account JSON</span>
-                <div className="flex-grow border-t border-slate-200 dark:border-slate-800" />
+                <div className="flex-grow border-t border-slate-200 dark:border-white/10" />
               </div>
 
               <div>
@@ -4103,10 +4103,10 @@ module.exports = {
                   placeholder='{"type": "service_account", "project_id": "...", "client_email": "...", "private_key": "..."}'
                   value={gscServiceAccountJson}
                   onChange={(e) => setGscServiceAccountJson(e.target.value)}
-                  className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 font-mono text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                  className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#030303] font-mono text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#FF5533]/20 focus:border-[#FF5533]/60"
                 />
                 <span className="text-[10px] text-slate-400 mt-0.5 block">
-                  Add the Service Account <code className="text-indigo-600 font-mono">client_email</code> as a &quot;Viewer&quot; in Google Search Console Settings.
+                  Add the Service Account <code className="text-[#FF5533] font-mono">client_email</code> as a &quot;Viewer&quot; in Google Search Console Settings.
                 </span>
               </div>
 
@@ -4117,7 +4117,7 @@ module.exports = {
                 </div>
               )}
 
-              <div className="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-800">
+              <div className="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-white/10">
                 <button
                   type="button"
                   onClick={() => {
@@ -4126,7 +4126,7 @@ module.exports = {
                     setShowGscModal(false);
                     handleAllBlogsScan();
                   }}
-                  className="text-xs font-bold text-slate-500 hover:text-indigo-600 underline"
+                  className="text-xs font-bold text-slate-500 hover:text-[#FF5533] underline"
                 >
                   Use Instant Crawler Mode (No Credentials)
                 </button>
@@ -4134,7 +4134,7 @@ module.exports = {
                 <button
                   type="submit"
                   disabled={gscConnecting}
-                  className="px-5 py-2.5 rounded-xl font-bold bg-indigo-600 hover:bg-indigo-700 text-white transition-all shadow-md shadow-indigo-600/20 flex items-center gap-1.5 disabled:opacity-50"
+                  className="px-5 py-2.5 rounded-xl font-bold bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] hover:from-[#FF5547] hover:to-[#FF9036] text-white transition-all shadow-md shadow-[#FF5533]/25 flex items-center gap-1.5 disabled:opacity-50"
                 >
                   {gscConnecting ? (
                     <>

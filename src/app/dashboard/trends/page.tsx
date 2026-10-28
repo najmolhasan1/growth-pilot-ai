@@ -169,26 +169,26 @@ export default function TrendTracker() {
   const visibleRecommendations = recommendations.filter(trend => filter === 'all' || trend.sourceCategory === filter);
 
   return (
-    <div className="min-h-screen bg-[#030712] text-slate-200 selection:bg-indigo-500/30">
+    <div className="min-h-screen bg-[#030303] text-slate-200 selection:bg-[#FF5533]/30">
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-indigo-600/10 rounded-full blur-[120px]" />
-        <div className="absolute top-[20%] -right-[10%] w-[30%] h-[30%] bg-violet-600/10 rounded-full blur-[120px]" />
+        <div className="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-[#FF5533]/10 rounded-full blur-[120px]" />
+        <div className="absolute top-[20%] -right-[10%] w-[30%] h-[30%] bg-[#FF8A00]/8 rounded-full blur-[120px]" />
       </div>
 
       <div className="relative z-10 max-w-[1600px] mx-auto px-6 py-10 lg:px-10">
         <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-12">
           <div className="space-y-3">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-[10px] font-bold uppercase tracking-widest">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-500/10 border border-orange-500/20 text-[#FF5533] text-[10px] font-bold uppercase tracking-widest">
               <Brain size={12} /> Strategic Hub
             </div>
             <h1 className="text-4xl font-black tracking-tight text-white">
-              Content <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-violet-400">Intelligence</span>
+              Content <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF4D42] via-[#FF6A3D] to-[#FF8A00]">Intelligence</span>
             </h1>
             <p className="text-xs text-slate-400 max-w-xl">
               Daily curated content opportunities blending fresh updates with durable learner search intent.
             </p>
             {generatedAt && (
-              <p className="text-[10px] text-indigo-400/70 uppercase tracking-widest">
+              <p className="text-[10px] text-[#FF5533]/70 uppercase tracking-widest">
                 Refreshed {formatDate(generatedAt)} | Top 10 editorial picks
               </p>
             )}
@@ -205,7 +205,7 @@ export default function TrendTracker() {
         </div>
 
         {/* Filter Bar */}
-        <div className="sticky top-4 z-20 mb-12 bg-[#030712]/60 backdrop-blur-lg p-1.5 rounded-2xl border border-white/5 shadow-2xl flex items-center justify-start overflow-x-auto no-scrollbar px-2">
+        <div className="sticky top-4 z-20 mb-12 bg-[#030303]/70 backdrop-blur-lg p-1.5 rounded-2xl border border-white/5 shadow-2xl flex items-center justify-start overflow-x-auto no-scrollbar px-2">
           <div className="flex gap-1">
             {categories.map(cat => (
               <button
@@ -213,7 +213,7 @@ export default function TrendTracker() {
                 onClick={() => setFilter(cat.id)}
                 className={`flex items-center gap-2 px-6 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${
                   filter === cat.id 
-                    ? 'bg-indigo-600 text-white shadow-lg' 
+                    ? 'bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] text-white shadow-lg shadow-[#FF5533]/25' 
                     : 'text-slate-400 hover:text-white hover:bg-white/5'
                 }`}
               >
@@ -228,7 +228,7 @@ export default function TrendTracker() {
         {!loading && filter !== 'saved' && visibleRecommendations.length > 0 && (
           <div className="mb-20">
             <div className="flex items-center gap-3 mb-8">
-              <Star size={14} className="text-indigo-400" fill="currentColor" />
+              <Star size={14} className="text-[#FF8A00]" fill="currentColor" />
               <div>
                 <h2 className="text-xs font-black text-slate-500 uppercase tracking-[0.3em]">Top 10 Daily Content Opportunities</h2>
                 {methodology && <p className="text-[10px] text-slate-600 mt-2 normal-case tracking-normal">{methodology}</p>}
@@ -237,20 +237,20 @@ export default function TrendTracker() {
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {visibleRecommendations.slice(0, 10).map((rec, i) => (
-                <div key={i} className="group relative bg-slate-900/40 backdrop-blur-md border border-white/5 rounded-3xl p-6 hover:border-indigo-500/40 transition-all flex flex-col shadow-lg">
+                <div key={i} className="group relative bg-[#0d0d0f] backdrop-blur-md border border-white/5 rounded-3xl p-6 hover:border-[#FF5533]/40 transition-all flex flex-col shadow-lg">
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-2">
-                       <div className="inline-flex items-center gap-1.5 text-[9px] font-black text-indigo-400 uppercase tracking-widest px-2 py-0.5 bg-indigo-500/5 rounded-full">
+                       <div className="inline-flex items-center gap-1.5 text-[9px] font-black text-[#FF5533] uppercase tracking-widest px-2 py-0.5 bg-orange-500/10 rounded-full">
                         <Flame size={10} /> Pick #{i+1}
                       </div>
                       <div className="text-[8px] text-slate-500 font-bold uppercase">{formatDate(rec.pubDate)}</div>
                     </div>
                     <button onClick={() => toggleSave(rec)} className="p-1.5 rounded-lg hover:bg-white/5 transition-colors">
-                      {isSaved(rec.link) ? <BookmarkCheck size={16} className="text-indigo-500" /> : <Bookmark size={16} className="text-slate-600" />}
+                      {isSaved(rec.link) ? <BookmarkCheck size={16} className="text-[#FF5533]" /> : <Bookmark size={16} className="text-slate-600" />}
                     </button>
                   </div>
 
-                  <h3 className="text-base font-bold text-white mb-4 leading-snug flex-1 group-hover:text-indigo-300 transition-colors line-clamp-3">
+                  <h3 className="text-base font-bold text-white mb-4 leading-snug flex-1 group-hover:text-[#FF7A45] transition-colors line-clamp-3">
                     {rec.proposedTitle || rec.title}
                   </h3>
 
@@ -261,7 +261,7 @@ export default function TrendTracker() {
                     <span className="text-[9px] font-bold text-amber-300 bg-amber-500/10 rounded-full px-2 py-1">Priority {rec.score}</span>
                   </div>
                   {rec.targetKeyword && (
-                    <p className="text-[10px] text-indigo-300/80 font-bold mb-2">Keyword: {rec.targetKeyword}</p>
+                    <p className="text-[10px] text-[#FF7A45] font-bold mb-2">Keyword: {rec.targetKeyword}</p>
                   )}
                   <p className="text-[11px] text-slate-500 leading-relaxed mb-6 line-clamp-3">{rec.reason}</p>
 
@@ -269,7 +269,7 @@ export default function TrendTracker() {
                     <a href={rec.link} target="_blank" className="p-2 bg-white/5 rounded-lg text-slate-500 hover:text-white transition-colors">
                       <ExternalLink size={14} />
                     </a>
-                    <button onClick={() => handleGenerate(rec)} className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg active:scale-95 whitespace-nowrap">
+                    <button onClick={() => handleGenerate(rec)} className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] hover:from-[#FF5547] hover:to-[#FF9036] text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-[#FF5533]/25 active:scale-95 whitespace-nowrap cursor-pointer">
                       <Wand2 size={14} /> Generate Blog
                     </button>
                   </div>
@@ -302,14 +302,14 @@ export default function TrendTracker() {
                   layout
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  className="group bg-slate-900/20 border border-white/5 rounded-3xl p-6 hover:bg-slate-900/40 hover:border-white/10 transition-all flex flex-col"
+                  className="group bg-[#0d0d0f] border border-white/5 rounded-3xl p-6 hover:border-white/10 transition-all flex flex-col"
                 >
                   <div className="flex items-center justify-between mb-4">
                     <div className="text-[8px] font-black text-slate-600 uppercase tracking-widest">{trend.sourceName}</div>
                     <div className="flex items-center gap-2">
                       <div className="text-[8px] text-slate-500 font-bold uppercase">{formatDate(trend.pubDate)}</div>
                       <button onClick={() => toggleSave(trend)} className="p-1 rounded-md hover:bg-white/5 transition-colors">
-                        {isSaved(trend.link) ? <BookmarkCheck size={14} className="text-indigo-500" /> : <BookmarkPlus size={14} className="text-slate-700" />}
+                        {isSaved(trend.link) ? <BookmarkCheck size={14} className="text-[#FF5533]" /> : <BookmarkPlus size={14} className="text-slate-700" />}
                       </button>
                     </div>
                   </div>
@@ -320,14 +320,14 @@ export default function TrendTracker() {
 
                   <div className="flex items-center justify-between pt-4 border-t border-white/5">
                     <div>
-                      <div className="text-[9px] font-bold text-indigo-500/60 uppercase">{trend.topic}</div>
+                      <div className="text-[9px] font-bold text-[#FF5533]/70 uppercase">{trend.topic}</div>
                       {trend.opportunityType && <div className="text-[8px] font-bold text-emerald-400/70 uppercase mt-1">{trend.opportunityType}</div>}
                     </div>
                     <div className="flex items-center gap-2">
                        <a href={trend.link} target="_blank" className="p-2 text-slate-600 hover:text-white transition-colors">
                         <ExternalLink size={14} />
                       </a>
-                      <button onClick={() => handleGenerate(trend)} className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 rounded-xl text-[10px] font-black uppercase tracking-widest text-white transition-all shadow-lg active:scale-95 whitespace-nowrap">
+                      <button onClick={() => handleGenerate(trend)} className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] hover:from-[#FF5547] hover:to-[#FF9036] rounded-xl text-[10px] font-black uppercase tracking-widest text-white transition-all shadow-lg shadow-[#FF5533]/25 active:scale-95 whitespace-nowrap cursor-pointer">
                         <Wand2 size={14} /> Generate Blog
                       </button>
                     </div>

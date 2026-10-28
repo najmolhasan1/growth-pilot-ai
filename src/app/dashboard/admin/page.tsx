@@ -371,7 +371,7 @@ export default function AdminDashboard() {
   if (!isAdmin) {
     return (
       <div className="min-h-screen p-6 lg:p-8 flex items-center justify-center">
-        <div className="max-w-md w-full bg-[#0b0f19]/80 border border-red-500/20 rounded-3xl p-8 shadow-2xl relative overflow-hidden text-center backdrop-blur-xl">
+        <div className="max-w-md w-full bg-[#0d0d0f]/80 border border-red-500/20 rounded-3xl p-8 shadow-2xl relative overflow-hidden text-center backdrop-blur-xl">
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-40 h-40 bg-red-500/10 rounded-full blur-3xl" />
           
           <div className="w-16 h-16 bg-red-500/10 border border-red-500/20 text-red-500 rounded-2xl flex items-center justify-center mx-auto mb-6">
@@ -503,7 +503,7 @@ export default function AdminDashboard() {
               <div className="bg-white/[0.02] border border-white/[0.05] rounded-3xl p-6 flex flex-col gap-1.5 shadow-xl">
                 <span className="text-[10px] font-bold text-white/30 uppercase tracking-widest">Keyword Planners</span>
                 <span className="text-3xl font-black text-white mt-1">{totalKeywordReports}</span>
-                <span className="text-[10px] text-indigo-400 font-semibold flex items-center gap-0.5 mt-2 leading-none">
+                <span className="text-[10px] text-[#FF7A45] font-semibold flex items-center gap-0.5 mt-2 leading-none">
                   Avg. {(totalKeywordReports / Math.max(1, totalUsers)).toFixed(1)} reports / user
                 </span>
               </div>
@@ -592,7 +592,7 @@ export default function AdminDashboard() {
                       <span className="text-white">65% usage</span>
                     </div>
                     <div className="w-full h-3 bg-white/5 rounded-full overflow-hidden">
-                      <div className="h-full bg-gradient-to-r from-primary to-indigo-400 rounded-full" style={{ width: '65%' }} />
+                      <div className="h-full bg-gradient-to-r from-primary to-[#FF8A00] rounded-full" style={{ width: '65%' }} />
                     </div>
                   </div>
 
@@ -627,7 +627,7 @@ export default function AdminDashboard() {
             </div>
 
             {/* Recent activities stack */}
-            <div className="bg-[#0b0f19]/45 border border-white/5 rounded-3xl p-6 lg:p-8 space-y-4">
+            <div className="bg-[#0d0d0f]/60 border border-white/5 rounded-3xl p-6 lg:p-8 space-y-4">
               <span className="text-xs font-bold text-white uppercase tracking-wider block">Recent Administrative Audits</span>
               <div className="divide-y divide-white/5">
                 <div className="py-3 flex items-center justify-between text-xs">
@@ -668,7 +668,7 @@ export default function AdminDashboard() {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search users by name, handle, email..."
-                    className="w-full bg-[#0d1117] border border-white/10 rounded-xl pl-9 pr-4 py-2.5 text-xs text-white focus:border-primary focus:outline-none transition-all font-semibold"
+                    className="w-full bg-[#0d0d0f] border border-white/10 rounded-xl pl-9 pr-4 py-2.5 text-xs text-white focus:border-primary focus:outline-none transition-all font-semibold"
                   />
                 </div>
 
@@ -676,7 +676,7 @@ export default function AdminDashboard() {
                 <select
                   value={planFilter}
                   onChange={(e) => setPlanFilter(e.target.value)}
-                  className="bg-[#0d1117] border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-primary font-semibold"
+                  className="bg-[#0d0d0f] border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-primary font-semibold"
                 >
                   <option value="all">All Plans</option>
                   <option value="Plus">Plus Subscription</option>
@@ -688,7 +688,7 @@ export default function AdminDashboard() {
                 <select
                   value={roleFilter}
                   onChange={(e) => setRoleFilter(e.target.value)}
-                  className="bg-[#0d1117] border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-primary font-semibold"
+                  className="bg-[#0d0d0f] border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-primary font-semibold"
                 >
                   <option value="all">All Roles</option>
                   <option value="admin">Administrator</option>
@@ -708,7 +708,7 @@ export default function AdminDashboard() {
             </div>
 
             {/* Users Table */}
-            <div className="bg-[#0b0f19]/45 border border-white/10 rounded-3xl overflow-hidden shadow-2xl">
+            <div className="bg-[#0d0d0f]/60 border border-white/10 rounded-3xl overflow-hidden shadow-2xl">
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs border-collapse">
                   <thead>
@@ -776,7 +776,7 @@ export default function AdminDashboard() {
                                     ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20' 
                                     : user.plan === 'Trial ended'
                                       ? 'bg-red-500/10 border-red-500/20 text-red-400 hover:bg-red-500/20'
-                                      : 'bg-indigo-500/10 border-indigo-500/20 text-indigo-400 hover:bg-indigo-500/20'
+                                      : 'bg-orange-500/10 border-orange-500/20 text-[#FF5533] hover:bg-orange-500/20'
                                 }`}
                               >
                                 {user.plan}
@@ -869,7 +869,7 @@ export default function AdminDashboard() {
                         max="100000"
                         value={seoWordLimit}
                         onChange={(e) => setSeoWordLimit(parseInt(e.target.value, 10))}
-                        className="w-full bg-[#0d1117] border border-white/10 rounded-xl px-4 py-3 text-xs text-white focus:border-primary focus:outline-none transition-all font-semibold"
+                        className="w-full bg-[#0d0d0f] border border-white/10 rounded-xl px-4 py-3 text-xs text-white focus:border-primary focus:outline-none transition-all font-semibold"
                         required
                       />
                       <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-bold text-white/35 uppercase">words</span>
@@ -888,7 +888,7 @@ export default function AdminDashboard() {
                         max="500"
                         value={keywordLimit}
                         onChange={(e) => setKeywordLimit(parseInt(e.target.value, 10))}
-                        className="w-full bg-[#0d1117] border border-white/10 rounded-xl px-4 py-3 text-xs text-white focus:border-primary focus:outline-none transition-all font-semibold"
+                        className="w-full bg-[#0d0d0f] border border-white/10 rounded-xl px-4 py-3 text-xs text-white focus:border-primary focus:outline-none transition-all font-semibold"
                         required
                       />
                       <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-bold text-white/35 uppercase">searches</span>
@@ -907,7 +907,7 @@ export default function AdminDashboard() {
                         max="500"
                         value={marketingLimit}
                         onChange={(e) => setMarketingLimit(parseInt(e.target.value, 10))}
-                        className="w-full bg-[#0d1117] border border-white/10 rounded-xl px-4 py-3 text-xs text-white focus:border-primary focus:outline-none transition-all font-semibold"
+                        className="w-full bg-[#0d0d0f] border border-white/10 rounded-xl px-4 py-3 text-xs text-white focus:border-primary focus:outline-none transition-all font-semibold"
                         required
                       />
                       <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-bold text-white/35 uppercase">assets</span>
@@ -936,7 +936,7 @@ export default function AdminDashboard() {
             {/* Explanation card */}
             <div className="lg:col-span-2 space-y-4">
               <h3 className="text-[10px] font-bold text-white/40 uppercase tracking-widest block pl-2">Scale and Boundary Analysis</h3>
-              <div className="bg-[#0b0f1a]/85 border border-white/10 rounded-3xl p-6 shadow-2xl space-y-4">
+              <div className="bg-[#0d0d0f]/85 border border-white/10 rounded-3xl p-6 shadow-2xl space-y-4">
                 
                 <div className="flex items-center gap-2 text-primary font-bold text-[11px] uppercase tracking-wider">
                   <Layers size={14} />
@@ -985,7 +985,7 @@ export default function AdminDashboard() {
       {/* Add User Modal */}
       {isAddModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
-          <div className="bg-[#0d111d] border border-white/10 rounded-3xl p-6 max-w-sm w-full space-y-6 shadow-2xl">
+          <div className="bg-[#0d0d0f] border border-white/10 rounded-3xl p-6 max-w-sm w-full space-y-6 shadow-2xl">
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold text-white uppercase tracking-wider">Add Mock Account</span>
               <button onClick={() => setIsAddModalOpen(false)} className="text-white/40 hover:text-white cursor-pointer">
@@ -1071,7 +1071,7 @@ export default function AdminDashboard() {
       {/* Edit User Modal */}
       {isEditModalOpen && editingUser && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
-          <div className="bg-[#0d111d] border border-white/10 rounded-3xl p-6 max-w-sm w-full space-y-6 shadow-2xl">
+          <div className="bg-[#0d0d0f] border border-white/10 rounded-3xl p-6 max-w-sm w-full space-y-6 shadow-2xl">
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold text-white uppercase tracking-wider">Edit User Details</span>
               <button onClick={() => {

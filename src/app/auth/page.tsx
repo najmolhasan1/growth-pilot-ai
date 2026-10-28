@@ -6,6 +6,7 @@ import { Suspense, useEffect, useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, Loader2, Sparkles, Zap, Mail, KeyRound, User } from 'lucide-react';
 import { getSupabaseBrowserClient, isSupabaseConfigured } from '@/lib/supabase';
+import BrandLogo from '@/components/layout/BrandLogo';
 
 function AuthContent() {
   const router = useRouter();
@@ -97,9 +98,9 @@ function AuthContent() {
     <div className="min-h-screen overflow-hidden bg-background text-foreground transition-colors duration-300 bg-grid-pattern relative flex items-center justify-center py-12 px-6">
       {/* Background spotlights */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute left-1/2 top-[-100px] h-[500px] w-[700px] -translate-x-1/2 rounded-full bg-blue-500/10 dark:bg-blue-600/15 blur-[120px]" />
-        <div className="absolute bottom-[-100px] left-[-50px] h-[350px] w-[350px] rounded-full bg-violet-500/10 dark:bg-violet-600/15 blur-[100px]" />
-        <div className="absolute bottom-0 right-0 h-[300px] w-[300px] rounded-full bg-cyan-500/5 dark:bg-cyan-500/10 blur-[90px]" />
+        <div className="absolute left-1/2 top-[-100px] h-[500px] w-[700px] -translate-x-1/2 rounded-full bg-[#FF5533]/10 dark:bg-[#FF5533]/15 blur-[120px]" />
+        <div className="absolute bottom-[-100px] left-[-50px] h-[350px] w-[350px] rounded-full bg-[#FF8A00]/10 dark:bg-[#FF8A00]/12 blur-[100px]" />
+        <div className="absolute bottom-0 right-0 h-[300px] w-[300px] rounded-full bg-[#FF4D42]/8 dark:bg-[#FF4D42]/10 blur-[90px]" />
       </div>
 
       <motion.div 
@@ -110,19 +111,16 @@ function AuthContent() {
       >
         {/* Left branding panel */}
         <div className="relative hidden overflow-hidden border-r border-border p-12 lg:block bg-muted/20">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(59,130,246,0.1),transparent_40%),radial-gradient(circle_at_bottom_right,rgba(139,92,246,0.08),transparent_40%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,85,51,0.12),transparent_40%),radial-gradient(circle_at_bottom_right,rgba(255,138,0,0.1),transparent_40%)]" />
           <div className="relative h-full flex flex-col justify-between">
             <div>
-              <Link href="/" className="mb-16 inline-flex items-center gap-3 group">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 via-indigo-500 to-violet-600 shadow-md group-hover:scale-105 transition-transform duration-300">
-                  <Zap fill="white" size={18} className="text-white" />
-                </div>
-                <span className="text-lg font-black tracking-tight text-foreground">GrowthPilot AI</span>
-              </Link>
+              <div className="mb-16">
+                <BrandLogo href="/" imgClassName="h-10 w-auto" />
+              </div>
 
               <div className="max-w-lg mt-12">
-                <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-blue-400/20 bg-blue-500/5 dark:bg-blue-450/10 px-3.5 py-1 text-[10px] font-black uppercase tracking-widest text-blue-600 dark:text-blue-300 shadow-xs">
-                  <Sparkles size={12} className="animate-pulse" /> Your AI growth workspace
+                <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-3.5 py-1 text-[10px] font-black uppercase tracking-widest text-[#FF5533] dark:text-[#FF7A45] shadow-xs">
+                  <Sparkles size={12} className="animate-pulse text-[#FF6A3D]" /> Your AI growth workspace
                 </div>
                 <h1 className="text-4xl font-black leading-tight tracking-tight text-foreground">
                   Plan, create, and package marketing assets from one focused workspace.
@@ -141,15 +139,12 @@ function AuthContent() {
 
         {/* Right Form panel */}
         <div className="p-8 sm:p-12 flex flex-col justify-center">
-          <Link href="/" className="mb-8 inline-flex items-center gap-2.5 lg:hidden">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-violet-600 shadow-md">
-              <Zap fill="white" size={14} className="text-white" />
-            </div>
-            <span className="font-black text-sm tracking-tight text-foreground">GrowthPilot AI</span>
-          </Link>
+          <div className="mb-8 lg:hidden">
+            <BrandLogo href="/" imgClassName="h-8 w-auto" />
+          </div>
 
           <div className="mb-6">
-            <p className="mb-2 text-xs font-black uppercase tracking-[0.2em] text-blue-600 dark:text-blue-300">
+            <p className="mb-2 text-xs font-black uppercase tracking-[0.2em] text-[#FF5533] dark:text-[#FF7A45]">
               {mode === 'register' ? 'Start your workspace' : 'Welcome back'}
             </p>
             <h2 className="text-2xl font-black tracking-tight text-foreground sm:text-3xl">
@@ -167,21 +162,21 @@ function AuthContent() {
             <button
               type="button"
               onClick={() => setMode('register')}
-              className={`relative z-10 rounded-xl py-2.5 text-xs font-black uppercase tracking-wider transition-colors duration-300 cursor-pointer ${mode === 'register' ? 'text-white dark:text-slate-900' : 'text-muted-foreground hover:text-foreground'}`}
+              className={`relative z-10 rounded-xl py-2.5 text-xs font-black uppercase tracking-wider transition-colors duration-300 cursor-pointer ${mode === 'register' ? 'text-white' : 'text-muted-foreground hover:text-foreground'}`}
             >
               Register
             </button>
             <button
               type="button"
               onClick={() => setMode('login')}
-              className={`relative z-10 rounded-xl py-2.5 text-xs font-black uppercase tracking-wider transition-colors duration-300 cursor-pointer ${mode === 'login' ? 'text-white dark:text-slate-900' : 'text-muted-foreground hover:text-foreground'}`}
+              className={`relative z-10 rounded-xl py-2.5 text-xs font-black uppercase tracking-wider transition-colors duration-300 cursor-pointer ${mode === 'login' ? 'text-white' : 'text-muted-foreground hover:text-foreground'}`}
             >
               Login
             </button>
             <motion.div
               layout
               transition={{ type: 'spring', stiffness: 350, damping: 30 }}
-              className="absolute inset-y-1 rounded-xl bg-indigo-600 dark:bg-white shadow-sm"
+              className="absolute inset-y-1 rounded-xl bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] shadow-sm"
               style={{
                 left: mode === 'register' ? '4px' : '50%',
                 right: mode === 'register' ? '50%' : '4px',
@@ -205,7 +200,7 @@ function AuthContent() {
                     <input
                       value={name}
                       onChange={event => setName(event.target.value)}
-                      className="w-full rounded-2xl border border-neutral-200 dark:border-neutral-800/80 bg-white dark:bg-[#0f172a] pl-11 pr-4 py-3.5 text-sm outline-none transition-all focus:border-indigo-500 focus:bg-white dark:focus:bg-neutral-950 focus:ring-2 focus:ring-indigo-500/10 text-foreground placeholder:text-muted-foreground/50"
+                      className="w-full rounded-2xl border border-neutral-200 dark:border-neutral-800/80 bg-white dark:bg-[#0f172a] pl-11 pr-4 py-3.5 text-sm outline-none transition-all focus:border-[#FF5533] focus:bg-white dark:focus:bg-neutral-950 focus:ring-2 focus:ring-[#FF5533]/15 text-foreground placeholder:text-muted-foreground/50"
                       placeholder="Your name"
                     />
                   </div>
@@ -222,7 +217,7 @@ function AuthContent() {
                   required
                   value={email}
                   onChange={event => setEmail(event.target.value)}
-                  className="w-full rounded-2xl border border-neutral-200 dark:border-neutral-800/80 bg-white dark:bg-[#0f172a] pl-11 pr-4 py-3.5 text-sm outline-none transition-all focus:border-indigo-500 focus:bg-white dark:focus:bg-neutral-950 focus:ring-2 focus:ring-indigo-500/10 text-foreground placeholder:text-muted-foreground/50"
+                  className="w-full rounded-2xl border border-neutral-200 dark:border-neutral-800/80 bg-white dark:bg-[#0f172a] pl-11 pr-4 py-3.5 text-sm outline-none transition-all focus:border-[#FF5533] focus:bg-white dark:focus:bg-neutral-950 focus:ring-2 focus:ring-[#FF5533]/15 text-foreground placeholder:text-muted-foreground/50"
                   placeholder="you@company.com"
                 />
               </div>
@@ -237,7 +232,7 @@ function AuthContent() {
                   required
                   value={password}
                   onChange={event => setPassword(event.target.value)}
-                  className="w-full rounded-2xl border border-neutral-200 dark:border-neutral-800/80 bg-white dark:bg-[#0f172a] pl-11 pr-4 py-3.5 text-sm outline-none transition-all focus:border-indigo-500 focus:bg-white dark:focus:bg-neutral-950 focus:ring-2 focus:ring-indigo-500/10 text-foreground placeholder:text-muted-foreground/50"
+                  className="w-full rounded-2xl border border-neutral-200 dark:border-neutral-800/80 bg-white dark:bg-[#0f172a] pl-11 pr-4 py-3.5 text-sm outline-none transition-all focus:border-[#FF5533] focus:bg-white dark:focus:bg-neutral-950 focus:ring-2 focus:ring-[#FF5533]/15 text-foreground placeholder:text-muted-foreground/50"
                   placeholder="At least 6 characters"
                 />
               </div>
@@ -267,7 +262,7 @@ function AuthContent() {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               disabled={loading}
-              className="flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-blue-500 to-violet-600 px-5 py-4 text-sm font-black text-white shadow-lg shadow-blue-500/25 disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer"
+              className="flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] hover:from-[#FF5547] hover:to-[#FF9036] px-5 py-4 text-sm font-black text-white shadow-lg shadow-[#FF5533]/25 disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer"
             >
               {loading && <Loader2 className="animate-spin" size={16} />}
               {mode === 'register' ? 'Start Free Trial' : 'Go to Dashboard'}

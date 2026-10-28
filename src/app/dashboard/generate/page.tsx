@@ -18,7 +18,7 @@ const modeVisuals: Record<WritingModeId, { icon: typeof Target; color: string; b
   'semantic-nlp': { icon: Brain, color: 'from-emerald-500 to-teal-500', border: 'border-emerald-500/40' },
   yoast: { icon: Shield, color: 'from-orange-500 to-amber-500', border: 'border-orange-500/40' },
   hybrid: { icon: Layers, color: 'from-rose-500 to-pink-600', border: 'border-rose-500/40' },
-  hcu: { icon: TrendingUp, color: 'from-sky-500 to-indigo-500', border: 'border-sky-500/40' },
+  hcu: { icon: TrendingUp, color: 'from-orange-500 to-[#FF5533]', border: 'border-orange-500/40' },
 };
 
 const tones = ['Informative', 'Professional', 'Conversational', 'Authoritative', 'Friendly'];
@@ -231,7 +231,7 @@ function GenerateContent() {
     <div className="min-h-screen p-8">
       <div className="mb-10">
         <div className="flex items-center gap-3 mb-2">
-          <div className="w-9 h-9 bg-gradient-to-br from-blue-500 to-violet-600 rounded-xl flex items-center justify-center">
+          <div className="w-9 h-9 bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] rounded-xl flex items-center justify-center shadow-md shadow-[#FF5533]/20">
             <Zap size={18} className="text-white" />
           </div>
           <h1 className="text-2xl font-black">Generate Content</h1>
@@ -242,13 +242,13 @@ function GenerateContent() {
       <div className="flex items-center gap-3 mb-10">
         {[{ n: 1, label: 'Select Mode' }, { n: 2, label: 'Configure' }, { n: 3, label: 'Generate' }].map((item, index) => (
           <div key={item.n} className="flex items-center gap-3">
-            <div className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold transition-all ${step >= item.n ? 'bg-blue-500/20 text-blue-400 border border-blue-500/40' : 'bg-white/5 text-white/30 border border-white/10'}`}>
-              <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black ${step >= item.n ? 'bg-blue-500 text-white' : 'bg-white/10 text-white/40'}`}>
+            <div className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold transition-all ${step >= item.n ? 'bg-orange-500/20 text-[#FF5533] border border-orange-500/40' : 'bg-white/5 text-white/30 border border-white/10'}`}>
+              <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black ${step >= item.n ? 'bg-[#FF5533] text-white' : 'bg-white/10 text-white/40'}`}>
                 {step > item.n ? 'OK' : item.n}
               </span>
               {item.label}
             </div>
-            {index < 2 && <div className={`h-px w-8 ${step > item.n ? 'bg-blue-500/50' : 'bg-white/10'}`} />}
+            {index < 2 && <div className={`h-px w-8 ${step > item.n ? 'bg-[#FF5533]/50' : 'bg-white/10'}`} />}
           </div>
         ))}
       </div>
@@ -256,7 +256,7 @@ function GenerateContent() {
       {step === 1 && (
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
           <h2 className="text-lg font-bold mb-6 flex items-center gap-2">
-            <Settings size={18} className="text-blue-400" /> Choose Your SEO Mode
+            <Settings size={18} className="text-[#FF5533]" /> Choose Your SEO Mode
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
             {WRITING_MODES.map(writingMode => {
@@ -269,7 +269,7 @@ function GenerateContent() {
                   <span className="absolute top-3 right-3 text-[9px] bg-white/10 text-white/55 px-2 py-0.5 rounded-full font-bold">
                     {writingMode.publicCheckCount}
                   </span>
-                  {selected && <CheckCircle2 size={14} className="absolute bottom-3 right-3 text-blue-400" />}
+                  {selected && <CheckCircle2 size={14} className="absolute bottom-3 right-3 text-[#FF5533]" />}
                   <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${visual.color} flex items-center justify-center mb-3`}>
                     <Icon size={18} className="text-white" />
                   </div>
@@ -280,7 +280,7 @@ function GenerateContent() {
             })}
           </div>
           <button onClick={() => setStep(2)}
-            className="px-8 py-3.5 bg-gradient-to-r from-blue-500 to-violet-600 rounded-xl font-bold flex items-center gap-2 hover:scale-105 transition-all shadow-lg shadow-blue-500/20">
+            className="px-8 py-3.5 bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] hover:from-[#FF5547] hover:to-[#FF9036] rounded-xl font-bold flex items-center gap-2 hover:scale-105 transition-all shadow-lg shadow-[#FF5533]/25 text-white cursor-pointer">
             Continue <ArrowRight size={18} />
           </button>
         </motion.div>
@@ -289,7 +289,7 @@ function GenerateContent() {
       {step === 2 && (
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-5xl">
           <h2 className="text-lg font-bold mb-6 flex items-center gap-2">
-            <Type size={18} className="text-blue-400" /> Configure Your Article
+            <Type size={18} className="text-[#FF5533]" /> Configure Your Article
           </h2>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
             <div className="space-y-5">
@@ -297,14 +297,14 @@ function GenerateContent() {
                 <label className="text-xs font-bold text-white/60 uppercase tracking-wider block mb-2">Focus Keyword *</label>
                 <input value={keyword} onChange={event => setKeyword(event.target.value)}
                   placeholder="e.g. best SEO tools 2026"
-                  className="w-full bg-[#0d1117] border border-white/10 rounded-xl px-4 py-3.5 text-sm text-white placeholder-white/20 focus:outline-none focus:border-blue-500/60 transition-colors" />
+                  className="w-full bg-[#0d0d0f] border border-white/10 rounded-xl px-4 py-3.5 text-sm text-white placeholder-white/20 focus:outline-none focus:border-[#FF5533]/60 transition-colors" />
               </div>
               <div>
                 <label className="text-xs font-bold text-white/60 uppercase tracking-wider block mb-2">Word Count</label>
                 <div className="flex flex-wrap gap-2">
                   {wordCounts.map(count => (
                     <button key={count} onClick={() => setWordCount(Math.max(count, mode.minimumWords))}
-                      className={`px-4 py-2.5 rounded-xl text-xs font-bold border transition-all ${wordCount === count ? 'bg-blue-500/20 border-blue-500/40 text-blue-400' : 'bg-white/5 border-white/10 text-white/50 hover:border-white/20'}`}>
+                      className={`px-4 py-2.5 rounded-xl text-xs font-bold border transition-all ${wordCount === count ? 'bg-orange-500/20 border-orange-500/40 text-[#FF5533]' : 'bg-white/5 border-white/10 text-white/50 hover:border-white/20'}`}>
                       {count}+
                     </button>
                   ))}
@@ -315,7 +315,7 @@ function GenerateContent() {
                 <div className="flex flex-wrap gap-2">
                   {languages.map(option => (
                     <button key={option} onClick={() => setLanguage(option)}
-                      className={`px-3 py-2 rounded-lg text-xs font-bold border transition-all ${language === option ? 'bg-blue-500/20 border-blue-500/40 text-blue-400' : 'bg-white/5 border-white/10 text-white/50 hover:border-white/20'}`}>
+                      className={`px-3 py-2 rounded-lg text-xs font-bold border transition-all ${language === option ? 'bg-orange-500/20 border-orange-500/40 text-[#FF5533]' : 'bg-white/5 border-white/10 text-white/50 hover:border-white/20'}`}>
                       {option}
                     </button>
                   ))}
@@ -326,7 +326,7 @@ function GenerateContent() {
                 <div className="flex flex-wrap gap-2">
                   {tones.map(option => (
                     <button key={option} onClick={() => setTone(option)}
-                      className={`px-3 py-2 rounded-lg text-xs font-bold border transition-all ${tone === option ? 'bg-violet-500/20 border-violet-500/40 text-violet-400' : 'bg-white/5 border-white/10 text-white/50 hover:border-white/20'}`}>
+                      className={`px-3 py-2 rounded-lg text-xs font-bold border transition-all ${tone === option ? 'bg-amber-500/20 border-amber-500/40 text-[#FF8A00]' : 'bg-white/5 border-white/10 text-white/50 hover:border-white/20'}`}>
                       {option}
                     </button>
                   ))}
@@ -337,7 +337,7 @@ function GenerateContent() {
                 <div className="flex gap-2">
                   {formalities.map(option => (
                     <button key={option} onClick={() => setFormality(option)}
-                      className={`flex-1 py-2 rounded-lg text-xs font-bold border transition-all ${formality === option ? 'bg-cyan-500/20 border-cyan-500/40 text-cyan-300' : 'bg-white/5 border-white/10 text-white/50'}`}>
+                      className={`flex-1 py-2 rounded-lg text-xs font-bold border transition-all ${formality === option ? 'bg-orange-500/20 border-orange-500/40 text-[#FF7A45]' : 'bg-white/5 border-white/10 text-white/50'}`}>
                       {option}
                     </button>
                   ))}
@@ -347,14 +347,14 @@ function GenerateContent() {
                 <div>
                   <label className="text-xs font-bold text-white/60 uppercase tracking-wider block mb-2">Reading Level</label>
                   <select value={readingLevel} onChange={event => setReadingLevel(event.target.value)}
-                    className="w-full bg-[#0d1117] border border-white/10 rounded-xl px-3 py-3 text-xs text-white focus:outline-none focus:border-blue-500/60">
+                    className="w-full bg-[#0d0d0f] border border-white/10 rounded-xl px-3 py-3 text-xs text-white focus:outline-none focus:border-[#FF5533]/60">
                     {readingLevels.map(option => <option key={option}>{option}</option>)}
                   </select>
                 </div>
                 <div>
                   <label className="text-xs font-bold text-white/60 uppercase tracking-wider block mb-2">Point of View</label>
                   <select value={pointOfView} onChange={event => setPointOfView(event.target.value)}
-                    className="w-full bg-[#0d1117] border border-white/10 rounded-xl px-3 py-3 text-xs text-white focus:outline-none focus:border-blue-500/60">
+                    className="w-full bg-[#0d0d0f] border border-white/10 rounded-xl px-3 py-3 text-xs text-white focus:outline-none focus:border-[#FF5533]/60">
                     {pointsOfView.map(option => <option key={option}>{option}</option>)}
                   </select>
                 </div>
@@ -364,10 +364,10 @@ function GenerateContent() {
             <div className="bg-white/[0.03] border border-white/[0.07] rounded-2xl p-5 h-fit">
               <div className="flex items-start justify-between gap-3 mb-4">
                 <div>
-                  <p className="text-xs font-bold text-blue-400 uppercase tracking-wider">{mode.name}</p>
+                  <p className="text-xs font-bold text-[#FF5533] uppercase tracking-wider">{mode.name}</p>
                   <p className="text-[11px] text-white/40 mt-1">{mode.auditTarget}</p>
                 </div>
-                <span className="text-[10px] bg-blue-500/10 text-blue-300 border border-blue-500/20 rounded-full px-2.5 py-1 font-bold">
+                <span className="text-[10px] bg-orange-500/10 text-[#FF5533] border border-orange-500/20 rounded-full px-2.5 py-1 font-bold">
                   {mode.measuredCheckCount} measured checks
                 </span>
               </div>
@@ -421,7 +421,7 @@ function GenerateContent() {
           <div className="flex gap-3">
             <button onClick={() => setStep(1)} className="px-6 py-3 bg-white/5 border border-white/10 rounded-xl font-bold text-sm hover:bg-white/10 transition-all">Back</button>
             <button onClick={handleGenerate}
-              className="px-8 py-3.5 bg-gradient-to-r from-blue-500 to-violet-600 rounded-xl font-bold flex items-center gap-2 hover:scale-105 transition-all shadow-lg shadow-blue-500/20">
+              className="px-8 py-3.5 bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] hover:from-[#FF5547] hover:to-[#FF9036] rounded-xl font-bold flex items-center gap-2 hover:scale-105 transition-all shadow-lg shadow-[#FF5533]/25 text-white cursor-pointer">
               <Zap size={16} /> Generate Article
             </button>
           </div>
@@ -430,17 +430,17 @@ function GenerateContent() {
 
       {step === 3 && loading && (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="max-w-lg mx-auto text-center py-20">
-          <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-blue-500 to-violet-600 flex items-center justify-center mx-auto mb-8 shadow-2xl shadow-blue-500/30">
+          <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-[#FF473A] to-[#FF8526] flex items-center justify-center mx-auto mb-8 shadow-2xl shadow-[#FF5533]/30">
             <Loader2 size={36} className="text-white animate-spin" />
           </div>
           <h2 className="text-2xl font-black mb-2">Generating with {mode.shortName}</h2>
           <div className="space-y-3 mt-10">
             {stages.map((stage, index) => (
-              <div key={stage} className={`flex items-center gap-3 px-5 py-3.5 rounded-xl border transition-all ${index < loadingStage ? 'bg-emerald-500/10 border-emerald-500/20' : index === loadingStage ? 'bg-blue-500/10 border-blue-500/30' : 'bg-white/[0.02] border-white/5'}`}>
-                <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${index < loadingStage ? 'bg-emerald-500 text-white' : index === loadingStage ? 'bg-blue-500 text-white' : 'bg-white/10 text-white/20'}`}>
+              <div key={stage} className={`flex items-center gap-3 px-5 py-3.5 rounded-xl border transition-all ${index < loadingStage ? 'bg-emerald-500/10 border-emerald-500/20' : index === loadingStage ? 'bg-orange-500/10 border-orange-500/30' : 'bg-white/[0.02] border-white/5'}`}>
+                <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${index < loadingStage ? 'bg-emerald-500 text-white' : index === loadingStage ? 'bg-[#FF5533] text-white' : 'bg-white/10 text-white/20'}`}>
                   {index < loadingStage ? 'OK' : index === loadingStage ? <Loader2 size={12} className="animate-spin" /> : index + 1}
                 </div>
-                <p className={`text-xs font-medium ${index < loadingStage ? 'text-emerald-400' : index === loadingStage ? 'text-blue-300' : 'text-white/25'}`}>{stage}</p>
+                <p className={`text-xs font-medium ${index < loadingStage ? 'text-emerald-400' : index === loadingStage ? 'text-[#FF7A45]' : 'text-white/25'}`}>{stage}</p>
               </div>
             ))}
           </div>

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -441,7 +441,7 @@ export default function Workspace({ upload, onUpdate, onDelete }: WorkspaceProps
       {/* Workspace Header Panel */}
       <div className="flex flex-col justify-between gap-4 border-b border-slate-200 pb-5 font-sans xl:flex-row xl:items-start">
         <div className="min-w-0">
-          <span className="text-[10px] bg-blue-50 text-blue-700 font-bold tracking-widest uppercase px-2.5 py-1 rounded border border-blue-100/30">Active Workspace</span>
+          <span className="text-[10px] bg-orange-500/10 text-[#FF5533] font-bold tracking-widest uppercase px-2.5 py-1 rounded border border-orange-500/20">Active Workspace</span>
           <h1 className="mt-2 max-w-full truncate font-display text-xl font-bold text-slate-900 lg:text-2xl">{upload.fileName}</h1>
           <p className="mt-1 break-words text-xs text-slate-400 font-mono">
             Size: {upload.fileSize} • Duration: {upload.duration} • Uploaded: {new Date(upload.uploadedAt).toLocaleDateString()}
@@ -457,7 +457,7 @@ export default function Workspace({ upload, onUpdate, onDelete }: WorkspaceProps
                onClick={() => setViewLanguage('original')}
                className={`whitespace-nowrap rounded-lg px-3 py-1.5 transition-all cursor-pointer ${
                  viewLanguage === 'original' 
-                   ? 'bg-white text-blue-600 shadow-xs border border-slate-200/50' 
+                   ? 'bg-white text-[#FF5533] shadow-xs border border-slate-200/50' 
                    : 'text-slate-500 hover:text-slate-800'
                }`}
             >
@@ -558,7 +558,7 @@ export default function Workspace({ upload, onUpdate, onDelete }: WorkspaceProps
                 />
               ) : (
                 <div className="flex flex-col items-center justify-center h-full p-6 text-center text-white space-y-4">
-                  <div className="p-4 bg-blue-500/20 text-blue-400 rounded-full animate-pulse border border-blue-500/10">
+                  <div className="p-4 bg-orange-500/100/20 text-blue-400 rounded-full animate-pulse border border-[#FF5533]/10">
                     <Volume2 className="w-10 h-10" />
                   </div>
                   <p className="font-semibold text-slate-200">Play audio transcription track</p>
@@ -583,7 +583,7 @@ export default function Workspace({ upload, onUpdate, onDelete }: WorkspaceProps
           {/* Dynamic Interactive Translation panel (Primary Feature) */}
           <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50/50 p-4 sm:p-5">
             <h3 className="font-bold text-slate-700 font-display flex items-center gap-2">
-              <Globe className="w-4.5 h-4.5 text-blue-600" />
+              <Globe className="w-4.5 h-4.5 text-[#FF5533]" />
               Translate with Gemini
             </h3>
             <p className="text-xs text-slate-400 font-sans mt-1">
@@ -608,7 +608,7 @@ export default function Workspace({ upload, onUpdate, onDelete }: WorkspaceProps
                 type="button"
                 onClick={handleTranslateCall}
                 disabled={isTranslating}
-                className="flex shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-xs transition-all hover:bg-blue-700 disabled:pointer-events-none disabled:opacity-80"
+                className="flex shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-xl bg-[#FF5533] px-4 py-2 text-sm font-medium text-white shadow-xs transition-all hover:bg-blue-700 disabled:pointer-events-none disabled:opacity-80"
               >
                 {isTranslating ? (
                   <>
@@ -630,7 +630,7 @@ export default function Workspace({ upload, onUpdate, onDelete }: WorkspaceProps
 
             {/* Translation instructions hints */}
             <div className="mt-4 pt-4 border-t border-slate-250/50 flex gap-2 text-[10px] text-slate-400 leading-relaxed font-sans">
-              <ListChecks className="w-4 h-4 text-blue-500 shrink-0" />
+              <ListChecks className="w-4 h-4 text-[#FF5533] shrink-0" />
               <span>Once translated, subtitles update instantly on timeline cards, and are available for multi-lingual download.</span>
             </div>
           </div>
@@ -638,14 +638,14 @@ export default function Workspace({ upload, onUpdate, onDelete }: WorkspaceProps
           {/* AI Insights & Topics Widget */}
           <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
             <h4 className="font-bold text-slate-700 font-display text-sm tracking-wide mb-3 flex items-center gap-1.5">
-              <Sparkles className="w-4 h-4 text-blue-600" />
+              <Sparkles className="w-4 h-4 text-[#FF5533]" />
               Extracted Topics
             </h4>
             <div className="flex flex-wrap gap-1.5">
               {upload.topics.map((topic, i) => (
                 <span 
                   key={i}
-                  className="bg-blue-50 text-blue-700 text-[11px] font-semibold px-2.5 py-1 rounded-md border border-blue-100/25 font-sans"
+                  className="bg-orange-500/10 text-[#FF5533] text-[11px] font-semibold px-2.5 py-1 rounded-md border border-blue-100/25 font-sans"
                 >
                   #{topic}
                 </span>
@@ -666,7 +666,7 @@ export default function Workspace({ upload, onUpdate, onDelete }: WorkspaceProps
                 onClick={() => setActiveTab('segments')}
                 className={`flex min-w-0 cursor-pointer items-center justify-center gap-1.5 rounded-xl px-3 py-2 text-center text-xs font-semibold transition-all ${
                   activeTab === 'segments'
-                    ? 'bg-white text-blue-600 shadow-xs border border-slate-200/50'
+                    ? 'bg-white text-[#FF5533] shadow-xs border border-slate-200/50'
                     : 'text-slate-500 hover:text-slate-800'
                 }`}
               >
@@ -678,7 +678,7 @@ export default function Workspace({ upload, onUpdate, onDelete }: WorkspaceProps
                 onClick={() => setActiveTab('transcript')}
                 className={`flex min-w-0 cursor-pointer items-center justify-center gap-1.5 rounded-xl px-3 py-2 text-center text-xs font-semibold transition-all ${
                   activeTab === 'transcript'
-                    ? 'bg-white text-blue-600 shadow-xs border border-slate-200/50'
+                    ? 'bg-white text-[#FF5533] shadow-xs border border-slate-200/50'
                     : 'text-slate-500 hover:text-slate-800'
                 }`}
               >
@@ -690,7 +690,7 @@ export default function Workspace({ upload, onUpdate, onDelete }: WorkspaceProps
                 onClick={() => setActiveTab('summary')}
                 className={`flex min-w-0 cursor-pointer items-center justify-center gap-1.5 rounded-xl px-3 py-2 text-center text-xs font-semibold transition-all ${
                   activeTab === 'summary'
-                    ? 'bg-white text-blue-600 shadow-xs border border-slate-200/50'
+                    ? 'bg-white text-[#FF5533] shadow-xs border border-slate-200/50'
                     : 'text-slate-500 hover:text-slate-800'
                 }`}
               >
@@ -728,7 +728,7 @@ export default function Workspace({ upload, onUpdate, onDelete }: WorkspaceProps
                       ref={(el) => { segmentRefs.current[seg.id] = el; }}
                       className={`group border rounded-lg p-3.5 transition-all ${
                         isActive 
-                          ? 'border-blue-500 bg-blue-50/10 shadow-xs ring-1 ring-blue-500' 
+                          ? 'border-[#FF5533] bg-orange-500/10/10 shadow-xs ring-1 ring-blue-500' 
                           : 'border-slate-100 hover:border-slate-200 hover:bg-slate-50/20'
                       }`}
                     >
@@ -741,8 +741,8 @@ export default function Workspace({ upload, onUpdate, onDelete }: WorkspaceProps
                             title="Jump video to this timestamp"
                             className={`px-2 py-1 rounded font-mono text-[11px] font-bold transition-all flex items-center gap-1 cursor-pointer ${
                               isActive 
-                                ? 'bg-blue-600 text-white shadow-xs' 
-                                : 'bg-slate-100 text-slate-600 hover:bg-blue-50 hover:text-blue-600'
+                                ? 'bg-[#FF5533] text-white shadow-xs' 
+                                : 'bg-slate-100 text-slate-600 hover:bg-orange-500/10 hover:text-[#FF5533]'
                             }`}
                           >
                             <Play className="w-2.5 h-2.5 fill-current" />
@@ -779,7 +779,7 @@ export default function Workspace({ upload, onUpdate, onDelete }: WorkspaceProps
                               type="button"
                               onClick={() => startSegmentEdit(seg, seg.text)}
                               title="Edit caption spelling"
-                              className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-all"
+                              className="p-1.5 text-slate-400 hover:text-[#FF5533] hover:bg-orange-500/10 rounded transition-all"
                             >
                               <Edit2 className="w-3.5 h-3.5" />
                             </button>
@@ -827,7 +827,7 @@ export default function Workspace({ upload, onUpdate, onDelete }: WorkspaceProps
                         setEditedTranscript(getActiveTranscriptText());
                         setIsEditingTranscript(true);
                       }}
-                      className="text-xs font-semibold text-blue-600 hover:text-blue-700 flex items-center gap-1 transition-all cursor-pointer"
+                      className="text-xs font-semibold text-[#FF5533] hover:text-[#FF5533] flex items-center gap-1 transition-all cursor-pointer"
                     >
                       <Edit2 className="w-3.5 h-3.5" />
                       Edit Transcript
@@ -855,7 +855,7 @@ export default function Workspace({ upload, onUpdate, onDelete }: WorkspaceProps
             {activeTab === 'summary' && (
               <div className="font-sans px-2">
                 <h3 className="text-sm font-bold font-display text-slate-800 mb-4 flex items-center gap-1.5">
-                  <Sparkles className="w-4 h-4 text-blue-600" />
+                  <Sparkles className="w-4 h-4 text-[#FF5533]" />
                   Gemini Smart Takeaways
                 </h3>
                 

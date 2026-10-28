@@ -32,8 +32,8 @@ module.exports = {
       },
       keyframes: {
         glow: {
-          'from': { boxShadow: '0 0 20px rgba(99, 102, 241, 0.2)' },
-          'to': { boxShadow: '0 0 40px rgba(99, 102, 241, 0.4)' },
+          'from': { boxShadow: '0 0 20px rgba(255, 85, 51, 0.2)' },
+          'to': { boxShadow: '0 0 40px rgba(255, 85, 51, 0.45)' },
         }
       }
     },

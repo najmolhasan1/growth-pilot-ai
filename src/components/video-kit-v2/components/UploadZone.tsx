@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -325,7 +325,7 @@ export default function UploadZone({ onUploadSuccess }: UploadZoneProps) {
       <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="flex items-center gap-2 font-display text-base font-bold text-slate-800">
-            <Sparkles className="h-4 w-4 text-blue-600" />
+            <Sparkles className="h-4 w-4 text-[#FF5533]" />
             Transcribe Studio Upload
           </h2>
           <p className="mt-0.5 text-xs font-sans text-slate-400">Upload audio/video or paste YouTube/Google Drive links.</p>
@@ -378,7 +378,7 @@ export default function UploadZone({ onUploadSuccess }: UploadZoneProps) {
           type="button"
           onClick={() => setInputMode('file')}
           className={`flex items-center justify-center gap-2 rounded-xl px-3 py-2 transition ${
-            inputMode === 'file' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-800'
+            inputMode === 'file' ? 'bg-white text-[#FF5533] shadow-sm' : 'text-slate-500 hover:text-slate-800'
           }`}
         >
           <UploadCloud className="h-3.5 w-3.5" />
@@ -388,7 +388,7 @@ export default function UploadZone({ onUploadSuccess }: UploadZoneProps) {
           type="button"
           onClick={() => setInputMode('url')}
           className={`flex items-center justify-center gap-2 rounded-xl px-3 py-2 transition ${
-            inputMode === 'url' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-800'
+            inputMode === 'url' ? 'bg-white text-[#FF5533] shadow-sm' : 'text-slate-500 hover:text-slate-800'
           }`}
         >
           <Link2 className="h-3.5 w-3.5" />
@@ -402,16 +402,16 @@ export default function UploadZone({ onUploadSuccess }: UploadZoneProps) {
             <div className="flex w-full max-w-xl flex-col items-center py-4 mx-auto">
               <div className="relative mb-4 h-12 w-12">
                 <div className="absolute inset-0 rounded-full border-4 border-blue-50 opacity-10"></div>
-                <div className="absolute inset-0 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
+                <div className="absolute inset-0 animate-spin rounded-full border-4 border-[#FF5533] border-t-transparent"></div>
               </div>
               <h3 className="animate-pulse font-display text-sm font-bold text-slate-800">Processing Remote Media</h3>
               <div className="mb-2 mt-4 h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
                 <div
-                  className="h-full rounded-full bg-blue-600 transition-all duration-700"
+                  className="h-full rounded-full bg-[#FF5533] transition-all duration-700"
                   style={{ width: `${((processingStep + 1) / steps.length) * 100}%` }}
                 ></div>
               </div>
-              <p className="text-center font-mono text-xs font-medium text-blue-600">
+              <p className="text-center font-mono text-xs font-medium text-[#FF5533]">
                 Step {processingStep + 1} of {steps.length}: {steps[processingStep]}
               </p>
             </div>
@@ -430,7 +430,7 @@ export default function UploadZone({ onUploadSuccess }: UploadZoneProps) {
               <button
                 type="button"
                 onClick={handleTranscribeUrl}
-                className="flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
+                className="flex items-center justify-center gap-2 rounded-xl bg-[#FF5533] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
               >
                 <Sparkles className="h-4 w-4" />
                 Transcribe Link
@@ -441,7 +441,7 @@ export default function UploadZone({ onUploadSuccess }: UploadZoneProps) {
                   YouTube audio track
                 </span>
                 <span className="inline-flex items-center gap-1 rounded-full bg-white px-2.5 py-1 font-semibold">
-                  <Cloud className="h-3.5 w-3.5 text-blue-500" />
+                  <Cloud className="h-3.5 w-3.5 text-[#FF5533]" />
                   Public Google Drive media
                 </span>
               </div>
@@ -460,7 +460,7 @@ export default function UploadZone({ onUploadSuccess }: UploadZoneProps) {
           isProcessing ? 'pointer-events-none opacity-80' : ''
         } ${
           dragActive 
-            ? 'border-blue-500 bg-blue-50/40 shadow-xs' 
+            ? 'border-[#FF5533] bg-orange-500/10/40 shadow-xs' 
             : 'border-slate-200 hover:border-blue-300 hover:bg-slate-50/30'
         }`}
         >
@@ -478,7 +478,7 @@ export default function UploadZone({ onUploadSuccess }: UploadZoneProps) {
             <div className="relative mb-4 h-12 w-12">
               {/* Spinning animated ring */}
               <div className="absolute inset-0 border-4 border-blue-50 rounded-full opacity-10"></div>
-              <div className="absolute inset-0 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+              <div className="absolute inset-0 border-4 border-[#FF5533] border-t-transparent rounded-full animate-spin"></div>
             </div>
             
             <h3 className="animate-pulse font-display text-sm font-bold text-slate-800">Processing Media File</h3>
@@ -486,17 +486,17 @@ export default function UploadZone({ onUploadSuccess }: UploadZoneProps) {
             {/* Visual step description indicator progress */}
             <div className="w-full bg-slate-100 h-1.5 rounded-full mt-4 mb-2 overflow-hidden">
               <div 
-                className="bg-blue-600 h-full transition-all duration-700 rounded-full"
+                className="bg-[#FF5533] h-full transition-all duration-700 rounded-full"
                 style={{ width: `${((processingStep + 1) / steps.length) * 100}%` }}
               ></div>
             </div>
-            <p className="text-xs text-blue-600 font-medium font-mono text-center">
+            <p className="text-xs text-[#FF5533] font-medium font-mono text-center">
               Step {processingStep + 1} of {steps.length}: {steps[processingStep]}
             </p>
           </div>
         ) : file ? (
           <div className="flex w-full flex-col items-center py-2 text-center sm:flex-row sm:justify-between sm:text-left">
-            <div className="mb-3 rounded-xl border border-blue-100/30 bg-blue-50 p-3 text-blue-600 sm:mb-0">
+            <div className="mb-3 rounded-xl border border-orange-500/20 bg-orange-500/10 p-3 text-[#FF5533] sm:mb-0">
               {file.type.startsWith("video/") ? (
                 <FileVideo className="h-7 w-7" />
               ) : (
@@ -529,7 +529,7 @@ export default function UploadZone({ onUploadSuccess }: UploadZoneProps) {
                   e.stopPropagation();
                   handleTranscribe();
                 }}
-                className="flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-2 text-sm font-semibold text-white shadow-sm transition-all hover:bg-blue-700 hover:shadow-md"
+                className="flex items-center justify-center gap-2 rounded-xl bg-[#FF5533] px-5 py-2 text-sm font-semibold text-white shadow-sm transition-all hover:bg-blue-700 hover:shadow-md"
               >
                 <Sparkles className="w-4 h-4" />
                 Transcribe with Gemini
@@ -538,10 +538,10 @@ export default function UploadZone({ onUploadSuccess }: UploadZoneProps) {
           </div>
         ) : (
           <div className="flex flex-col items-center py-3 text-center sm:py-4">
-            <div className="mb-3 rounded-xl bg-slate-50 p-3 text-blue-500 transition-colors hover:bg-blue-50">
+            <div className="mb-3 rounded-xl bg-slate-50 p-3 text-[#FF5533] transition-colors hover:bg-orange-500/10">
               <UploadCloud className="h-7 w-7" />
             </div>
-            <p className="font-medium text-slate-700">Drag & drop files or <span className="text-blue-600 font-semibold underline">browse locally</span></p>
+            <p className="font-medium text-slate-700">Drag & drop files or <span className="text-[#FF5533] font-semibold underline">browse locally</span></p>
             <span className="text-xs text-slate-400 font-sans mt-1.5">Supports video/audio formats up to 45 MB</span>
           </div>
         )}

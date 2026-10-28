@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect } from 'react';
 import { User, Image, Save, CheckCircle2, AlertCircle, Loader2, Sparkles, UserCheck } from 'lucide-react';
@@ -162,7 +162,7 @@ export default function ProfileSettings() {
                     onChange={(e) => setName(e.target.value)}
                     placeholder="Enter your name"
                     required
-                    className="w-full bg-[#0d1117] border border-white/10 rounded-xl px-4 py-3 text-xs text-white focus:border-primary focus:outline-none transition-all font-semibold"
+                    className="w-full bg-[#0d0d0f] border border-white/10 rounded-xl px-4 py-3 text-xs text-white focus:border-primary focus:outline-none transition-all font-semibold"
                   />
                 </div>
 
@@ -179,7 +179,7 @@ export default function ProfileSettings() {
                       onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_-]/g, ''))}
                       placeholder="username"
                       required
-                      className="w-full bg-[#0d1117] border border-white/10 rounded-xl pl-8 pr-4 py-3 text-xs text-white focus:border-primary focus:outline-none transition-all font-semibold"
+                      className="w-full bg-[#0d0d0f] border border-white/10 rounded-xl pl-8 pr-4 py-3 text-xs text-white focus:border-primary focus:outline-none transition-all font-semibold"
                     />
                   </div>
                 </div>
@@ -227,7 +227,7 @@ export default function ProfileSettings() {
                       value={customAvatarUrl}
                       onChange={(e) => setCustomAvatarUrl(e.target.value)}
                       placeholder="https://example.com/your-avatar.jpg"
-                      className="w-full bg-[#0d1117] border border-white/10 rounded-xl px-4 py-3 text-xs text-white focus:border-primary focus:outline-none transition-all font-mono"
+                      className="w-full bg-[#0d0d0f] border border-white/10 rounded-xl px-4 py-3 text-xs text-white focus:border-primary focus:outline-none transition-all font-mono"
                     />
                   </div>
                   <p className="text-[9px] text-white/30 mt-1 ml-1">
@@ -257,7 +257,7 @@ export default function ProfileSettings() {
                 className={`w-full py-3.5 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer ${
                   status === 'saved' ? 'bg-emerald-500 text-white' :
                   saving ? 'bg-primary/50 text-white/60 cursor-not-allowed' :
-                  'bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/10 hover:scale-[1.01] active:scale-[0.99]'
+                  'bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] hover:from-[#FF5547] hover:to-[#FF9036] text-white shadow-lg shadow-[#FF5533]/25 hover:scale-[1.01] active:scale-[0.99]'
                 }`}
               >
                 {saving ? (
@@ -275,7 +275,7 @@ export default function ProfileSettings() {
           <div className="lg:col-span-2 space-y-4">
             <h3 className="text-[10px] font-bold text-white/40 uppercase tracking-widest block pl-2">Profile Card Preview</h3>
             
-            <div className="bg-[#0b0f1a]/85 border border-white/10 rounded-3xl p-6 shadow-2xl relative overflow-hidden flex flex-col gap-5">
+            <div className="bg-[#0d0d0f] border border-white/10 rounded-3xl p-6 shadow-2xl relative overflow-hidden flex flex-col gap-5">
               <div className="absolute right-4 top-4 bg-primary/10 border border-primary/20 text-primary text-[8px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
                 Live Preview
               </div>
@@ -285,7 +285,7 @@ export default function ProfileSettings() {
                 {currentDisplayAvatar ? (
                   <img src={currentDisplayAvatar} alt="Preview Avatar" className="w-12 h-12 rounded-full object-cover shadow-md border border-white/10 select-none bg-black/35" />
                 ) : (
-                  <div className="w-12 h-12 rounded-full bg-purple-600 text-white font-black text-base flex items-center justify-center shadow-md select-none">
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-[#FF473A] to-[#FF8526] text-white font-black text-base flex items-center justify-center shadow-md select-none">
                     {getInitials(name)}
                   </div>
                 )}
@@ -315,7 +315,7 @@ export default function ProfileSettings() {
                 </div>
               </div>
 
-              <div className="bg-blue-500/5 border border-blue-500/10 rounded-xl p-3 text-[10px] text-blue-400/90 leading-relaxed">
+              <div className="bg-orange-500/10 border border-orange-500/20 rounded-xl p-3 text-[10px] text-[#FF7A45] leading-relaxed">
                 ✏️ This card displays in your sidebar footer. Save edits to make them public across your dashboard sessions.
               </div>
             </div>
