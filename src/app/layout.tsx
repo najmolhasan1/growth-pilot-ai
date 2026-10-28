@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { ThemeProvider } from "@/components/layout/ThemeProvider";
+import CursorGlow from "@/components/effects/CursorGlow";
 
 export const metadata: Metadata = {
   title: "GrowthPilot AI - AI Growth Workspace",
@@ -38,6 +39,7 @@ export default function RootLayout({
       </head>
       <body className="antialiased font-sans overflow-x-hidden" suppressHydrationWarning>
         <ThemeProvider>
+          <CursorGlow />
           {children}
         </ThemeProvider>
       </body>
