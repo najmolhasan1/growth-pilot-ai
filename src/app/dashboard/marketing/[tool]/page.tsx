@@ -1,6 +1,6 @@
 'use client';
 
-import { FormEvent, Suspense, useEffect, useMemo, useState } from 'react';
+import { FormEvent, Suspense, useEffect, useMemo, useState, use } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter, useParams, useSearchParams } from 'next/navigation';
@@ -32,10 +32,11 @@ import {
 const STORAGE_KEY = 'marketing_brand_profile';
 const ASSET_STORAGE_KEY = 'marketing_saved_assets';
 
-function ToolWorkspaceContent() {
+function ToolWorkspaceContent({ initialToolId }: { initialToolId?: string }) {
   const router = useRouter();
   const params = useParams();
-  const toolId = params.tool as string;
+  const rawTool = params?.tool;
+  const toolId = initialToolId || (typeof rawTool === 'string' ? rawTool : Array.isArray(rawTool) ? rawTool[0] : '');
   const searchParams = useSearchParams();
 
   const [brandProfile, setBrandProfile] = useState<BrandProfile>({});
@@ -53,7 +54,7 @@ function ToolWorkspaceContent() {
   const [imageAspectRatio, setImageAspectRatio] = useState('1:1');
 
   const activeTool = useMemo(() => tools.find(tool => tool.id === toolId), [toolId]);
-  const hasBrandBrain = Object.values(brandProfile).some(value => value.trim().length > 0);
+  const hasBrandBrain = Object.values(brandProfile).some(value => typeof value === 'string' && value.trim().length > 0);
 
   // Filter saved assets for this tool specifically
   const toolSavedAssets = useMemo(() => {
@@ -62,7 +63,7 @@ function ToolWorkspaceContent() {
 
   // Load asset if query param loadAssetId is provided
   useEffect(() => {
-    const loadAssetId = searchParams.get('loadAssetId');
+    const loadAssetId = searchParams?.get('loadAssetId');
     if (loadAssetId && savedAssets.length > 0) {
       const asset = savedAssets.find(item => item.id === loadAssetId);
       if (asset) {
@@ -73,12 +74,12 @@ function ToolWorkspaceContent() {
     }
   }, [searchParams, savedAssets]);
 
-  // If tool is invalid, redirect back
+  // If tool is invalid, redirect back only after toolId is resolved
   useEffect(() => {
-    if (!activeTool) {
+    if (toolId && !activeTool) {
       router.replace('/dashboard/marketing');
     }
-  }, [activeTool, router]);
+  }, [toolId, activeTool, router]);
 
   useEffect(() => {
     let cancelled = false;
@@ -759,10 +760,28 @@ function ResultCard({ title, body, items, large }: { title: string; body?: strin
   );
 }
 
-export default function ToolWorkspacePage() {
+export default function ToolWorkspacePage({
+  params,
+}: {
+  params?: Promise<{ tool: string }> | { tool: string };
+}) {
+  let initialToolId: string | undefined;
+  if (params) {
+    if (typeof (params as any).then === 'function') {
+      try {
+        const unwrapped = use(params as Promise<{ tool: string }>);
+        initialToolId = unwrapped?.tool;
+      } catch {
+        // Fallback to useParams inside ToolWorkspaceContent
+      }
+    } else {
+      initialToolId = (params as { tool: string })?.tool;
+    }
+  }
+
   return (
     <Suspense fallback={<div className="min-h-screen bg-[#030303] p-8 text-white/40 flex items-center justify-center">Loading marketing workspace...</div>}>
-      <ToolWorkspaceContent />
+      <ToolWorkspaceContent initialToolId={initialToolId} />
     </Suspense>
   );
 }

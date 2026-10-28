@@ -80,9 +80,10 @@ export function EmailExecutionStudio({
   };
 }) {
   // Extract Subject & Preheader if available
-  const parsedSubject = primaryOutput.match(/Subject:\s*([^\n\r]+)/i)?.[1]?.trim() || 'Exclusive Update for You';
-  const parsedPreheader = primaryOutput.match(/Preheader:\s*([^\n\r]+)/i)?.[1]?.trim() || 'Open for important insights';
-  const cleanedBody = primaryOutput
+  const safeOutput = primaryOutput || '';
+  const parsedSubject = safeOutput.match(/Subject:\s*([^\n\r]+)/i)?.[1]?.trim() || 'Exclusive Update for You';
+  const parsedPreheader = safeOutput.match(/Preheader:\s*([^\n\r]+)/i)?.[1]?.trim() || 'Open for important insights';
+  const cleanedBody = safeOutput
     .replace(/Subject:\s*[^\n\r]+/gi, '')
     .replace(/Preheader:\s*[^\n\r]+/gi, '')
     .trim();
@@ -1236,7 +1237,7 @@ const DEFAULT_SMS_SETTINGS: SmsGatewaySettings = {
 };
 
 export function SmsExecutionStudio({ primaryOutput }: { primaryOutput: string }) {
-  const [smsText, setSmsText] = useState(primaryOutput.trim());
+  const [smsText, setSmsText] = useState((primaryOutput || '').trim());
   const [phoneNumbersText, setPhoneNumbersText] = useState('');
   const [testPhone, setTestPhone] = useState('');
   const [sendingTest, setSendingTest] = useState(false);
@@ -1903,7 +1904,7 @@ export function ProductCopyStudio({
   // Generate Shopify CSV
   const downloadShopifyCsv = () => {
     const handle = productName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'product-handle';
-    const escapedHtml = `"${primaryOutput.replace(/"/g, '""').replace(/\n/g, '<br/>')}"`;
+    const escapedHtml = `"${(primaryOutput || '').replace(/"/g, '""').replace(/\n/g, '<br/>')}"`;
 
     const csvContent = [
       'Handle,Title,Body (HTML),Vendor,Standard Product Type,Tags,Published,Variant Price,Variant Requires Shipping',
@@ -2068,14 +2069,15 @@ export function SocialCampaignStudio({ primaryOutput }: { primaryOutput: string 
   const [copied, setCopied] = useState(false);
 
   // Extract platform sections if available or create smart variants
+  const safeOutput = primaryOutput || '';
   const sections = {
-    linkedin: primaryOutput.match(/\[LINKEDIN POST\]:?\s*([\s\S]*?)(?=\[X \/ TWITTER|\[FACEBOOK|\[INSTAGRAM|$)/i)?.[1]?.trim() || primaryOutput,
-    twitter: primaryOutput.match(/\[X \/ TWITTER THREAD\]:?\s*([\s\S]*?)(?=\[FACEBOOK|\[INSTAGRAM|$)/i)?.[1]?.trim() || primaryOutput,
-    facebook: primaryOutput.match(/\[FACEBOOK POST\]:?\s*([\s\S]*?)(?=\[INSTAGRAM|$)/i)?.[1]?.trim() || primaryOutput,
-    instagram: primaryOutput.match(/\[INSTAGRAM CAPTION\]:?\s*([\s\S]*?)$/i)?.[1]?.trim() || primaryOutput,
+    linkedin: safeOutput.match(/\[LINKEDIN POST\]:?\s*([\s\S]*?)(?=\[X \/ TWITTER|\[FACEBOOK|\[INSTAGRAM|$)/i)?.[1]?.trim() || safeOutput,
+    twitter: safeOutput.match(/\[X \/ TWITTER THREAD\]:?\s*([\s\S]*?)(?=\[FACEBOOK|\[INSTAGRAM|$)/i)?.[1]?.trim() || safeOutput,
+    facebook: safeOutput.match(/\[FACEBOOK POST\]:?\s*([\s\S]*?)(?=\[INSTAGRAM|$)/i)?.[1]?.trim() || safeOutput,
+    instagram: safeOutput.match(/\[INSTAGRAM CAPTION\]:?\s*([\s\S]*?)$/i)?.[1]?.trim() || safeOutput,
   };
 
-  const currentContent = sections[activePlatform] || primaryOutput;
+  const currentContent = sections[activePlatform] || safeOutput;
 
   const copyPost = async () => {
     await copyTextSafely(currentContent);

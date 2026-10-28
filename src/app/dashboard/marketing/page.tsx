@@ -28,7 +28,7 @@ function MarketingHubContent() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<'All' | 'Strategy' | 'Campaigns' | 'Content' | 'Conversion'>('All');
 
-  const hasBrandBrain = Object.values(brandProfile).some(value => value.trim().length > 0);
+  const hasBrandBrain = Object.values(brandProfile).some(value => typeof value === 'string' && value.trim().length > 0);
 
   // Group tools by category for structured display
   const toolsByCategory = useMemo(() => {
