@@ -118,17 +118,31 @@ function parseHtmlContent(html: string, urlStr: string, loadTimeMs: number) {
   // Schema.org / JSON-LD Detection
   const jsonLdMatches = [...html.matchAll(/<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)];
   const detectedSchemas: string[] = [];
+  let hasSameAs = false;
   jsonLdMatches.forEach(m => {
     try {
       const parsed = JSON.parse(m[1].trim());
       if (parsed['@type']) detectedSchemas.push(String(parsed['@type']));
+      if (parsed['sameAs'] && (Array.isArray(parsed['sameAs']) ? parsed['sameAs'].length > 0 : true)) hasSameAs = true;
       if (Array.isArray(parsed['@graph'])) {
         parsed['@graph'].forEach((item: any) => {
           if (item?.['@type']) detectedSchemas.push(String(item['@type']));
+          if (item?.['sameAs']) hasSameAs = true;
         });
       }
     } catch {}
   });
+
+  // Author meta tag
+  const authorMatch = html.match(/<meta[^>]*name=["']author["'][^>]*content=["']([\s\S]*?)["']/i);
+  const author = authorMatch ? authorMatch[1].trim() : '';
+
+  // Data density & structure signals (Information Gain & AEO chunkability)
+  const tableCount = (html.match(/<table\b/gi) || []).length;
+  const listCount = (html.match(/<li\b/gi) || []).length;
+  const blockquoteCount = (html.match(/<blockquote\b/gi) || []).length;
+  const questionHeadingsCount = (html.match(/<h[2-4][^>]*>[^<]*(what|how|why|where|when|who|is|are|can|best|vs)[^<]*<\/h[2-4]>/gi) || []).length;
+  const domElementsCount = (html.match(/<[a-z][a-z0-9]*\b/gi) || []).length;
 
   // Headings counts and H1s
   const h1Matches = [...html.matchAll(/<h1[^>]*>([\s\S]*?)<\/h1>/gi)];
@@ -245,7 +259,14 @@ function parseHtmlContent(html: string, urlStr: string, loadTimeMs: number) {
       lcpSec: estimatedLcpSec,
       cls: estimatedCls,
       inpMs: estimatedInpMs,
-    }
+    },
+    tableCount,
+    listCount,
+    blockquoteCount,
+    questionHeadingsCount,
+    hasSameAs,
+    author,
+    domElementsCount,
   };
 }
 
@@ -338,7 +359,8 @@ CRAWLED PAGE SIGNALS:
 - Images: ${parsedData.totalImages} total (${parsedData.imagesMissingAlt} missing alt tags)
 - Links: ${parsedData.totalLinks} total (${parsedData.internalLinks} internal, ${parsedData.externalLinks} external)
 - Word Count: ${parsedData.wordCount} words
-- Page Size: ${parsedData.pageSizeKb} KB HTML (${parsedData.scriptCount} scripts, ${parsedData.stylesheetCount} stylesheets)
+- Structural Density: ${parsedData.tableCount} tables, ${parsedData.listCount} lists, ${parsedData.questionHeadingsCount} Q&A headings, SameAs Entity Links: ${parsedData.hasSameAs ? 'Present' : 'Missing'}, Author: "${parsedData.author || 'None'}"
+- Page Size: ${parsedData.pageSizeKb} KB HTML (${parsedData.scriptCount} scripts, ${parsedData.stylesheetCount} stylesheets, ~${parsedData.domElementsCount} DOM nodes)
 - Core Web Vitals (Estimated): TTFB: ${loadTimeMs}ms, LCP: ${parsedData.vitals.lcpSec}s, CLS: ${parsedData.vitals.cls}, INP: ${parsedData.vitals.inpMs}ms
 
 WEBSITE TEXT SNIPPET:
@@ -360,6 +382,18 @@ TASK REQUIREMENTS:
 4. SEMrush Organic Keywords Extraction: Extract top 8-10 keywords this page appears optimized for based on its content, headings, and density. Provide keyword, search intent (Informational / Commercial / Transactional / Navigational), estimated KD (0-100), and search volume bracket.
 5. Content Gap Opportunities: 4-5 high-value competitor topics/keywords missing on this page that could drive organic rankings.
 6. Copywriting & Local Market Audit: Value proposition assessment, 3 headline rewrites, and Bangladeshi / South Asian market localization advice.
+7. 30-Year Veteran Senior Architect Diagnostic:
+   - PageRank flow evaluation (status: "Optimal" | "Leaking" | "Imbalanced", summary, actionableFix).
+   - Information Gain score (0-100): evaluate whether the content has unique data, tables, or generic text.
+   - Render budget risk ("Low" | "Medium" | "High") based on DOM weight and script overhead.
+   - Cannibalization risk ("Low" | "Moderate" | "High").
+   - Conversion friction score (0-100) and Topical completeness score (0-100).
+8. Dedicated GEO / AIO / AEO Intelligence:
+   - Overall AI citation probability score (0-100%).
+   - Engine readiness for Google AI Overviews, Perplexity AI, and ChatGPT Search (score 0-100, verdict, 2 specific gaps each).
+   - Direct answer extractability (score 0-100, directAnswerBlocksFound, critique on 40-60 word chunkability).
+   - Entity graph depth (level: "Strong" | "Basic" | "Missing", missingEntities array, recommendedSchemaJson with complete JSON-LD ready to embed).
+   - AI Overviews Action Plan (3-4 prioritized items: priority "P0" | "P1" | "P2", title, action, impact).
 
 Return strictly a valid JSON object matching this schema:
 {
@@ -375,7 +409,7 @@ Return strictly a valid JSON object matching this schema:
     "errors": [
       {
         "id": "string",
-        "category": "SEO | Performance | Security | Mobile | Schema",
+        "category": "SEO | Performance | Security | Mobile | Schema | Architecture",
         "title": "Short title",
         "description": "Clear explanation of why it hurts SEO/Rankings",
         "impact": "High",
@@ -386,7 +420,7 @@ Return strictly a valid JSON object matching this schema:
     "warnings": [
       {
         "id": "string",
-        "category": "SEO | Performance | Security | Mobile | Schema",
+        "category": "SEO | Performance | Security | Mobile | Schema | Architecture",
         "title": "Short title",
         "description": "...",
         "impact": "Medium",
@@ -397,7 +431,7 @@ Return strictly a valid JSON object matching this schema:
     "notices": [
       {
         "id": "string",
-        "category": "SEO | Performance | Security | Mobile | Schema",
+        "category": "SEO | Performance | Security | Mobile | Schema | Architecture",
         "title": "Short title",
         "description": "...",
         "impact": "Low",
@@ -431,6 +465,68 @@ Return strictly a valid JSON object matching this schema:
       }
     ],
     "localMarketAdvice": "Specific regional local audience advice (Bangla / Banglish vs English)"
+  },
+  "seniorArchitectInsights": {
+    "pageRankFlow": {
+      "status": "Optimal",
+      "summary": "Internal link equity flows smoothly to key service and article hubs without orphan page traps.",
+      "actionableFix": "Add 2 contextual links from high-authority home section to secondary service offerings."
+    },
+    "informationGainScore": 78,
+    "renderBudgetRisk": "Low",
+    "cannibalizationRisk": "Low",
+    "conversionFrictionScore": 82,
+    "topicalCompletenessScore": 80
+  },
+  "geoAioInsights": {
+    "aiCitationScore": 76,
+    "engineReadiness": {
+      "googleAio": {
+        "score": 75,
+        "verdict": "Moderate-high likelihood of citation for core definition entities.",
+        "gaps": ["Lacks structured comparison table for quick scanning", "Missing explicit key takeaways summary block"]
+      },
+      "perplexity": {
+        "score": 80,
+        "verdict": "Strong factual retrieval match.",
+        "gaps": ["Include 2-3 numerical benchmark data points", "Reference authoritative source citations"]
+      },
+      "chatgptSearch": {
+        "score": 72,
+        "verdict": "Good conversational intent alignment.",
+        "gaps": ["Phrase H2 subheadings as direct natural language questions", "Add step-by-step numbered answers"]
+      }
+    },
+    "answerExtractability": {
+      "score": 74,
+      "directAnswerBlocksFound": 3,
+      "critique": "Content has clear headings, but introductory paragraphs need concise 40-50 word direct definition chunks for zero-click AI snippet capture."
+    },
+    "entityGraphDepth": {
+      "level": "Basic",
+      "missingEntities": ["Organization SameAs Social & Wikidata", "Primary Service/Product Schema"],
+      "recommendedSchemaJson": "{\\n  \\\"@context\\\": \\\"https://schema.org\\\",\\n  \\\"@type\\\": \\\"Organization\\\",\\n  \\\"name\\\": \\\"BrandName\\\"\\n}"
+    },
+    "aiOverviewsActionPlan": [
+      {
+        "priority": "P0",
+        "title": "Add 45-Word Direct Definition Callout Under Main H2",
+        "action": "Place a bold 'Key Takeaways' or direct summary block immediately following your primary heading.",
+        "impact": "Enables Google AI Overviews & Perplexity to extract your text as a featured citation without hallucination."
+      },
+      {
+        "priority": "P1",
+        "title": "Implement Organization SameAs Schema Graph",
+        "action": "Connect official Wikidata, LinkedIn, Twitter, and Wikipedia entity references in JSON-LD.",
+        "impact": "Establishes entity disambiguation in Google's Knowledge Vault and LLM pre-training clusters."
+      },
+      {
+        "priority": "P2",
+        "title": "Convert Text Comparisons Into Machine-Readable HTML Tables",
+        "action": "Replace long bullet points with clean <table> markup containing clear th headers.",
+        "impact": "AI search engines prioritize structured tabular data for comparison queries by 3.4x."
+      }
+    ]
   }
 }`;
 
@@ -574,6 +670,132 @@ Return strictly a valid JSON object matching this schema:
             }
           ],
           localMarketAdvice: 'If targeting regional or Bangladeshi audiences, combine clean English brand terms with localized Bangla social proof.'
+        },
+        seniorArchitectInsights: {
+          pageRankFlow: {
+            status: parsedData.internalLinks > 15 ? 'Optimal' : (parsedData.internalLinks < 4 ? 'Leaking' : 'Imbalanced'),
+            summary: parsedData.internalLinks > 15 
+              ? 'Healthy internal link architecture distributing crawl authority across service silos.'
+              : 'Thin internal linking structure risking orphan pages and PageRank dilution.',
+            actionableFix: 'Deploy contextual breadcrumbs and 3-5 in-content links connecting related commercial landing pages.'
+          },
+          informationGainScore: Math.min(95, Math.max(35, Math.round(
+            (parsedData.tableCount > 0 ? 30 : 0) +
+            (parsedData.listCount > 4 ? 25 : 10) +
+            (parsedData.wordCount > 600 ? 25 : 10) +
+            (parsedData.questionHeadingsCount > 0 ? 15 : 0)
+          ))),
+          renderBudgetRisk: parsedData.scriptCount > 25 || parsedData.domElementsCount > 1500 ? 'High' : (parsedData.scriptCount > 12 ? 'Medium' : 'Low'),
+          cannibalizationRisk: 'Low',
+          conversionFrictionScore: Math.min(95, Math.max(40, Math.round(
+            (parsedData.hasViewport ? 30 : 10) +
+            (isHttps ? 25 : 0) +
+            (loadTimeMs < 1000 ? 25 : 10) +
+            (parsedData.h1Count === 1 ? 15 : 0)
+          ))),
+          topicalCompletenessScore: Math.min(95, Math.max(35, Math.round(
+            (parsedData.h2Count >= 3 ? 35 : 15) +
+            (parsedData.h3Count >= 2 ? 25 : 10) +
+            (parsedData.wordCount >= 800 ? 35 : 15)
+          )))
+        },
+        geoAioInsights: {
+          aiCitationScore: Math.min(96, Math.max(35, Math.round(
+            (parsedData.hasSchema ? 30 : 5) +
+            (parsedData.tableCount > 0 ? 20 : 0) +
+            (parsedData.questionHeadingsCount > 0 ? 25 : 10) +
+            (parsedData.wordCount > 600 ? 15 : 5) +
+            (isHttps ? 10 : 0)
+          ))),
+          engineReadiness: {
+            googleAio: {
+              score: Math.min(95, Math.max(30, Math.round(
+                (parsedData.hasSchema ? 35 : 10) +
+                (parsedData.tableCount > 0 ? 25 : 0) +
+                (parsedData.h2Count >= 3 ? 35 : 15)
+              ))),
+              verdict: parsedData.hasSchema && parsedData.tableCount > 0 
+                ? 'High readiness for Google AI Overviews rich entity citation.' 
+                : 'Moderate readiness. Needs structured tabular data and explicit definition blocks.',
+              gaps: [
+                parsedData.tableCount === 0 ? 'Missing machine-readable HTML comparison table' : 'Needs direct 45-word definition under primary H2',
+                !parsedData.hasSchema ? 'Missing JSON-LD structured data for entity resolution' : 'Expand Schema graph with SameAs references'
+              ]
+            },
+            perplexity: {
+              score: Math.min(95, Math.max(30, Math.round(
+                (parsedData.externalLinks >= 2 ? 35 : 15) +
+                (parsedData.wordCount > 800 ? 35 : 15) +
+                (parsedData.tableCount > 0 ? 25 : 10)
+              ))),
+              verdict: 'Factual retrieval match requires verifiable data points and citations.',
+              gaps: [
+                'Add 2-3 cited statistics or benchmark percentages in content',
+                'Include authoritative HTTPS reference links for factual claims'
+              ]
+            },
+            chatgptSearch: {
+              score: Math.min(95, Math.max(30, Math.round(
+                (parsedData.questionHeadingsCount > 0 ? 40 : 15) +
+                (parsedData.listCount > 4 ? 35 : 15) +
+                (parsedData.wordCount > 500 ? 25 : 10)
+              ))),
+              verdict: 'Conversational answer engine alignment.',
+              gaps: [
+                'Phrase subheadings as natural conversational questions (e.g., How to, What is)',
+                'Provide numbered step-by-step guidance for complex workflows'
+              ]
+            }
+          },
+          answerExtractability: {
+            score: Math.min(95, Math.max(30, Math.round(
+              (parsedData.questionHeadingsCount > 0 ? 35 : 10) +
+              (parsedData.listCount > 4 ? 35 : 15) +
+              (parsedData.wordCount > 400 ? 25 : 10)
+            ))),
+            directAnswerBlocksFound: Math.max(1, parsedData.questionHeadingsCount + parsedData.tableCount),
+            critique: parsedData.questionHeadingsCount > 0
+              ? 'Found natural language question headings. Ensure the sentence immediately following each heading provides a standalone 40-50 word answer.'
+              : 'Add concise definition callouts immediately beneath major subheadings for zero-click AI answer extraction.'
+          },
+          entityGraphDepth: {
+            level: parsedData.hasSameAs ? 'Strong' : (parsedData.hasSchema ? 'Basic' : 'Missing'),
+            missingEntities: [
+              ...(!parsedData.hasSchema ? ['Organization Schema', 'WebSite Schema'] : []),
+              ...(!parsedData.hasSameAs ? ['SameAs Wikidata / Crunchbase / Social references'] : []),
+              ...(!parsedData.author ? ['Author Credential & Persona Schema'] : [])
+            ],
+            recommendedSchemaJson: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'Organization',
+              name: parsedUrl.hostname,
+              url: targetUrl,
+              sameAs: [
+                `https://twitter.com/${parsedUrl.hostname.replace(/www\.|\.com|\.org/g, '')}`,
+                `https://linkedin.com/company/${parsedUrl.hostname.replace(/www\.|\.com|\.org/g, '')}`
+              ]
+            }, null, 2)
+          },
+          aiOverviewsActionPlan: [
+            {
+              priority: 'P0',
+              title: 'Add 45-Word Direct Definition Callout Under Main H2',
+              action: 'Place a bold "Key Takeaways" or direct summary block immediately following your primary heading.',
+              impact: 'Enables Google AI Overviews & Perplexity to extract your text as a featured citation without hallucination.'
+            },
+            {
+              priority: 'P1',
+              title: 'Implement Organization SameAs Schema Graph',
+              action: 'Connect official Wikidata, LinkedIn, Twitter, and Wikipedia entity references in JSON-LD.',
+              impact: 'Establishes entity disambiguation in Google\'s Knowledge Vault and LLM pre-training clusters.'
+            },
+            {
+              priority: 'P2',
+              title: 'Convert Text Comparisons Into Machine-Readable HTML Tables',
+              action: 'Replace long bullet points with clean <table> markup containing clear th headers.',
+              impact: 'AI search engines prioritize structured tabular data for comparison queries by 3.4x.'
+            }
+          ]
         }
       };
     }
@@ -596,6 +818,12 @@ Return strictly a valid JSON object matching this schema:
         twitterImage: parsedData.twitterImage,
         schemas: parsedData.schemas,
         hasSchema: parsedData.hasSchema,
+        hasSameAs: parsedData.hasSameAs,
+        author: parsedData.author,
+        tableCount: parsedData.tableCount,
+        listCount: parsedData.listCount,
+        questionHeadingsCount: parsedData.questionHeadingsCount,
+        domElementsCount: parsedData.domElementsCount,
         h1Count: parsedData.h1Count,
         h1s: parsedData.h1s,
         headings: {
