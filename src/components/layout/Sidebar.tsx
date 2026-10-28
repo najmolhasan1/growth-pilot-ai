@@ -340,31 +340,39 @@ export default function Sidebar({ isCollapsed, setIsCollapsed }: SidebarProps) {
 
   return (
     <>
-      <button
-        type="button"
-        aria-label={isOpen ? 'Close navigation' : 'Open navigation'}
-        onClick={() => setIsOpen(open => !open)}
-        className="fixed right-4 top-4 z-50 rounded-xl border border-border bg-card p-3 text-foreground shadow-lg lg:hidden cursor-pointer"
-      >
-        {isOpen ? <X size={20} /> : <Menu size={20} />}
-      </button>
+      {/* Mobile Sticky Header Bar */}
+      <header className="lg:hidden sticky top-0 z-30 w-full bg-[#0d0d0f]/95 dark:bg-[#0d0d0f]/95 backdrop-blur-md border-b border-border px-4 py-2.5 flex items-center justify-between">
+        <BrandLogo href="/dashboard" imgClassName="h-7 w-auto" />
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
+          <button
+            type="button"
+            aria-label={isOpen ? 'Close navigation' : 'Open navigation'}
+            onClick={() => setIsOpen(open => !open)}
+            className="p-2 rounded-xl border border-border bg-card/60 text-foreground hover:bg-muted transition-all cursor-pointer"
+          >
+            {isOpen ? <X size={20} /> : <Menu size={20} />}
+          </button>
+        </div>
+      </header>
+
       {isOpen && (
         <button
           type="button"
           aria-label="Close navigation overlay"
           onClick={() => setIsOpen(false)}
-          className="fixed inset-0 z-30 bg-black/60 lg:hidden"
+          className="fixed inset-0 z-40 bg-black/70 backdrop-blur-xs lg:hidden cursor-pointer"
         />
       )}
       <aside className={cn(
-        "fixed inset-y-0 left-0 z-40 bg-card border-r border-border transition-all duration-300 ease-in-out lg:translate-x-0 flex flex-col overflow-hidden w-[260px]",
+        "fixed inset-y-0 left-0 z-50 bg-card border-r border-border transition-all duration-300 ease-in-out lg:translate-x-0 flex flex-col overflow-hidden w-[280px]",
         isCollapsed ? "lg:w-[80px]" : "lg:w-[260px]",
-        isOpen ? "translate-x-0" : "-translate-x-full"
+        isOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full"
       )}>
         <div className="flex flex-col h-full overflow-hidden">
           {/* Logo container (fixed top) */}
           <div className={cn(
-            "p-6 flex items-center select-none",
+            "p-5 sm:p-6 flex items-center select-none",
             isCollapsed ? "lg:flex-col lg:gap-4 lg:px-2 lg:justify-center" : "justify-between gap-3"
           )}>
             <BrandLogo href="/dashboard" collapsed={isCollapsed} imgClassName="h-8 w-auto" />
@@ -375,6 +383,14 @@ export default function Sidebar({ isCollapsed, setIsCollapsed }: SidebarProps) {
               title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
             >
               {isCollapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsOpen(false)}
+              className="flex lg:hidden items-center justify-center p-2 rounded-lg border border-border hover:bg-muted text-muted-foreground hover:text-foreground transition-all cursor-pointer"
+              aria-label="Close navigation"
+            >
+              <X size={18} />
             </button>
           </div>
 
@@ -761,7 +777,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed }: SidebarProps) {
             className="absolute inset-0 cursor-default bg-transparent border-none outline-none"
           />
           
-          <div className="bg-[#0d0d0f]/95 border border-white/10 rounded-3xl p-8 max-w-4xl w-full relative z-[110] shadow-2xl flex flex-col gap-6 max-h-[90vh] overflow-y-auto custom-scrollbar text-left">
+          <div className="bg-[#0d0d0f]/95 border border-white/10 rounded-3xl p-5 sm:p-8 max-w-4xl w-full relative z-[110] shadow-2xl flex flex-col gap-6 max-h-[90vh] overflow-y-auto custom-scrollbar text-left">
             {paymentStage === 'plan_select' && (
               <button
                 type="button"

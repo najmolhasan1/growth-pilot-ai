@@ -198,8 +198,8 @@ export default function DashboardPage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-[#030303]">
-      <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b border-white/5 bg-[#0d0d0f]/80 px-8 backdrop-blur-md">
-        <h2 className="text-left text-lg font-bold text-white">Dashboard Overview</h2>
+      <header className="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-white/5 bg-[#0d0d0f]/80 px-4 sm:px-8 backdrop-blur-md">
+        <h2 className="text-left text-base sm:text-lg font-bold text-white">Dashboard Overview</h2>
         <div className="flex items-center gap-6">
           <div className="rounded-full border border-white/5 bg-white/5 px-3 py-1 text-[10px] font-bold uppercase text-white/40">
             {isPlus ? 'Plus • Unlimited' : `Free • ${stats.wordsMonth.toLocaleString()} / ${wordLimit.toLocaleString()}`}
@@ -207,35 +207,35 @@ export default function DashboardPage() {
         </div>
       </header>
 
-      <div className="space-y-8 p-8">
-        <div className="flex items-center justify-between gap-4">
+      <div className="space-y-6 sm:space-y-8 p-4 sm:p-6 lg:p-8">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-black text-white">Welcome back, {userName}!</h1>
-            <p className="text-sm text-white/40">Here is your real content activity, latest reports, and live content intelligence.</p>
+            <h1 className="text-xl sm:text-2xl font-black text-white">Welcome back, {userName}!</h1>
+            <p className="text-xs sm:text-sm text-white/40">Here is your real content activity, latest reports, and live content intelligence.</p>
           </div>
-          <Link href="/dashboard/generate" className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] hover:from-[#FF5547] hover:to-[#FF9036] px-6 py-3 font-bold text-white shadow-lg shadow-[#FF5533]/25 transition-all">
+          <Link href="/dashboard/generate" className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] hover:from-[#FF5547] hover:to-[#FF9036] px-5 sm:px-6 py-2.5 sm:py-3 font-bold text-white shadow-lg shadow-[#FF5533]/25 transition-all text-xs sm:text-sm shrink-0">
             <Plus size={18} /> New Article
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
           {[
             { label: 'TOTAL ARTICLES', value: loadingArticles ? '...' : stats.totalArticles, icon: FileText },
             { label: 'WORDS THIS MONTH', value: loadingArticles ? '...' : stats.wordsMonth.toLocaleString(), icon: TrendingUp },
             { label: 'AVG WORDS', value: loadingArticles ? '...' : stats.avgWords.toLocaleString(), icon: Zap },
             { label: 'LIFETIME WORDS', value: loadingArticles ? '...' : stats.lifetimeWords.toLocaleString(), icon: BookOpen },
           ].map(stat => (
-            <div key={stat.label} className="group rounded-2xl border border-white/5 bg-[#0d0d0f] p-6 transition-all hover:bg-white/5">
-              <div className="mb-8 flex items-center justify-between text-left text-[10px] font-bold uppercase text-white/40">
+            <div key={stat.label} className="group rounded-2xl border border-white/5 bg-[#0d0d0f] p-4 sm:p-6 transition-all hover:bg-white/5">
+              <div className="mb-4 sm:mb-8 flex items-center justify-between text-left text-[9px] sm:text-[10px] font-bold uppercase text-white/40">
                 <h4>{stat.label}</h4>
-                <stat.icon className="text-[#FF5533]" size={18} />
+                <stat.icon className="text-[#FF5533]" size={16} />
               </div>
-              <p className="text-left text-2xl font-bold text-white">{stat.value}</p>
+              <p className="text-left text-xl sm:text-2xl font-bold text-white">{stat.value}</p>
             </div>
           ))}
         </div>
 
-        <div className="rounded-2xl border border-white/5 bg-[#0d0d0f] p-8">
+        <div className="rounded-2xl border border-white/5 bg-[#0d0d0f] p-5 sm:p-8">
           <div className="mb-8 flex items-center justify-between">
             <h3 className="flex items-center gap-2 text-sm font-bold text-white">
               <FileText size={16} className="text-[#FF5533]" /> Recent Content Reports

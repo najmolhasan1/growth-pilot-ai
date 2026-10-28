@@ -15,40 +15,40 @@ export default function BulkGeneratorPage() {
   const [isGenerating, setIsGenerating] = useState(false);
 
   return (
-    <div className="space-y-10">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+    <div className="space-y-8 sm:space-y-10 p-4 sm:p-6 lg:p-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-6">
         <div>
-          <h1 className="text-3xl font-bold text-white mb-2">Bulk Generator</h1>
-          <p className="text-muted-foreground">Generate hundreds of SEO articles in minutes.</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-white mb-1 sm:mb-2">Bulk Generator</h1>
+          <p className="text-xs sm:text-sm text-muted-foreground">Generate hundreds of SEO articles in minutes.</p>
         </div>
-        <div className="flex items-center gap-3">
-          <button className="flex items-center gap-2 px-6 py-3 bg-white/5 hover:bg-white/10 text-white rounded-xl font-semibold border border-white/5 transition-all">
-            <Upload size={20} />
+        <div className="flex items-center gap-2 sm:gap-3 flex-wrap sm:flex-nowrap">
+          <button className="flex-1 sm:flex-none justify-center flex items-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 bg-white/5 hover:bg-white/10 text-white rounded-xl text-xs sm:text-sm font-semibold border border-white/5 transition-all">
+            <Upload size={18} />
             Upload CSV
           </button>
           <button 
             onClick={() => setIsGenerating(true)}
             disabled={isGenerating}
-            className="flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-xl font-semibold animate-glow shadow-lg shadow-primary/20"
+            className="flex-1 sm:flex-none justify-center flex items-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 bg-primary text-white rounded-xl text-xs sm:text-sm font-semibold animate-glow shadow-lg shadow-primary/20 cursor-pointer"
           >
-            <Play size={20} fill="currentColor" />
+            <Play size={18} fill="currentColor" />
             {isGenerating ? 'Starting Batch...' : 'Start Batch'}
           </button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
         {/* Keyword Input */}
-        <div className="lg:col-span-2 glass-card rounded-2xl p-8 space-y-6">
+        <div className="lg:col-span-2 glass-card rounded-2xl p-5 sm:p-8 space-y-6">
           <div className="flex items-center gap-2 mb-2">
             <FileSpreadsheet className="text-primary" size={20} />
-            <h3 className="text-xl font-semibold text-white">Target Keywords</h3>
+            <h3 className="text-lg sm:text-xl font-semibold text-white">Target Keywords</h3>
           </div>
           <textarea
             value={keywords}
             onChange={(e) => setKeywords(e.target.value)}
             placeholder="Enter one keyword per line (e.g. 'best seo tools 2024')"
-            className="w-full h-80 bg-white/5 border border-white/10 rounded-xl p-6 text-white placeholder:text-white/20 outline-none focus:border-primary/50 transition-all resize-none"
+            className="w-full h-80 bg-white/5 border border-white/10 rounded-xl p-4 sm:p-6 text-sm text-white placeholder:text-white/20 outline-none focus:border-primary/50 transition-all resize-none"
           />
           <div className="flex items-center justify-between text-sm text-muted-foreground">
             <span>{keywords.split('\n').filter(k => k.trim()).length} keywords identified</span>

@@ -302,12 +302,12 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-[#030303] text-white">
       {/* Main Container */}
-      <div className="space-y-10 p-6 lg:p-10 max-w-7xl mx-auto">
+      <div className="space-y-8 sm:space-y-10 p-4 sm:p-6 lg:p-10 max-w-7xl mx-auto">
         
         {/* Banner Section */}
-        <section className="relative rounded-[2.5rem] border border-white/10 bg-black min-h-[340px] flex flex-col items-center justify-center text-center p-8 lg:p-12 shadow-2xl">
+        <section className="relative rounded-3xl sm:rounded-[2.5rem] border border-white/10 bg-black min-h-[300px] sm:min-h-[340px] flex flex-col items-center justify-center text-center p-5 sm:p-8 lg:p-12 shadow-2xl">
           {/* Background image & glows wrapper */}
-          <div className="absolute inset-0 z-0 rounded-[2.5rem] overflow-hidden pointer-events-none">
+          <div className="absolute inset-0 z-0 rounded-3xl sm:rounded-[2.5rem] overflow-hidden pointer-events-none">
             <div className="absolute inset-0 opacity-40">
               <Image
                 src="/images/banner_collage.png"
@@ -323,12 +323,12 @@ export default function DashboardPage() {
           </div>
 
           {/* Banner Content Layer */}
-          <div className="relative z-20 max-w-3xl space-y-6">
-            <div className="inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-4 py-1.5 text-[10px] font-black uppercase tracking-widest text-[#FF5533] dark:text-[#FF7A45]">
+          <div className="relative z-20 max-w-3xl space-y-5 sm:space-y-6">
+            <div className="inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-3.5 sm:px-4 py-1.5 text-[10px] font-black uppercase tracking-widest text-[#FF5533] dark:text-[#FF7A45]">
               <Sparkles size={12} className="animate-pulse text-[#FF6A3D]" /> Welcome back, {userName}!
             </div>
             
-            <h1 className="text-3xl font-black leading-tight sm:text-5xl tracking-tight text-white">
+            <h1 className="text-2xl font-black leading-tight sm:text-4xl lg:text-5xl tracking-tight text-white">
               Find growth tools that{' '}
               <span className="bg-gradient-to-r from-[#FF4D42] via-[#FF6A3D] to-[#FF8A00] bg-clip-text text-transparent">
                 speak to you

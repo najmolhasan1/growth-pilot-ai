@@ -158,21 +158,21 @@ export default function BrandBrainPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#030303] p-6 lg:p-10">
+    <div className="min-h-screen bg-[#030303] p-4 sm:p-6 lg:p-10">
       <div className="mx-auto max-w-6xl">
         <div className="mb-8 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-[#FF5533]">
               <Brain size={12} /> Business Context Engine
             </div>
-            <h1 className="text-4xl font-black tracking-tight text-white">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-white">
               Brand <span className="bg-gradient-to-r from-[#FF4D42] via-[#FF6A3D] to-[#FF8A00] bg-clip-text text-transparent">Brain</span>
             </h1>
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-white/50">
+            <p className="mt-3 max-w-2xl text-xs sm:text-sm leading-6 text-white/50">
               Save your business, audience, offer, objections, and voice once. The Marketing Suite will use this context so outputs feel specific instead of generic.
             </p>
           </div>
-          <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-5 py-4">
+          <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-5 py-4 self-start lg:self-auto">
             <p className="text-[10px] font-bold uppercase tracking-widest text-white/35">Profile Strength</p>
             <div className="mt-2 flex items-center gap-3">
               <div className="h-2 w-40 overflow-hidden rounded-full bg-white/10">

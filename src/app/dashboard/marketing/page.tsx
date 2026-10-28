@@ -154,7 +154,7 @@ function MarketingHubContent() {
   }, [savedAssets, searchQuery]);
 
   return (
-    <div className="min-h-screen bg-[#030303] p-6 lg:p-10">
+    <div className="min-h-screen bg-[#030303] p-4 sm:p-6 lg:p-10">
       <div className="mx-auto max-w-7xl">
         {/* Workspace Title Header */}
         <div className="mb-8 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between border-b border-white/5 pb-6">
@@ -162,16 +162,16 @@ function MarketingHubContent() {
             <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-[#FF5533]">
               <Sparkles size={12} /> MVP Growth Workspace
             </div>
-            <h1 className="text-4xl font-black tracking-tight text-white">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-white">
               Marketing <span className="bg-gradient-to-r from-[#FF4D42] via-[#FF6A3D] to-[#FF8A00] bg-clip-text text-transparent">Suite</span>
             </h1>
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-white/50">
+            <p className="mt-3 max-w-2xl text-xs sm:text-sm leading-6 text-white/50">
               Select any growth workflow to launch its dedicated workspace. Brand Brain is shared across all tools to guarantee on-brand execution.
             </p>
           </div>
           <Link
             href="/dashboard/brand"
-            className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/[0.04] px-5 py-3 text-xs font-black text-white/70 transition hover:bg-white/[0.08] hover:text-white"
+            className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/[0.04] px-5 py-3 text-xs font-black text-white/70 transition hover:bg-white/[0.08] hover:text-white self-start sm:self-auto"
           >
             <Brain size={16} /> {hasBrandBrain ? 'Edit Brand Brain' : 'Create Brand Brain'} <ArrowRight size={14} />
           </Link>
@@ -179,14 +179,14 @@ function MarketingHubContent() {
 
         {/* Dashboard Grid Catalog Categorized */}
         <div className="space-y-8">
-          <div className="flex items-center justify-between border-b border-white/5 pb-2">
-            <h2 className="text-lg font-black text-white uppercase tracking-wider">Growth Workspaces</h2>
-            <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/5 pb-3">
+            <h2 className="text-base sm:text-lg font-black text-white uppercase tracking-wider">Growth Workspaces</h2>
+            <div className="flex gap-2 overflow-x-auto no-scrollbar py-1">
               {(['All', 'Strategy', 'Campaigns', 'Content', 'Conversion'] as const).map(cat => (
                 <button
                   key={cat}
                   onClick={() => setSelectedCategoryFilter(cat)}
-                  className={`rounded-full px-3.5 py-1.5 text-xs font-bold transition cursor-pointer ${
+                  className={`rounded-full px-3.5 py-1.5 text-xs font-bold transition whitespace-nowrap cursor-pointer ${
                     selectedCategoryFilter === cat
                       ? 'bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] text-white shadow-md shadow-[#FF5533]/25'
                       : 'bg-white/5 text-white/40 hover:bg-white/10 hover:text-white'

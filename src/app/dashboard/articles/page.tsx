@@ -100,25 +100,25 @@ export default function MyArticles() {
   );
 
   return (
-    <div className="min-h-screen p-6 lg:p-8 bg-[#030303]">
+    <div className="min-h-screen p-4 sm:p-6 lg:p-8 bg-[#030303]">
       {/* Header */}
-      <div className="flex items-center justify-between mb-10">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 sm:mb-10">
         <div>
           <h1 className="text-2xl font-black flex items-center gap-3 text-white">
             <FileText className="text-[#FF5533]" /> Article Library
           </h1>
           <p className="text-sm text-white/40 mt-1">Access all your generated SEO reports and content drafts.</p>
         </div>
-        <div className="flex items-center gap-4">
-          <div className="relative">
+        <div className="flex items-center gap-3 w-full sm:w-auto">
+          <div className="relative flex-1 sm:flex-none">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-white/20" size={16} />
             <input 
               type="text" placeholder="Search reports..." value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="bg-white/5 border border-white/10 rounded-xl py-2.5 px-10 text-sm text-white w-64 focus:outline-none focus:border-[#FF5533]/60 focus:ring-1 focus:ring-[#FF5533]/20 transition-all"
+              className="bg-white/5 border border-white/10 rounded-xl py-2.5 px-10 text-sm text-white w-full sm:w-64 focus:outline-none focus:border-[#FF5533]/60 focus:ring-1 focus:ring-[#FF5533]/20 transition-all"
             />
           </div>
-          <Link href="/dashboard/generate" className="p-2.5 bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] text-white rounded-xl hover:from-[#FF5547] hover:to-[#FF9036] transition-all shadow-lg shadow-[#FF5533]/25">
+          <Link href="/dashboard/generate" className="p-2.5 bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] text-white rounded-xl hover:from-[#FF5547] hover:to-[#FF9036] transition-all shadow-lg shadow-[#FF5533]/25 shrink-0">
             <Plus size={20} />
           </Link>
         </div>
@@ -131,7 +131,8 @@ export default function MyArticles() {
         </div>
       ) : filteredArticles.length > 0 ? (
         <div className="bg-white/[0.02] border border-white/5 rounded-2xl overflow-hidden shadow-2xl">
-          <table className="w-full text-left border-collapse">
+          <div className="overflow-x-auto custom-scrollbar">
+            <table className="w-full min-w-[640px] text-left border-collapse">
             <thead>
               <tr className="bg-white/5 text-[10px] font-black text-white/30 uppercase tracking-widest">
                 <th className="px-6 py-4">Article / Report</th>
@@ -177,6 +178,7 @@ export default function MyArticles() {
               ))}
             </tbody>
           </table>
+          </div>
         </div>
       ) : (
         <div className="flex flex-col items-center justify-center py-32 bg-white/[0.02] rounded-[2.5rem] border border-dashed border-white/10 text-center">

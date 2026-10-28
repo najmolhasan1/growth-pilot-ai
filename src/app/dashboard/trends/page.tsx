@@ -175,13 +175,13 @@ export default function TrendTracker() {
         <div className="absolute top-[20%] -right-[10%] w-[30%] h-[30%] bg-[#FF8A00]/8 rounded-full blur-[120px]" />
       </div>
 
-      <div className="relative z-10 max-w-[1600px] mx-auto px-6 py-10 lg:px-10">
-        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-12">
+      <div className="relative z-10 max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-10 py-6 sm:py-10">
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-8 sm:mb-12">
           <div className="space-y-3">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-500/10 border border-orange-500/20 text-[#FF5533] text-[10px] font-bold uppercase tracking-widest">
               <Brain size={12} /> Strategic Hub
             </div>
-            <h1 className="text-4xl font-black tracking-tight text-white">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-white">
               Content <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF4D42] via-[#FF6A3D] to-[#FF8A00]">Intelligence</span>
             </h1>
             <p className="text-xs text-slate-400 max-w-xl">
@@ -197,7 +197,7 @@ export default function TrendTracker() {
           <button 
             onClick={fetchTrends}
             disabled={loading}
-            className="px-6 py-3 bg-white text-black rounded-xl font-bold text-xs tracking-tight flex items-center gap-2 transition-all shadow-xl hover:scale-102 active:scale-98 disabled:opacity-50"
+            className="w-full sm:w-auto justify-center px-5 sm:px-6 py-2.5 sm:py-3 bg-white text-black rounded-xl font-bold text-xs tracking-tight flex items-center gap-2 transition-all shadow-xl hover:scale-102 active:scale-98 disabled:opacity-50"
           >
             <RefreshCw size={14} className={`${loading ? 'animate-spin' : ''}`} />
             <span>{loading ? 'Analyzing...' : 'Refresh Strategy'}</span>
@@ -205,13 +205,13 @@ export default function TrendTracker() {
         </div>
 
         {/* Filter Bar */}
-        <div className="sticky top-4 z-20 mb-12 bg-[#030303]/70 backdrop-blur-lg p-1.5 rounded-2xl border border-white/5 shadow-2xl flex items-center justify-start overflow-x-auto no-scrollbar px-2">
+        <div className="sticky top-4 z-20 mb-8 sm:mb-12 bg-[#030303]/80 backdrop-blur-lg p-1.5 rounded-2xl border border-white/5 shadow-2xl flex items-center justify-start overflow-x-auto custom-scrollbar px-2">
           <div className="flex gap-1">
             {categories.map(cat => (
               <button
                 key={cat.id}
                 onClick={() => setFilter(cat.id)}
-                className={`flex items-center gap-2 px-6 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${
+                className={`flex items-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${
                   filter === cat.id 
                     ? 'bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] text-white shadow-lg shadow-[#FF5533]/25' 
                     : 'text-slate-400 hover:text-white hover:bg-white/5'

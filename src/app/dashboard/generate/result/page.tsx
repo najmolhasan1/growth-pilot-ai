@@ -314,16 +314,16 @@ export default function ResultPage() {
   };
 
   return (
-    <div className="min-h-screen p-6 lg:p-8">
+    <div className="min-h-screen p-4 sm:p-6 lg:p-8">
       {/* Top Bar */}
-      <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
-        <div className="flex items-center gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 sm:mb-8 gap-4">
+        <div className="flex items-start sm:items-center gap-3 sm:gap-4">
           <button onClick={() => router.push('/dashboard/generate')}
-            className="flex items-center gap-2 text-white/40 hover:text-white transition-colors text-sm">
+            className="flex items-center gap-1.5 text-white/40 hover:text-white transition-colors text-xs sm:text-sm shrink-0 pt-1 sm:pt-0">
             <ArrowLeft size={16} /> Back
           </button>
-          <div>
-            <h1 className="text-xl font-black">{data.seo_title}</h1>
+          <div className="min-w-0">
+            <h1 className="text-lg sm:text-xl font-black break-words">{data.seo_title}</h1>
             <p className="text-xs text-white/40 mt-0.5">Keyword: <span className="text-[#FF5533]">{keyword}</span> | {data.word_count} words | {currentMode}</p>
             {data.generation_settings?.writing_model && (
               <p className="text-[10px] text-emerald-400/80 mt-1">
@@ -332,16 +332,16 @@ export default function ResultPage() {
             )}
           </div>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3 flex-wrap sm:flex-nowrap">
           <button onClick={handlePublish} disabled={publishing || publishStatus === 'success'}
-            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-black transition-all ${
+            className={`flex-1 sm:flex-none justify-center flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl text-xs font-black transition-all ${
               publishStatus === 'success' ? 'bg-emerald-500 text-white' : 'bg-white text-black hover:bg-[#FF5533] hover:text-white'
             }`}>
             {publishing ? <RefreshCw size={13} className="animate-spin" /> : publishStatus === 'success' ? <CheckCircle2 size={13} /> : <Globe size={13} />}
             {publishing ? 'Publishing...' : publishStatus === 'success' ? 'Published as Draft' : 'Publish to WordPress'}
           </button>
           <button onClick={generateSocial} disabled={generatingSocial}
-            className="flex items-center gap-2 px-4 py-2.5 bg-orange-500/10 border border-orange-500/30 text-[#FF5533] rounded-xl text-xs font-bold hover:bg-[#FF5533] hover:text-white transition-all disabled:opacity-50">
+            className="flex-1 sm:flex-none justify-center flex items-center gap-2 px-3.5 sm:px-4 py-2.5 bg-orange-500/10 border border-orange-500/30 text-[#FF5533] rounded-xl text-xs font-bold hover:bg-[#FF5533] hover:text-white transition-all disabled:opacity-50">
             {generatingSocial ? <RefreshCw size={13} className="animate-spin" /> : <Share2 size={13} />} Social Snippets
           </button>
         </div>
@@ -456,9 +456,16 @@ export default function ResultPage() {
     line-height: 1.8;
     color: #1a1a2e;
     background: #ffffff;
-    padding: 48px 56px;
+    padding: 36px 32px;
     max-width: 860px;
     margin: 0 auto;
+  }
+  @media (max-width: 640px) {
+    body {
+      padding: 16px 14px;
+      font-size: 15px;
+      line-height: 1.65;
+    }
   }
   h1 {
     font-size: 2.2em;

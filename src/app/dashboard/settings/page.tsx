@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState, useEffect } from 'react';
 import { User, Image, Save, CheckCircle2, AlertCircle, Loader2, Sparkles, UserCheck } from 'lucide-react';
@@ -130,17 +130,17 @@ export default function ProfileSettings() {
   const currentDisplayAvatar = customAvatarUrl.trim() || avatarUrl;
 
   return (
-    <div className="min-h-screen p-6 lg:p-8">
+    <div className="min-h-screen p-4 sm:p-6 lg:p-8">
       <div className="max-w-4xl mx-auto space-y-8">
         
         {/* Header Title */}
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary">
+          <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary shrink-0">
             <User size={24} />
           </div>
           <div>
-            <h1 className="text-2xl font-black text-white">Profile Settings</h1>
-            <p className="text-sm text-white/40 mt-1">Manage your identity and profile card visuals</p>
+            <h1 className="text-xl sm:text-2xl font-black text-white">Profile Settings</h1>
+            <p className="text-xs sm:text-sm text-white/40 mt-1">Manage your identity and profile card visuals</p>
           </div>
         </div>
 
@@ -148,7 +148,7 @@ export default function ProfileSettings() {
           
           {/* Form and Avatar grid (Left) */}
           <div className="lg:col-span-3 space-y-6">
-            <form onSubmit={handleSave} className="bg-white/[0.03] border border-white/[0.07] rounded-3xl p-6 lg:p-8 space-y-6">
+            <form onSubmit={handleSave} className="bg-white/[0.03] border border-white/[0.07] rounded-3xl p-5 sm:p-8 space-y-6">
               
               <div className="space-y-4">
                 {/* Full Name input */}

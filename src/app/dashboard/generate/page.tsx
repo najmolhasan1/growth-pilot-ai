@@ -228,27 +228,27 @@ function GenerateContent() {
   };
 
   return (
-    <div className="min-h-screen p-8">
-      <div className="mb-10">
+    <div className="min-h-screen p-4 sm:p-6 lg:p-8">
+      <div className="mb-8 sm:mb-10">
         <div className="flex items-center gap-3 mb-2">
-          <div className="w-9 h-9 bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] rounded-xl flex items-center justify-center shadow-md shadow-[#FF5533]/20">
+          <div className="w-9 h-9 bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] rounded-xl flex items-center justify-center shadow-md shadow-[#FF5533]/20 shrink-0">
             <Zap size={18} className="text-white" />
           </div>
-          <h1 className="text-2xl font-black">Generate Content</h1>
+          <h1 className="text-xl sm:text-2xl font-black">Generate Content</h1>
         </div>
-        <p className="text-white/40 text-sm ml-12">Six selectable SEO writing systems with post-generation validation</p>
+        <p className="text-white/40 text-xs sm:text-sm pl-12">Six selectable SEO writing systems with post-generation validation</p>
       </div>
 
-      <div className="flex items-center gap-3 mb-10">
+      <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-8 sm:mb-10">
         {[{ n: 1, label: 'Select Mode' }, { n: 2, label: 'Configure' }, { n: 3, label: 'Generate' }].map((item, index) => (
-          <div key={item.n} className="flex items-center gap-3">
-            <div className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold transition-all ${step >= item.n ? 'bg-orange-500/20 text-[#FF5533] border border-orange-500/40' : 'bg-white/5 text-white/30 border border-white/10'}`}>
+          <div key={item.n} className="flex items-center gap-2 sm:gap-3">
+            <div className={`flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs font-bold transition-all ${step >= item.n ? 'bg-orange-500/20 text-[#FF5533] border border-orange-500/40' : 'bg-white/5 text-white/30 border border-white/10'}`}>
               <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black ${step >= item.n ? 'bg-[#FF5533] text-white' : 'bg-white/10 text-white/40'}`}>
-                {step > item.n ? 'OK' : item.n}
+                {step > item.n ? '✓' : item.n}
               </span>
-              {item.label}
+              <span>{item.label}</span>
             </div>
-            {index < 2 && <div className={`h-px w-8 ${step > item.n ? 'bg-[#FF5533]/50' : 'bg-white/10'}`} />}
+            {index < 2 && <div className={`hidden sm:block h-px w-6 sm:w-8 ${step > item.n ? 'bg-[#FF5533]/50' : 'bg-white/10'}`} />}
           </div>
         ))}
       </div>

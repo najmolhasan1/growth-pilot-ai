@@ -25,9 +25,9 @@ export default function DashboardLayout({
 
   return (
     <AuthGate>
-      <div className="flex min-h-screen bg-background text-foreground">
+      <div className="min-h-screen bg-background text-foreground flex flex-col lg:flex-row">
         <Sidebar isCollapsed={isCollapsed} setIsCollapsed={handleToggleCollapse} />
-        <main className={`flex-1 transition-all duration-300 ease-in-out ${isCollapsed ? "lg:ml-[80px]" : "lg:ml-[260px]"}`}>
+        <main className={`flex-1 min-w-0 transition-all duration-300 ease-in-out ${isCollapsed ? "lg:ml-[80px]" : "lg:ml-[260px]"}`}>
           <div className="min-h-screen pb-10">
             {children}
           </div>

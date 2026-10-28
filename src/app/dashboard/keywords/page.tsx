@@ -190,14 +190,14 @@ export default function KeywordResearch() {
   const trendColor = (t: string) => t === 'Rising' ? 'text-emerald-400' : t === 'Declining' ? 'text-red-400' : 'text-amber-400';
 
   return (
-    <div className="min-h-screen p-6 lg:p-10 bg-[#030303]">
+    <div className="min-h-screen p-4 sm:p-6 lg:p-8 bg-[#030303]">
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-8">
         <div>
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-500/10 border border-orange-500/20 text-[#FF5533] text-[10px] font-bold uppercase tracking-widest mb-3">
             <Zap size={12} /> Advanced SEO Intelligence
           </div>
-          <h1 className="text-4xl font-black text-white tracking-tight">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight">
             Keyword <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF4D42] via-[#FF6A3D] to-[#FF8A00]">Intelligence</span>
           </h1>
         </div>
@@ -229,17 +229,19 @@ export default function KeywordResearch() {
 
       {/* Advanced Search Form */}
       <form onSubmit={handleSearch} className="mb-10 space-y-4">
-        <div className="flex items-center gap-3 bg-[#0d0d0f] border border-white/10 rounded-2xl p-2 focus-within:border-[#FF5533]/50 transition-all max-w-3xl">
-          <Search className="ml-4 text-slate-500" size={20} />
-          <input type="text" placeholder="Enter your target keyword..." className="w-full bg-transparent border-none outline-none px-3 py-2 text-white font-medium placeholder:text-slate-600" value={keyword} onChange={(e) => setKeyword(e.target.value)} disabled={loading} />
-          <button type="submit" disabled={loading} className="px-6 py-3 bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] hover:from-[#FF5547] hover:to-[#FF9036] text-white rounded-xl font-bold text-sm flex items-center gap-2 transition-all shadow-lg shadow-[#FF5533]/25 disabled:opacity-50 whitespace-nowrap cursor-pointer">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 bg-[#0d0d0f] border border-white/10 rounded-2xl p-2 focus-within:border-[#FF5533]/50 transition-all max-w-3xl">
+          <div className="flex items-center gap-2 flex-1 px-2 py-1">
+            <Search className="text-slate-500 shrink-0" size={18} />
+            <input type="text" placeholder="Enter your target keyword..." className="w-full bg-transparent border-none outline-none text-white font-medium placeholder:text-slate-600 text-sm" value={keyword} onChange={(e) => setKeyword(e.target.value)} disabled={loading} />
+          </div>
+          <button type="submit" disabled={loading} className="px-5 py-2.5 sm:px-6 sm:py-3 bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] hover:from-[#FF5547] hover:to-[#FF9036] text-white rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all shadow-lg shadow-[#FF5533]/25 disabled:opacity-50 whitespace-nowrap cursor-pointer">
             {loading ? <Loader2 className="animate-spin" size={16} /> : <Search size={16} />}
             {loading ? 'Analyzing...' : 'Analyze'}
           </button>
         </div>
 
         {/* Context Inputs */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 max-w-3xl">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 max-w-3xl">
           <div className="relative">
             <Globe size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-600 z-10" />
             <select className="w-full bg-[#0d0d0f] border border-white/10 rounded-xl pl-9 pr-3 py-2.5 text-xs text-white outline-none focus:border-[#FF5533]/50 appearance-none" value={location} onChange={(e) => setLocation(e.target.value)}>
@@ -309,7 +311,7 @@ export default function KeywordResearch() {
             )}
 
             {/* Stats Row */}
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
               {[
                 { icon: BarChart3, label: 'Difficulty', value: `${data.difficulty}/100`, color: 'text-[#FF5533]' },
                 { icon: TrendingUp, label: 'Volume', value: data.volume, color: 'text-emerald-400' },

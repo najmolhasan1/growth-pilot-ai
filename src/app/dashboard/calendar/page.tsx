@@ -59,28 +59,28 @@ export default function ContentCalendar() {
   };
 
   return (
-    <div className="min-h-screen p-6 lg:p-8">
+    <div className="min-h-screen p-4 sm:p-6 lg:p-8">
       {/* Header */}
-      <div className="flex items-center justify-between mb-10 flex-wrap gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 sm:mb-10 gap-4">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 bg-orange-500/10 rounded-2xl flex items-center justify-center">
+          <div className="w-12 h-12 bg-orange-500/10 rounded-2xl flex items-center justify-center shrink-0">
             <CalendarDays className="text-[#FF5533]" size={24} />
           </div>
           <div>
-            <h1 className="text-2xl font-black">Content Calendar</h1>
-            <p className="text-sm text-white/40 mt-1">Strategic AI-driven content planning & scheduling</p>
+            <h1 className="text-xl sm:text-2xl font-black">Content Calendar</h1>
+            <p className="text-xs sm:text-sm text-white/40 mt-1">Strategic AI-driven content planning & scheduling</p>
           </div>
         </div>
-        <div className="flex items-center gap-3 bg-white/[0.03] p-1.5 rounded-xl border border-white/5">
+        <div className="flex items-center gap-2 bg-white/[0.03] p-1.5 rounded-xl border border-white/5 self-start sm:self-auto">
           <button 
             onClick={() => setView('grid')}
-            className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${view === 'grid' ? 'bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] text-white shadow-md shadow-[#FF5533]/25' : 'text-white/40 hover:text-white'}`}
+            className={`px-3 sm:px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${view === 'grid' ? 'bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] text-white shadow-md shadow-[#FF5533]/25' : 'text-white/40 hover:text-white'}`}
           >
             <LayoutGrid size={14} /> Grid
           </button>
           <button 
             onClick={() => setView('list')}
-            className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${view === 'list' ? 'bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] text-white shadow-md shadow-[#FF5533]/25' : 'text-white/40 hover:text-white'}`}
+            className={`px-3 sm:px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${view === 'list' ? 'bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] text-white shadow-md shadow-[#FF5533]/25' : 'text-white/40 hover:text-white'}`}
           >
             <List size={14} /> List
           </button>
@@ -88,9 +88,9 @@ export default function ContentCalendar() {
       </div>
 
       {/* Calendar Controls */}
-      <div className="flex items-center justify-between mb-8">
-        <div className="flex items-center gap-6">
-          <h2 className="text-xl font-black min-w-[150px]">{monthName} <span className="text-[#FF5533]">{year}</span></h2>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8">
+        <div className="flex items-center justify-between sm:justify-start gap-4">
+          <h2 className="text-lg sm:text-xl font-black">{monthName} <span className="text-[#FF5533]">{year}</span></h2>
           <div className="flex items-center gap-2">
             <button onClick={prevMonth} className="p-2 bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 transition-all text-white/60 hover:text-white">
               <ChevronLeft size={18} />
@@ -100,11 +100,11 @@ export default function ContentCalendar() {
             </button>
           </div>
         </div>
-        <div className="flex items-center gap-3">
-          <button className="px-5 py-2.5 bg-orange-500/10 border border-orange-500/30 text-[#FF5533] rounded-xl text-xs font-black flex items-center gap-2 hover:bg-[#FF5533] hover:text-white transition-all">
+        <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+          <button className="flex-1 sm:flex-none justify-center px-4 sm:px-5 py-2.5 bg-orange-500/10 border border-orange-500/30 text-[#FF5533] rounded-xl text-xs font-black flex items-center gap-2 hover:bg-[#FF5533] hover:text-white transition-all">
             <Brain size={14} /> AI Auto-Schedule
           </button>
-          <button className="px-5 py-2.5 bg-white text-black rounded-xl text-xs font-black flex items-center gap-2 hover:bg-[#FF5533] hover:text-white transition-all shadow-xl shadow-white/5">
+          <button className="flex-1 sm:flex-none justify-center px-4 sm:px-5 py-2.5 bg-white text-black rounded-xl text-xs font-black flex items-center gap-2 hover:bg-[#FF5533] hover:text-white transition-all shadow-xl shadow-white/5">
             <Plus size={14} /> Plan New Post
           </button>
         </div>
@@ -113,14 +113,16 @@ export default function ContentCalendar() {
       {/* Calendar Grid */}
       {view === 'grid' ? (
         <div className="bg-white/[0.03] border border-white/[0.07] rounded-3xl overflow-hidden backdrop-blur-xl">
-          {/* Weekday labels */}
-          <div className="grid grid-cols-7 border-b border-white/5 bg-white/[0.02]">
-            {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => (
-              <div key={d} className="py-4 text-center text-[10px] font-black text-white/30 uppercase tracking-[0.2em]">{d}</div>
-            ))}
-          </div>
+          <div className="overflow-x-auto custom-scrollbar">
+            <div className="min-w-[680px]">
+              {/* Weekday labels */}
+              <div className="grid grid-cols-7 border-b border-white/5 bg-white/[0.02]">
+                {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => (
+                  <div key={d} className="py-4 text-center text-[10px] font-black text-white/30 uppercase tracking-[0.2em]">{d}</div>
+                ))}
+              </div>
 
-          {/* Days */}
+              {/* Days */}
           <div className="grid grid-cols-7">
             {calendarDays.map((day, i) => {
               const posts = day ? getPostsForDay(day) : [];
@@ -164,6 +166,8 @@ export default function ContentCalendar() {
                 </div>
               );
             })}
+              </div>
+            </div>
           </div>
         </div>
       ) : (

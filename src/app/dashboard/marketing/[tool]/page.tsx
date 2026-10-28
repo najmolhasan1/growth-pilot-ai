@@ -382,7 +382,7 @@ function ToolWorkspaceContent() {
   }
 
   return (
-    <div className="min-h-screen bg-[#030303] p-6 lg:p-10">
+    <div className="min-h-screen bg-[#030303] p-4 sm:p-6 lg:p-10">
       <div className="mx-auto max-w-7xl">
         {/* Back and Breadcrumbs Navigation */}
         <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
@@ -403,7 +403,7 @@ function ToolWorkspaceContent() {
             <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-[#FF5533]">
               {activeTool.category}
             </div>
-            <h1 className="text-3xl font-black tracking-tight text-white">
+            <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
               {activeTool.label}
             </h1>
             <p className="mt-2 max-w-2xl text-xs text-white/50">
@@ -412,7 +412,7 @@ function ToolWorkspaceContent() {
           </div>
           <Link
             href="/dashboard/brand"
-            className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-2.5 text-xs font-black text-white/70 transition hover:bg-white/[0.08] hover:text-white"
+            className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-2.5 text-xs font-black text-white/70 transition hover:bg-white/[0.08] hover:text-white self-start sm:self-auto"
           >
             <Brain size={15} /> {hasBrandBrain ? 'Edit Brand Brain' : 'Create Brand Brain'} <ArrowRight size={13} />
           </Link>
@@ -422,7 +422,7 @@ function ToolWorkspaceContent() {
         <div className="grid gap-6 xl:grid-cols-[420px,1fr] items-start">
           <div className="space-y-6">
             {/* Input Form Starts Directly at Top */}
-            <form onSubmit={generate} className="rounded-3xl border border-white/10 bg-white/[0.03] p-5">
+            <form onSubmit={generate} className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-5">
               <div className="mb-5 flex items-center justify-between gap-3 border-b border-white/5 pb-4">
                 <div>
                   <p className="text-[10px] font-bold uppercase tracking-widest text-white/35">Parameters</p>

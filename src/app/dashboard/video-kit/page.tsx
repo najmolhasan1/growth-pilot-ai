@@ -111,24 +111,24 @@ export default function VideoKitPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#030303] p-6 lg:p-10">
+    <div className="min-h-screen bg-[#030303] p-4 sm:p-6 lg:p-10">
       <div className="mx-auto max-w-7xl">
         <div className="mb-8 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-[#FF5533]">
               <Video size={12} /> Separate Video Workflow
             </div>
-            <h1 className="text-4xl font-black tracking-tight text-white">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-white">
               Video <span className="bg-gradient-to-r from-[#FF4D42] via-[#FF6A3D] to-[#FF8A00] bg-clip-text text-transparent">Content Kit</span>
             </h1>
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-white/50">
+            <p className="mt-3 max-w-2xl text-xs sm:text-sm leading-6 text-white/50">
               Paste a YouTube link, public Google Drive video/audio file, or direct MP4/MP3 link. The app transcribes the media first, then uses that transcript as the brain for every title, timestamp, short-form idea, tag, and description.
             </p>
           </div>
         </div>
 
         <div className="grid gap-6 xl:grid-cols-[430px,1fr]">
-          <form onSubmit={generate} className="space-y-5 rounded-3xl border border-white/10 bg-white/[0.03] p-5">
+          <form onSubmit={generate} className="space-y-5 rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-5">
             <div>
               <label className="mb-2 block text-[11px] font-bold uppercase tracking-widest text-white/40">
                 Upload Audio / Video File
