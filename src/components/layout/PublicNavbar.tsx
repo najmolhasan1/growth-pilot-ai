@@ -12,6 +12,7 @@ export default function PublicNavbar() {
   const pathname = usePathname();
   const isAuthPage = pathname === '/auth';
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
 
   const navItems = [
     { label: 'Features', href: '/#features' },
@@ -19,6 +20,16 @@ export default function PublicNavbar() {
     { label: 'Pricing', href: '/#pricing' },
     { label: 'FAQ', href: '/#faq' },
   ];
+
+  // Detect scroll to enrich glassmorphic depth dynamically
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // Prevent background scroll when mobile menu is open
   useEffect(() => {
@@ -37,9 +48,17 @@ export default function PublicNavbar() {
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.5, ease: 'easeOut' }}
-      className="fixed left-0 right-0 top-0 z-50 bg-background/85 dark:bg-[#030303]/85 backdrop-blur-xl border-b border-border/30 dark:border-white/[0.06] transition-colors"
+      className={`fixed left-0 right-0 top-0 z-50 transition-all duration-300 ${
+        scrolled
+          ? 'bg-background/55 dark:bg-[#030305]/55 backdrop-blur-2xl backdrop-saturate-[180%] border-b border-black/[0.08] dark:border-white/[0.09] shadow-[0_8px_32px_rgba(0,0,0,0.04)] dark:shadow-[0_12px_40px_rgba(0,0,0,0.5)]'
+          : 'bg-background/35 dark:bg-[#030305]/35 backdrop-blur-xl backdrop-saturate-150 border-b border-black/[0.04] dark:border-white/[0.05]'
+      }`}
     >
-      <div className="mx-auto flex h-16 sm:h-20 max-w-7xl items-center justify-between px-3.5 sm:px-6 lg:px-8">
+      {/* Subtle top glass optical highlight sheen */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/40 dark:via-white/[0.15] to-transparent" />
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-white/20 dark:from-white/[0.03] to-transparent" />
+
+      <div className="relative z-10 mx-auto flex h-16 sm:h-20 max-w-7xl items-center justify-between px-3.5 sm:px-6 lg:px-8">
         {/* Brand Logo */}
         <BrandLogo href="/" imgClassName="h-7 sm:h-9 md:h-10 w-auto" />
 
@@ -107,7 +126,7 @@ export default function PublicNavbar() {
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.25, ease: 'easeInOut' }}
-            className="md:hidden border-b border-border/60 dark:border-white/[0.08] bg-background/95 dark:bg-[#08080a]/95 backdrop-blur-2xl overflow-hidden px-4 pt-2 pb-5 shadow-2xl"
+            className="md:hidden border-b border-border/40 dark:border-white/[0.08] bg-background/80 dark:bg-[#06060a]/80 backdrop-blur-2xl backdrop-saturate-150 overflow-hidden px-4 pt-2 pb-5 shadow-2xl"
           >
             <div className="flex flex-col space-y-1 mb-3">
               {navItems.map((item) => (
