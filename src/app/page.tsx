@@ -682,22 +682,6 @@ export default function LandingPage() {
   const [isTextHovered, setIsTextHovered] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
 
-  const suiteSectionRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress: suiteScrollProgress } = useScroll({
-    target: suiteSectionRef,
-    offset: ['start start', 'end end'],
-  });
-
-  useMotionValueEvent(suiteScrollProgress, 'change', (progress) => {
-    if (progress < 0.33) {
-      setActiveCategory('seo');
-    } else if (progress < 0.67) {
-      setActiveCategory('marketing');
-    } else {
-      setActiveCategory('creative');
-    }
-  });
-
   useEffect(() => {
     const handleScroll = () => {
       setShowScrollTop(window.scrollY > 400);
@@ -1112,22 +1096,22 @@ export default function LandingPage() {
 
 
         {/* ═══════════════════════════════════════════════════
-            FEATURES — Glassmorphic Pinned Scroll Suite
+            FEATURES — Glassmorphic Interactive Suite
         ═══════════════════════════════════════════════════ */}
-        <section id="features" ref={suiteSectionRef} className="relative h-[280vh] overflow-x-clip bg-gradient-to-b from-[#fff8f5] via-[#fff4f0] to-[#fff8f5] dark:from-[#070709] dark:via-[#09080e] dark:to-[#050507] text-neutral-900 dark:text-white transition-colors duration-300">
+        <section id="features" className="relative py-16 sm:py-20 overflow-hidden bg-gradient-to-b from-[#fff8f5] via-[#fff4f0] to-[#fff8f5] dark:from-[#070709] dark:via-[#09080e] dark:to-[#050507] text-neutral-900 dark:text-white transition-colors duration-300">
           {/* Ambient background glows */}
           <div className="pointer-events-none absolute -left-20 top-1/4 w-[750px] h-[750px] rounded-full bg-gradient-to-r from-[#FF4D42]/12 dark:from-[#FF4D42]/16 via-[#FF6A3D]/8 dark:via-[#FF6A3D]/10 to-transparent blur-[160px]" />
           <div className="pointer-events-none absolute -right-20 top-1/3 w-[650px] h-[650px] rounded-full bg-gradient-to-br from-[#FF4D42]/10 dark:from-[#FF4D42]/14 via-[#FF8526]/6 dark:via-[#FF8526]/8 to-transparent blur-[150px]" />
 
-          {/* Sticky Fullscreen Viewport */}
-          <div className="sticky top-0 h-screen w-full flex flex-col justify-center overflow-x-clip pt-16 sm:pt-18 pb-2 sm:pb-3">
+          {/* Interactive Suite Container */}
+          <div className="w-full flex flex-col justify-center overflow-x-clip relative z-10">
             {/* Header */}
             <motion.div
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true }}
               variants={stagger}
-              className="text-center mb-3 sm:mb-4 px-4 relative z-10"
+              className="text-center mb-4 sm:mb-6 px-4 relative z-10"
             >
               <motion.p variants={fadeUp} className="mb-1 text-[10px] sm:text-xs font-black uppercase tracking-[0.35em] text-[#FF5533]">
                 Product Suite
@@ -1488,7 +1472,7 @@ export default function LandingPage() {
                 ))}
               </div>
               <span className="text-[11px] font-mono text-neutral-500 dark:text-neutral-400 tracking-wider hidden sm:inline-block">
-                Scroll down to cycle through suites
+                Click tabs to explore suites
               </span>
             </div>
           </div>
@@ -1498,7 +1482,7 @@ export default function LandingPage() {
         {/* ═══════════════════════════════════════════════════
             HOW IT WORKS — 4-Step Workflow Timeline
         ═══════════════════════════════════════════════════ */}
-        <section id="process" className="px-6 py-24 relative overflow-hidden">
+        <section id="process" className="px-6 py-16 sm:py-20 relative overflow-hidden">
           {/* Ambient background glow */}
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[850px] h-[400px] bg-gradient-to-r from-[#FF4D42]/10 via-[#FF8526]/8 to-transparent rounded-full blur-[130px] pointer-events-none" />
 
@@ -1508,7 +1492,7 @@ export default function LandingPage() {
               whileInView="visible"
               viewport={{ once: true }}
               variants={stagger}
-              className="text-center mb-20"
+              className="text-center mb-12 sm:mb-16"
             >
               <motion.p variants={fadeUp} className="mb-3 text-[10px] font-black uppercase tracking-[0.35em] text-[#FF5533]">
                 How It Works
