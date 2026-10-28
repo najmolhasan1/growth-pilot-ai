@@ -711,7 +711,7 @@ export default function LandingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground transition-colors duration-300 relative">
+    <div className="min-h-screen w-full max-w-full overflow-x-clip bg-background text-foreground transition-colors duration-300 relative">
       <PublicNavbar />
 
       <main className="relative z-10">
@@ -1114,7 +1114,7 @@ export default function LandingPage() {
         {/* ═══════════════════════════════════════════════════
             FEATURES — Glassmorphic Pinned Scroll Suite
         ═══════════════════════════════════════════════════ */}
-        <section id="features" ref={suiteSectionRef} className="relative h-[280vh] bg-gradient-to-b from-[#fff8f5] via-[#fff4f0] to-[#fff8f5] dark:from-[#070709] dark:via-[#09080e] dark:to-[#050507] text-neutral-900 dark:text-white transition-colors duration-300">
+        <section id="features" ref={suiteSectionRef} className="relative h-[280vh] overflow-x-clip bg-gradient-to-b from-[#fff8f5] via-[#fff4f0] to-[#fff8f5] dark:from-[#070709] dark:via-[#09080e] dark:to-[#050507] text-neutral-900 dark:text-white transition-colors duration-300">
           {/* Ambient background glows */}
           <div className="pointer-events-none absolute -left-20 top-1/4 w-[750px] h-[750px] rounded-full bg-gradient-to-r from-[#FF4D42]/12 dark:from-[#FF4D42]/16 via-[#FF6A3D]/8 dark:via-[#FF6A3D]/10 to-transparent blur-[160px]" />
           <div className="pointer-events-none absolute -right-20 top-1/3 w-[650px] h-[650px] rounded-full bg-gradient-to-br from-[#FF4D42]/10 dark:from-[#FF4D42]/14 via-[#FF8526]/6 dark:via-[#FF8526]/8 to-transparent blur-[150px]" />
