@@ -3,7 +3,7 @@ import { getRequestUserId } from '@/lib/supabase-auth';
 import { getSupabaseServerClient } from '@/lib/supabase';
 
 type BrandProfilePayload = {
-  profile?: Record<string, string>;
+  profile?: Record<string, any>;
 };
 
 export async function GET(request: Request) {
