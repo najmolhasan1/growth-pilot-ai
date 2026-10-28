@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import { 
   ArrowRight, 
@@ -20,7 +20,11 @@ import {
   TrendingUp,
   ShieldCheck,
   Zap,
-  Edit3
+  Edit3,
+  Mic,
+  Square,
+  Volume2,
+  Trash2
 } from 'lucide-react';
 import { getSupabaseBrowserClient, isSupabaseConfigured } from '@/lib/supabase';
 
@@ -124,6 +128,17 @@ export default function BrandBrainPage() {
   const [aiSuccessMsg, setAiSuccessMsg] = useState(false);
   const [aiErrorMsg, setAiErrorMsg] = useState('');
   const [activeTab, setActiveTab] = useState<'profile' | 'icp' | 'gtm'>('profile');
+
+  // Voice Recording / Speech-to-Text state (Bangla, Banglish, English)
+  const [isRecording, setIsRecording] = useState(false);
+  const [isTranscribing, setIsTranscribing] = useState(false);
+  const [recordSeconds, setRecordSeconds] = useState(0);
+  const [voiceSuccessMsg, setVoiceSuccessMsg] = useState('');
+  const [voiceErrorMsg, setVoiceErrorMsg] = useState('');
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  const streamRef = useRef<MediaStream | null>(null);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -271,6 +286,174 @@ export default function BrandBrainPage() {
     }
   };
 
+  // Cleanup audio stream and timer on unmount
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(t => t.stop());
+      }
+    };
+  }, []);
+
+  const formatTimer = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const startVoiceRecording = async () => {
+    setVoiceErrorMsg('');
+    setVoiceSuccessMsg('');
+
+    if (typeof window === 'undefined' || !navigator.mediaDevices?.getUserMedia) {
+      setVoiceErrorMsg('Microphone is not supported in this browser environment.');
+      return;
+    }
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      streamRef.current = stream;
+
+      let mimeType = 'audio/webm';
+      if (typeof MediaRecorder !== 'undefined') {
+        if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) {
+          mimeType = 'audio/webm;codecs=opus';
+        } else if (MediaRecorder.isTypeSupported('audio/webm')) {
+          mimeType = 'audio/webm';
+        } else if (MediaRecorder.isTypeSupported('audio/mp4')) {
+          mimeType = 'audio/mp4';
+        } else if (MediaRecorder.isTypeSupported('audio/wav')) {
+          mimeType = 'audio/wav';
+        }
+      }
+
+      const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
+      mediaRecorderRef.current = recorder;
+      audioChunksRef.current = [];
+
+      recorder.ondataavailable = (e) => {
+        if (e.data && e.data.size > 0) {
+          audioChunksRef.current.push(e.data);
+        }
+      };
+
+      recorder.start(250);
+      setIsRecording(true);
+      setRecordSeconds(0);
+
+      timerRef.current = setInterval(() => {
+        setRecordSeconds(prev => {
+          if (prev >= 180) {
+            stopVoiceRecording();
+            return prev;
+          }
+          return prev + 1;
+        });
+      }, 1000);
+    } catch (err: any) {
+      console.error('Mic access error:', err);
+      if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+        setVoiceErrorMsg('Microphone access was denied. Please allow microphone permission in your browser.');
+      } else {
+        setVoiceErrorMsg('Could not access microphone: ' + (err.message || 'Unknown error'));
+      }
+    }
+  };
+
+  const cancelVoiceRecording = () => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+      mediaRecorderRef.current.stop();
+    }
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(t => t.stop());
+      streamRef.current = null;
+    }
+    audioChunksRef.current = [];
+    setIsRecording(false);
+    setRecordSeconds(0);
+  };
+
+  const stopVoiceRecording = () => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+
+    const recorder = mediaRecorderRef.current;
+    if (!recorder || recorder.state === 'inactive') {
+      setIsRecording(false);
+      return;
+    }
+
+    recorder.onstop = async () => {
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(t => t.stop());
+        streamRef.current = null;
+      }
+      setIsRecording(false);
+
+      const audioBlob = new Blob(audioChunksRef.current, { type: recorder.mimeType || 'audio/webm' });
+      audioChunksRef.current = [];
+
+      if (audioBlob.size < 100) {
+        setVoiceErrorMsg('Recording was too short or empty. Please speak again.');
+        return;
+      }
+
+      setIsTranscribing(true);
+      setVoiceErrorMsg('');
+
+      try {
+        const reader = new FileReader();
+        reader.readAsDataURL(audioBlob);
+        reader.onloadend = async () => {
+          try {
+            const base64Data = (reader.result as string).split(',')[1];
+            const res = await fetch('/api/voice-transcribe', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                audioBase64: base64Data,
+                mimeType: audioBlob.type || 'audio/webm',
+              }),
+            });
+
+            const data = await res.json();
+            if (!res.ok || !data.success) {
+              throw new Error(data.error || 'Failed to transcribe speech.');
+            }
+
+            const transcribedText = (data.text || '').trim();
+            if (!transcribedText) {
+              setVoiceErrorMsg('No speech could be recognized. Please try speaking closer to the microphone.');
+            } else {
+              setRawInput(prev => {
+                const cleanedPrev = prev.trim();
+                return cleanedPrev ? `${cleanedPrev}\n\n${transcribedText}` : transcribedText;
+              });
+              setVoiceSuccessMsg('Voice transcribed accurately! You can speak more or click Generate.');
+              setTimeout(() => setVoiceSuccessMsg(''), 6000);
+            }
+          } catch (transcribeErr: any) {
+            setVoiceErrorMsg(transcribeErr.message || 'Voice transcription failed.');
+          } finally {
+            setIsTranscribing(false);
+          }
+        };
+      } catch (err: any) {
+        setIsTranscribing(false);
+        setVoiceErrorMsg(err.message || 'Failed to process audio.');
+      }
+    };
+
+    recorder.stop();
+  };
+
   const syncToCloud = async (profileToSync: BrandProfile) => {
     if (!isSupabaseConfigured()) return;
     try {
@@ -396,6 +579,70 @@ export default function BrandBrainPage() {
               </div>
             </div>
 
+            {/* Voice Typing Action Bar */}
+            <div className="flex flex-wrap items-center justify-between gap-2.5 p-2.5 rounded-2xl bg-white/[0.04] border border-white/10">
+              <div className="flex items-center gap-2 flex-wrap">
+                {!isRecording && !isTranscribing && (
+                  <button
+                    type="button"
+                    onClick={startVoiceRecording}
+                    className="group inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-[#FF5533]/15 hover:bg-[#FF5533]/25 border border-[#FF5533]/40 text-[#FF8A00] hover:text-white text-xs font-bold transition shadow-sm"
+                  >
+                    <Mic size={15} className="text-[#FF5533] group-hover:scale-110 transition-transform" />
+                    <span>Voice Type (Bangla / Banglish / English)</span>
+                  </button>
+                )}
+
+                {isRecording && (
+                  <div className="inline-flex items-center gap-2 flex-wrap">
+                    <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-rose-500/15 border border-rose-500/40 text-rose-300 text-xs font-semibold animate-pulse">
+                      <span className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping" />
+                      <span>Recording: {formatTimer(recordSeconds)}</span>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={stopVoiceRecording}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:brightness-110 text-white text-xs font-black shadow-md transition"
+                    >
+                      <Square size={12} className="fill-white" />
+                      <span>Done & Transcribe</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={cancelVoiceRecording}
+                      title="Cancel recording"
+                      className="inline-flex items-center p-2 rounded-xl bg-white/5 hover:bg-white/10 text-white/40 hover:text-white transition text-xs"
+                    >
+                      <Trash2 size={13} />
+                    </button>
+                  </div>
+                )}
+
+                {isTranscribing && (
+                  <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-indigo-500/15 border border-indigo-500/30 text-indigo-300 text-xs font-medium">
+                    <Loader2 size={14} className="animate-spin text-indigo-400" />
+                    <span>AI is transcribing your voice in Bangla/Banglish/English...</span>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex items-center gap-2 text-[11px] text-white/45">
+                <Volume2 size={13} className="text-white/35 hidden sm:inline" />
+                <span className="hidden sm:inline">Bangla dialects, Banglish & business terms supported</span>
+                {rawInput && (
+                  <button
+                    type="button"
+                    onClick={() => setRawInput('')}
+                    className="text-[10px] text-white/40 hover:text-white underline underline-offset-2 ml-2 transition"
+                  >
+                    Clear Text
+                  </button>
+                )}
+              </div>
+            </div>
+
             <textarea
               value={rawInput}
               onChange={e => setRawInput(e.target.value)}
@@ -403,6 +650,20 @@ export default function BrandBrainPage() {
               placeholder="Example: We run an online organic skincare shop in Dhaka. We sell natural hair oils and aloe serums priced between 600 - 1800 BDT. Target audience is working women and students who care about natural ingredients. Our biggest challenge is competing against cheap chemical brands and building authentic trust..."
               className="w-full resize-y rounded-2xl border border-white/10 bg-[#070709] px-4 py-3.5 text-sm leading-relaxed text-white outline-none transition placeholder:text-white/20 focus:border-[#FF5533] focus:ring-2 focus:ring-[#FF5533]/20"
             />
+
+            {voiceSuccessMsg && (
+              <div className="flex items-center gap-2 text-xs text-emerald-300 bg-emerald-500/10 border border-emerald-500/20 p-2.5 rounded-xl">
+                <CheckCircle2 size={15} className="shrink-0 text-emerald-400" />
+                <span>{voiceSuccessMsg}</span>
+              </div>
+            )}
+
+            {voiceErrorMsg && (
+              <div className="flex items-center gap-2 text-xs text-rose-400 bg-rose-500/10 border border-rose-500/20 p-2.5 rounded-xl">
+                <AlertCircle size={15} className="shrink-0" />
+                <span>{voiceErrorMsg}</span>
+              </div>
+            )}
 
             {aiErrorMsg && (
               <div className="flex items-center gap-2 text-xs text-rose-400 bg-rose-500/10 border border-rose-500/20 p-3 rounded-xl">
