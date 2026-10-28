@@ -67,17 +67,17 @@ async function run() {
   const iconPng32 = await sharp(srcBuf).resize(32, 32, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } }).png().toBuffer();
   fs.writeFileSync(path.join(PROJECT_ROOT, 'src/app/icon.png'), iconPng32);
 
-  // Apple touch icon (180x180) with brand background or clean padding
+  // Apple touch icon (180x180) with clean white background and generous padding
   const appleTouchBuf = await sharp({
     create: {
       width: 180,
       height: 180,
       channels: 4,
-      background: { r: 10, g: 10, b: 12, alpha: 1 }
+      background: { r: 255, g: 255, b: 255, alpha: 1 }
     }
   })
   .composite([{
-    input: await sharp(srcBuf).resize(130, 130, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } }).toBuffer(),
+    input: await sharp(srcBuf).resize(110, 110, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } }).toBuffer(),
     gravity: 'center'
   }])
   .png()
@@ -104,8 +104,8 @@ async function run() {
     if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
 
     // A) Adaptive foreground (ic_launcher_foreground.png):
-    // fgSize canvas, logo centered inside ~66% safe zone
-    const logoInner = Math.round(d.fgSize * 0.66);
+    // Scaled down to ~52% of canvas so the white background frames it prominently with clear breathing room
+    const logoInner = Math.round(d.fgSize * 0.52);
     const logoBuf = await sharp(srcBuf)
       .resize(logoInner, logoInner, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
       .toBuffer();
@@ -125,13 +125,13 @@ async function run() {
     fs.writeFileSync(path.join(dir, 'ic_launcher_foreground.png'), fgBuf);
 
     // B) Legacy square/rounded launcher (ic_launcher.png):
-    // dark background #0a0a0c with rounded corners
+    // Pure white background #FFFFFF with rounded corners, centered logo with elegant white border
     const cornerRadius = Math.round(d.size * 0.22);
     const rectSvg = Buffer.from(
-      `<svg width="${d.size}" height="${d.size}"><rect x="0" y="0" width="${d.size}" height="${d.size}" rx="${cornerRadius}" ry="${cornerRadius}" fill="#0a0a0c"/></svg>`
+      `<svg width="${d.size}" height="${d.size}"><rect x="0" y="0" width="${d.size}" height="${d.size}" rx="${cornerRadius}" ry="${cornerRadius}" fill="#FFFFFF"/></svg>`
     );
 
-    const legacyInner = Math.round(d.size * 0.72);
+    const legacyInner = Math.round(d.size * 0.58);
     const legacyLogoBuf = await sharp(srcBuf)
       .resize(legacyInner, legacyInner, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
       .toBuffer();
@@ -144,8 +144,9 @@ async function run() {
     fs.writeFileSync(path.join(dir, 'ic_launcher.png'), launcherBuf);
 
     // C) Legacy round launcher (ic_launcher_round.png):
+    // Pure white circular background #FFFFFF with centered logo
     const circleSvg = Buffer.from(
-      `<svg width="${d.size}" height="${d.size}"><circle cx="${d.size / 2}" cy="${d.size / 2}" r="${d.size / 2}" fill="#0a0a0c"/></svg>`
+      `<svg width="${d.size}" height="${d.size}"><circle cx="${d.size / 2}" cy="${d.size / 2}" r="${d.size / 2}" fill="#FFFFFF"/></svg>`
     );
 
     const launcherRoundBuf = await sharp(circleSvg)
@@ -190,15 +191,21 @@ async function run() {
     }
   }
 
-  // 4. Update ic_launcher_background.xml
-  console.log('--- Updating Android Launcher Background Color ---');
+  // 4. Update ic_launcher_background
+  console.log('--- Updating Android Launcher Background Color to White (#FFFFFF) ---');
   const bgXmlPath = path.join(resDir, 'values/ic_launcher_background.xml');
   fs.writeFileSync(
     bgXmlPath,
-    `<?xml version="1.0" encoding="utf-8"?>\n<resources>\n    <color name="ic_launcher_background">#0a0a0c</color>\n</resources>\n`
+    `<?xml version="1.0" encoding="utf-8"?>\n<resources>\n    <color name="ic_launcher_background">#FFFFFF</color>\n</resources>\n`
   );
 
-  console.log('All icons and splash screens successfully updated!');
+  const drawableBgPath = path.join(resDir, 'drawable/ic_launcher_background.xml');
+  fs.writeFileSync(
+    drawableBgPath,
+    `<?xml version="1.0" encoding="utf-8"?>\n<vector xmlns:android="http://schemas.android.com/apk/res/android"\n    android:width="108dp"\n    android:height="108dp"\n    android:viewportHeight="108"\n    android:viewportWidth="108">\n    <path\n        android:fillColor="#FFFFFF"\n        android:pathData="M0,0h108v108h-108z" />\n</vector>\n`
+  );
+
+  console.log('All icons and splash screens successfully updated with white launcher background!');
 }
 
 run().catch(err => {
