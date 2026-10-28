@@ -17,6 +17,7 @@ export type SocialToolType =
 interface SocialWorkspaceRequest {
   tool: SocialToolType;
   topic?: string;
+  context?: string;
   platform?: string;
   tone?: string;
   goal?: string;
@@ -79,6 +80,7 @@ function buildPrompt(req: SocialWorkspaceRequest): string {
   const audience = req.audience || req.brandProfile?.audience || 'Target buyers and followers';
   const topic = req.topic || req.sourceContent || 'Brand Growth & Value';
   const goal = req.goal || 'Drive Engagement & Leads';
+  const additionalContext = req.context || req.brandNotes || '';
   const brandContext = req.brandProfile
     ? `Business Name: ${req.brandProfile.businessName || 'Business'}\nIndustry: ${req.brandProfile.industry || 'General'}\nUSP/Offer: ${req.brandProfile.offer || ''}\nTone: ${req.brandProfile.tone || tone}`
     : `Brand notes: ${req.brandNotes || 'General creator/business'}`;
@@ -89,7 +91,7 @@ ${langRule}
 
 CONTEXT & INPUTS:
 - Topic / Concept: ${topic}
-- Target Platform: ${platform}
+${additionalContext ? `- Specific Background Context / Notes / Offer Details:\n${additionalContext}\n` : ''}- Target Platform: ${platform}
 - Desired Tone: ${tone}
 - Primary Goal: ${goal}
 - Target Audience: ${audience}

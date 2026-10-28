@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { 
   Sparkles, 
   Copy, 
@@ -19,7 +19,16 @@ import {
   Clock, 
   ExternalLink,
   ChevronRight,
-  Send
+  Send,
+  Mic,
+  Square,
+  Volume2,
+  Trash2,
+  Target,
+  Globe,
+  AlertCircle,
+  CheckCircle2,
+  PenTool
 } from 'lucide-react';
 import { getSupabaseBrowserClient, isSupabaseConfigured } from '@/lib/supabase';
 
@@ -102,6 +111,7 @@ const TONES = [
 export default function SocialMediaWorkspacePage() {
   const [activeTool, setActiveTool] = useState<ToolId>('viral_caption');
   const [topic, setTopic] = useState('');
+  const [context, setContext] = useState('');
   const [platform, setPlatform] = useState('Instagram');
   const [tone, setTone] = useState('Conversational & Human');
   const [goal, setGoal] = useState('Engagement & Shares');
@@ -117,6 +127,196 @@ export default function SocialMediaWorkspacePage() {
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [isSaved, setIsSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Voice Typing (Bangla / Banglish / English)
+  const [isRecording, setIsRecording] = useState(false);
+  const [isTranscribing, setIsTranscribing] = useState(false);
+  const [recordSeconds, setRecordSeconds] = useState(0);
+  const [voiceSuccessMsg, setVoiceSuccessMsg] = useState('');
+  const [voiceErrorMsg, setVoiceErrorMsg] = useState('');
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  const streamRef = useRef<MediaStream | null>(null);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Cleanup audio stream and timer on unmount
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(t => t.stop());
+      }
+    };
+  }, []);
+
+  const formatTimer = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const startVoiceRecording = async () => {
+    setVoiceErrorMsg('');
+    setVoiceSuccessMsg('');
+
+    if (typeof window === 'undefined' || !navigator.mediaDevices?.getUserMedia) {
+      setVoiceErrorMsg('Microphone is not supported in this browser environment.');
+      return;
+    }
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      streamRef.current = stream;
+
+      let mimeType = 'audio/webm';
+      if (typeof MediaRecorder !== 'undefined') {
+        if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) {
+          mimeType = 'audio/webm;codecs=opus';
+        } else if (MediaRecorder.isTypeSupported('audio/webm')) {
+          mimeType = 'audio/webm';
+        } else if (MediaRecorder.isTypeSupported('audio/mp4')) {
+          mimeType = 'audio/mp4';
+        } else if (MediaRecorder.isTypeSupported('audio/wav')) {
+          mimeType = 'audio/wav';
+        }
+      }
+
+      const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
+      mediaRecorderRef.current = recorder;
+      audioChunksRef.current = [];
+
+      recorder.ondataavailable = (e) => {
+        if (e.data && e.data.size > 0) {
+          audioChunksRef.current.push(e.data);
+        }
+      };
+
+      recorder.start(250);
+      setIsRecording(true);
+      setRecordSeconds(0);
+
+      timerRef.current = setInterval(() => {
+        setRecordSeconds(prev => {
+          if (prev >= 180) {
+            stopVoiceRecording();
+            return prev;
+          }
+          return prev + 1;
+        });
+      }, 1000);
+    } catch (err: any) {
+      console.error('Mic access error:', err);
+      if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+        setVoiceErrorMsg('Microphone access denied. Please allow microphone permissions.');
+      } else {
+        setVoiceErrorMsg('Could not access microphone: ' + (err.message || 'Unknown error'));
+      }
+    }
+  };
+
+  const cancelVoiceRecording = () => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+      mediaRecorderRef.current.stop();
+    }
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(t => t.stop());
+      streamRef.current = null;
+    }
+    audioChunksRef.current = [];
+    setIsRecording(false);
+    setRecordSeconds(0);
+  };
+
+  const stopVoiceRecording = () => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+
+    const recorder = mediaRecorderRef.current;
+    if (!recorder || recorder.state === 'inactive') {
+      setIsRecording(false);
+      return;
+    }
+
+    recorder.onstop = async () => {
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(t => t.stop());
+        streamRef.current = null;
+      }
+      setIsRecording(false);
+
+      const audioBlob = new Blob(audioChunksRef.current, { type: recorder.mimeType || 'audio/webm' });
+      audioChunksRef.current = [];
+
+      if (audioBlob.size < 100) {
+        setVoiceErrorMsg('Recording was too short or empty. Please speak again.');
+        return;
+      }
+
+      setIsTranscribing(true);
+      setVoiceErrorMsg('');
+
+      try {
+        const reader = new FileReader();
+        reader.readAsDataURL(audioBlob);
+        reader.onloadend = async () => {
+          try {
+            const base64Data = (reader.result as string).split(',')[1];
+            const res = await fetch('/api/voice-transcribe', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                audioBase64: base64Data,
+                mimeType: audioBlob.type || 'audio/webm',
+              }),
+            });
+
+            const data = await res.json();
+            if (!res.ok || !data.success) {
+              throw new Error(data.error || 'Failed to transcribe speech.');
+            }
+
+            const transcribedText = (data.text || '').trim();
+            if (!transcribedText) {
+              setVoiceErrorMsg('No speech could be recognized. Please try speaking closer to the microphone.');
+            } else {
+              if (activeTool === 'repurpose_pack') {
+                setSourceContent(prev => {
+                  const cleaned = prev.trim();
+                  return cleaned ? `${cleaned}\n\n${transcribedText}` : transcribedText;
+                });
+              } else {
+                setContext(prev => {
+                  const cleaned = prev.trim();
+                  return cleaned ? `${cleaned}\n\n${transcribedText}` : transcribedText;
+                });
+                if (!topic) {
+                  const firstWords = transcribedText.split(/\s+/).slice(0, 8).join(' ');
+                  setTopic(firstWords);
+                }
+              }
+              setVoiceSuccessMsg('Voice transcribed accurately! Feel free to edit or add more.');
+              setTimeout(() => setVoiceSuccessMsg(''), 5000);
+            }
+          } catch (transcribeErr: any) {
+            setVoiceErrorMsg(transcribeErr.message || 'Voice transcription failed.');
+          } finally {
+            setIsTranscribing(false);
+          }
+        };
+      } catch (err: any) {
+        setIsTranscribing(false);
+        setVoiceErrorMsg(err.message || 'Failed to process audio.');
+      }
+    };
+
+    recorder.stop();
+  };
 
   // Load brand profile
   useEffect(() => {
@@ -138,6 +338,9 @@ export default function SocialMediaWorkspacePage() {
     if (brandProfile.offer && !topic) {
       setTopic(brandProfile.offer);
     }
+    if (brandProfile.rawBusinessDescription && !context) {
+      setContext(brandProfile.rawBusinessDescription);
+    }
     if (brandProfile.language) {
       if (/bengali|bangla/i.test(brandProfile.language)) {
         setLanguage('Bengali');
@@ -149,8 +352,8 @@ export default function SocialMediaWorkspacePage() {
   };
 
   const handleGenerate = async () => {
-    if (!topic && !sourceContent) {
-      setError('Please provide a topic or source content to generate.');
+    if (!topic && !sourceContent && !context) {
+      setError('Please provide a topic, context, or source content to generate.');
       return;
     }
 
@@ -164,7 +367,8 @@ export default function SocialMediaWorkspacePage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           tool: activeTool,
-          topic,
+          topic: topic || (context ? context.slice(0, 100) : ''),
+          context,
           platform,
           tone,
           goal,
@@ -220,7 +424,7 @@ export default function SocialMediaWorkspacePage() {
           tool: `social_${activeTool}`,
           title: topic || 'Social Media Asset',
           language,
-          inputs: { topic, platform, tone, goal, audience },
+          inputs: { topic, context, platform, tone, goal, audience },
           result: {
             executiveSummary: `Generated ${activeTool} for ${platform}`,
             primaryOutput: JSON.stringify(generatedData, null, 2),
@@ -329,88 +533,194 @@ export default function SocialMediaWorkspacePage() {
         
         {/* Left Column: Smart Inputs */}
         <div className="lg:col-span-5 flex flex-col gap-4">
-          <div className="bg-white dark:bg-[#0d0d0f] rounded-2xl border border-slate-200 dark:border-white/10 p-5 shadow-sm">
-            <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-100 dark:border-white/[0.06]">
-              <h2 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-[#FF5533] dark:text-[#FF7A45]" />
-                Campaign & Content Inputs
-              </h2>
-              <span className="text-xs text-slate-400">
-                {activeTool.replace('_', ' ').toUpperCase()}
-              </span>
-            </div>
-
-            <div className="space-y-4">
-              {/* Language Switcher */}
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                  Output Language & Tone
-                </label>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setLanguage('English')}
-                    className={`py-2 px-3 text-xs font-semibold rounded-xl border transition-all ${
-                      language === 'English'
-                        ? 'bg-orange-50 dark:bg-orange-950/40 border-[#FF5533] text-[#FF5533] dark:text-[#FF7A45]'
-                        : 'border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-400'
-                    }`}
-                  >
-                    English (Conversion Copy)
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setLanguage('Bengali')}
-                    className={`py-2 px-3 text-xs font-semibold rounded-xl border transition-all ${
-                      language === 'Bengali'
-                        ? 'bg-orange-50 dark:bg-orange-950/40 border-[#FF5533] text-[#FF5533] dark:text-[#FF7A45]'
-                        : 'border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-400'
-                    }`}
-                  >
-                    বাংলা (Natural Banglish)
-                  </button>
+          <div className="rounded-3xl border border-slate-200/80 dark:border-white/10 bg-white/95 dark:bg-[#0c0c0e]/95 backdrop-blur-md p-5 sm:p-7 shadow-xl dark:shadow-2xl dark:shadow-black/40 space-y-6">
+            
+            {/* Header: Tool Identity & Brand Sync */}
+            <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-white/[0.08]">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] flex items-center justify-center text-white shadow-md shadow-[#FF5533]/20">
+                  <Sparkles className="w-5 h-5" />
+                </div>
+                <div>
+                  <h2 className="text-sm sm:text-base font-black text-slate-900 dark:text-white leading-tight">
+                    {TOOLS.find(t => t.id === activeTool)?.label}
+                  </h2>
+                  <p className="text-[11px] text-slate-500 dark:text-white/40 mt-0.5 line-clamp-1">
+                    {TOOLS.find(t => t.id === activeTool)?.description}
+                  </p>
                 </div>
               </div>
 
-              {/* Topic or Core Subject */}
+              <button
+                type="button"
+                onClick={handleAutofillBrand}
+                className="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-bold bg-[#FF5533]/10 hover:bg-[#FF5533]/20 border border-[#FF5533]/30 text-[#FF5533] dark:text-[#FF7A45] transition-all shadow-sm"
+                title="Auto-fill audience, tone and offer from Brand Brain"
+              >
+                <Brain className={`w-3.5 h-3.5 ${isSyncingBrand ? 'animate-spin' : ''}`} />
+                <span className="hidden sm:inline">Sync Brand</span>
+              </button>
+            </div>
+
+            {/* SECTION 1: CONTENT, TOPIC & VOICE CONTEXT */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-black uppercase tracking-wider text-slate-900 dark:text-white/90 flex items-center gap-1.5">
+                  <PenTool className="w-3.5 h-3.5 text-[#FF5533]" />
+                  1. Content & Topic Details
+                </span>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-white/10 text-slate-500 dark:text-white/60">
+                  Required
+                </span>
+              </div>
+
               {activeTool !== 'repurpose_pack' ? (
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                    What is the topic, product, or core message?
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                    Topic / Headline / Core Angle <span className="text-[#FF5533]">*</span>
                   </label>
                   <input
                     type="text"
                     value={topic}
                     onChange={(e) => setTopic(e.target.value)}
-                    placeholder="e.g. 5 Common SEO Mistakes in 2026, or Summer Leather Bag Launch"
-                    className="w-full text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#030303] text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#FF5533]/20 focus:border-[#FF5533]/60"
+                    placeholder="e.g. 5 Costly SEO Mistakes in 2026, or Summer Handbag Launch"
+                    className="w-full text-xs sm:text-sm px-4 py-3 rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50/80 dark:bg-[#030303] text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-[#FF5533]/25 focus:border-[#FF5533] transition"
                   />
                 </div>
               ) : (
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                    Paste Source Content or Link / Notes to Repurpose
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                    Source Content, Link or Raw Notes <span className="text-[#FF5533]">*</span>
                   </label>
                   <textarea
                     rows={5}
                     value={sourceContent}
                     onChange={(e) => setSourceContent(e.target.value)}
-                    placeholder="Paste a blog excerpt, video transcript, or raw campaign notes here to transform into 5 multi-channel posts..."
-                    className="w-full text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#030303] text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#FF5533]/20 focus:border-[#FF5533]/60 resize-none"
+                    placeholder="Paste blog content, video transcript, or raw campaign notes here to transform into 5 multi-channel posts..."
+                    className="w-full text-xs sm:text-sm px-4 py-3 rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50/80 dark:bg-[#030303] text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-[#FF5533]/25 focus:border-[#FF5533] resize-y transition"
                   />
                 </div>
               )}
 
-              {/* Target Platform */}
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                    Platform
+              {/* CONTEXT BOX WITH VOICE TYPING */}
+              {activeTool !== 'repurpose_pack' && (
+                <div className="space-y-2 pt-1">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                      Campaign Context, Offer Details & Talking Points
+                    </label>
+                    <p className="text-[11px] text-slate-500 dark:text-white/40">
+                      Add pricing, specific discount, backstory, pain points, or speak directly via mic.
+                    </p>
+                  </div>
+
+                  {/* Voice Action Bar */}
+                  <div className="flex flex-wrap items-center justify-between gap-2 p-2.5 rounded-2xl bg-slate-100/70 dark:bg-white/[0.04] border border-slate-200 dark:border-white/10">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      {!isRecording && !isTranscribing && (
+                        <button
+                          type="button"
+                          onClick={startVoiceRecording}
+                          className="group inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FF5533]/15 hover:bg-[#FF5533]/25 border border-[#FF5533]/40 text-[#FF5533] dark:text-[#FF8A00] text-xs font-bold transition shadow-sm"
+                        >
+                          <Mic size={14} className="group-hover:scale-110 transition-transform" />
+                          <span>Voice Type (Bangla / Banglish / English)</span>
+                        </button>
+                      )}
+
+                      {isRecording && (
+                        <div className="inline-flex items-center gap-2 flex-wrap">
+                          <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-rose-500/15 border border-rose-500/40 text-rose-500 dark:text-rose-300 text-xs font-semibold animate-pulse">
+                            <span className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping" />
+                            <span>Recording: {formatTimer(recordSeconds)}</span>
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={stopVoiceRecording}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:brightness-110 text-white text-xs font-black shadow-md transition"
+                          >
+                            <Square size={11} className="fill-white" />
+                            <span>Done & Transcribe</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={cancelVoiceRecording}
+                            title="Cancel recording"
+                            className="inline-flex items-center p-2 rounded-xl bg-slate-200/50 dark:bg-white/5 hover:bg-slate-300 dark:hover:bg-white/10 text-slate-500 dark:text-white/40 hover:text-slate-900 dark:hover:text-white transition text-xs"
+                          >
+                            <Trash2 size={13} />
+                          </button>
+                        </div>
+                      )}
+
+                      {isTranscribing && (
+                        <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-indigo-500/15 border border-indigo-500/30 text-indigo-600 dark:text-indigo-300 text-xs font-medium">
+                          <Loader2 size={14} className="animate-spin text-indigo-500 dark:text-indigo-400" />
+                          <span>AI transcribing voice in Bangla/Banglish/English...</span>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex items-center gap-2 text-[11px] text-slate-500 dark:text-white/40">
+                      <Volume2 size={13} className="hidden sm:inline opacity-60" />
+                      <span className="hidden sm:inline">Bangla & mixed Banglish supported</span>
+                      {context && (
+                        <button
+                          type="button"
+                          onClick={() => setContext('')}
+                          className="text-[10px] text-slate-400 hover:text-slate-700 dark:text-white/40 dark:hover:text-white underline underline-offset-2 ml-1 transition"
+                        >
+                          Clear
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  <textarea
+                    rows={4}
+                    value={context}
+                    onChange={(e) => setContext(e.target.value)}
+                    placeholder="Provide additional context: What makes this special? Who is it for? Any promotion, discount code, personal story, or key angles? (Or tap the mic to speak in Bangla / Banglish)..."
+                    className="w-full text-xs sm:text-sm px-4 py-3 rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50/80 dark:bg-[#030303] text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-[#FF5533]/25 focus:border-[#FF5533] resize-y transition"
+                  />
+
+                  {voiceSuccessMsg && (
+                    <div className="flex items-center gap-2 text-xs text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 p-2.5 rounded-xl">
+                      <CheckCircle2 size={15} className="shrink-0 text-emerald-500" />
+                      <span>{voiceSuccessMsg}</span>
+                    </div>
+                  )}
+
+                  {voiceErrorMsg && (
+                    <div className="flex items-center gap-2 text-xs text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/20 p-2.5 rounded-xl">
+                      <AlertCircle size={15} className="shrink-0" />
+                      <span>{voiceErrorMsg}</span>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* SECTION 2: CHANNEL & VOICE POSITIONING */}
+            <div className="space-y-4 pt-3 border-t border-slate-100 dark:border-white/[0.08]">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-black uppercase tracking-wider text-slate-900 dark:text-white/90 flex items-center gap-1.5">
+                  <Target className="w-3.5 h-3.5 text-[#FF5533]" />
+                  2. Channel, Tone & Positioning
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                    Publishing Platform
                   </label>
                   <select
                     value={platform}
                     onChange={(e) => setPlatform(e.target.value)}
-                    className="w-full text-xs px-3 py-2.5 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#030303] text-slate-900 dark:text-white focus:outline-none focus:border-[#FF5533]/60"
+                    className="w-full text-xs sm:text-sm px-3.5 py-2.5 rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50/80 dark:bg-[#030303] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#FF5533]/25 focus:border-[#FF5533] transition"
                   >
                     {PLATFORMS.map((p) => (
                       <option key={p} value={p}>{p}</option>
@@ -418,14 +728,14 @@ export default function SocialMediaWorkspacePage() {
                   </select>
                 </div>
 
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                    Desired Tone
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                    Voice Tone
                   </label>
                   <select
                     value={tone}
                     onChange={(e) => setTone(e.target.value)}
-                    className="w-full text-xs px-3 py-2.5 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#030303] text-slate-900 dark:text-white focus:outline-none focus:border-[#FF5533]/60"
+                    className="w-full text-xs sm:text-sm px-3.5 py-2.5 rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50/80 dark:bg-[#030303] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#FF5533]/25 focus:border-[#FF5533] transition"
                   >
                     {TONES.map((t) => (
                       <option key={t} value={t}>{t}</option>
@@ -434,10 +744,39 @@ export default function SocialMediaWorkspacePage() {
                 </div>
               </div>
 
-              {/* Tool specific options */}
+              {/* Target Audience & Goal */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                    Target Audience / Persona
+                  </label>
+                  <input
+                    type="text"
+                    value={audience}
+                    onChange={(e) => setAudience(e.target.value)}
+                    placeholder="e.g. Freelancers, Tech students, SME founders"
+                    className="w-full text-xs sm:text-sm px-3.5 py-2.5 rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50/80 dark:bg-[#030303] text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-[#FF5533]/25 focus:border-[#FF5533] transition"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                    Call-to-Action / Goal
+                  </label>
+                  <input
+                    type="text"
+                    value={goal}
+                    onChange={(e) => setGoal(e.target.value)}
+                    placeholder="e.g. Comment 'GUIDE', DMs, Website Clicks"
+                    className="w-full text-xs sm:text-sm px-3.5 py-2.5 rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50/80 dark:bg-[#030303] text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-[#FF5533]/25 focus:border-[#FF5533] transition"
+                  />
+                </div>
+              </div>
+
+              {/* Video duration if reels */}
               {activeTool === 'reels_shorts_script' && (
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                <div className="space-y-1.5 pt-1">
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
                     Video Target Duration
                   </label>
                   <div className="grid grid-cols-3 gap-2">
@@ -446,10 +785,10 @@ export default function SocialMediaWorkspacePage() {
                         key={d}
                         type="button"
                         onClick={() => setDuration(d)}
-                        className={`py-2 px-2 text-[11px] font-semibold rounded-xl border transition-all text-center ${
+                        className={`py-2 px-2 text-xs font-bold rounded-xl border transition-all text-center ${
                           duration === d
-                            ? 'bg-orange-50 dark:bg-orange-950/40 border-[#FF5533] text-[#FF5533] dark:text-[#FF7A45]'
-                            : 'border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-400'
+                            ? 'bg-[#FF5533]/15 border-[#FF5533] text-[#FF5533] dark:text-[#FF7A45] shadow-sm'
+                            : 'border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5'
                         }`}
                       >
                         {d}
@@ -458,62 +797,71 @@ export default function SocialMediaWorkspacePage() {
                   </div>
                 </div>
               )}
+            </div>
 
-              {/* Target Audience & Goal */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                    Target Audience / Persona
-                  </label>
-                  <input
-                    type="text"
-                    value={audience}
-                    onChange={(e) => setAudience(e.target.value)}
-                    placeholder="e.g. Freelancers, Tech students, SME founders"
-                    className="w-full text-xs px-3 py-2.5 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#030303] text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-[#FF5533]/60"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                    Conversion Goal
-                  </label>
-                  <input
-                    type="text"
-                    value={goal}
-                    onChange={(e) => setGoal(e.target.value)}
-                    placeholder="e.g. Get DMs, Website Clicks, Saves"
-                    className="w-full text-xs px-3 py-2.5 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#030303] text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-[#FF5533]/60"
-                  />
-                </div>
+            {/* SECTION 3: LANGUAGE PREFERENCE */}
+            <div className="space-y-3 pt-3 border-t border-slate-100 dark:border-white/[0.08]">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-black uppercase tracking-wider text-slate-900 dark:text-white/90 flex items-center gap-1.5">
+                  <Globe className="w-3.5 h-3.5 text-[#FF5533]" />
+                  3. Output Language
+                </span>
               </div>
 
-              {error && (
-                <div className="p-3 rounded-xl text-xs bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-900">
-                  {error}
-                </div>
-              )}
-
-              {/* Submit CTA */}
-              <button
-                type="button"
-                disabled={isGenerating}
-                onClick={handleGenerate}
-                className="w-full mt-2 py-3 px-4 rounded-xl font-bold text-xs bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] hover:from-[#FF5547] hover:to-[#FF9036] active:scale-[0.99] text-white transition-all shadow-md shadow-[#FF5533]/25 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isGenerating ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    Generating Human-Grade Social Copy...
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="w-4 h-4" />
-                    Generate {TOOLS.find(t => t.id === activeTool)?.label}
-                  </>
-                )}
-              </button>
+              <div className="grid grid-cols-2 gap-2.5">
+                <button
+                  type="button"
+                  onClick={() => setLanguage('English')}
+                  className={`py-2.5 px-3.5 text-xs font-bold rounded-2xl border transition-all flex items-center justify-center gap-2 ${
+                    language === 'English'
+                      ? 'bg-[#FF5533]/15 border-[#FF5533] text-[#FF5533] dark:text-[#FF7A45] shadow-sm'
+                      : 'border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5'
+                  }`}
+                >
+                  <span>English (Global Copy)</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setLanguage('Bengali')}
+                  className={`py-2.5 px-3.5 text-xs font-bold rounded-2xl border transition-all flex items-center justify-center gap-2 ${
+                    language === 'Bengali'
+                      ? 'bg-[#FF5533]/15 border-[#FF5533] text-[#FF5533] dark:text-[#FF7A45] shadow-sm'
+                      : 'border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5'
+                  }`}
+                >
+                  <span>বাংলা (Natural Banglish)</span>
+                </button>
+              </div>
             </div>
+
+            {/* ERROR DISPLAY */}
+            {error && (
+              <div className="flex items-center gap-2 p-3.5 rounded-2xl text-xs bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-900">
+                <AlertCircle size={15} className="shrink-0" />
+                <span>{error}</span>
+              </div>
+            )}
+
+            {/* SUBMIT CTA */}
+            <button
+              type="button"
+              disabled={isGenerating}
+              onClick={handleGenerate}
+              className="w-full py-4 px-5 rounded-2xl font-black text-xs sm:text-sm bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] hover:brightness-110 active:scale-[0.99] text-white transition-all shadow-xl shadow-[#FF5533]/25 flex items-center justify-center gap-2.5 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isGenerating ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Generating Human-Grade Social Copy...</span>
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-4 h-4" />
+                  <span>Generate {TOOLS.find(t => t.id === activeTool)?.label}</span>
+                </>
+              )}
+            </button>
+
           </div>
         </div>
 
