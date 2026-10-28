@@ -24,6 +24,7 @@ import {
   Sparkles,
   Command,
   Play,
+  Flame,
 } from 'lucide-react';
 
 type ToolCard = {
@@ -43,193 +44,194 @@ const allTools: ToolCard[] = [
   {
     name: 'Generate Content',
     description: 'Write SEO-optimized articles with keywords, meta tags, and structured headers.',
-    useCase: 'Best for publishing high-quality long-form blogs to WordPress or exports.',
+    useCase: 'Publishing high-quality long-form blogs to WordPress or exports.',
     href: '/dashboard/generate',
     category: 'SEO Workspace',
     icon: Zap,
     tag: 'Popular',
-    color: 'text-blue-400',
-    bg: 'bg-blue-500/10 border-blue-500/20',
+    color: 'text-[#FF5533]',
+    bg: 'bg-[#FF5533]/10 border-[#FF5533]/25',
   },
   {
     name: 'Trend Tracker',
     description: 'Monitor daily search trends and evergreen keyword intelligence.',
-    useCase: 'Best for tracking rising queries and planning monthly content topics.',
+    useCase: 'Tracking rising queries and planning monthly content topics.',
     href: '/dashboard/trends',
     category: 'SEO Workspace',
     icon: TrendingUp,
     tag: 'Hot',
-    color: 'text-[#FF5533]',
-    bg: 'bg-orange-500/10 border-orange-500/20',
+    color: 'text-amber-400',
+    bg: 'bg-amber-500/10 border-amber-500/25',
   },
   {
     name: 'Keyword Research',
     description: 'Find search intent, semantic groups, and competitiveness metrics.',
-    useCase: 'Best for structuring content pillars and picking target keywords.',
+    useCase: 'Structuring content pillars and picking target keywords.',
     href: '/dashboard/keywords',
     category: 'SEO Workspace',
     icon: Search,
     tag: 'New',
     color: 'text-cyan-400',
-    bg: 'bg-cyan-500/10 border-cyan-500/20',
+    bg: 'bg-cyan-500/10 border-cyan-500/25',
   },
   {
     name: 'Content Calendar',
     description: 'Plan, outline, and schedule upcoming content workflows.',
-    useCase: 'Best for keeping publication deadlines organized for your team.',
+    useCase: 'Keeping publication deadlines organized for your team.',
     href: '/dashboard/calendar',
     category: 'SEO Workspace',
     icon: ClipboardList,
     color: 'text-emerald-400',
-    bg: 'bg-emerald-500/10 border-emerald-500/20',
+    bg: 'bg-emerald-500/10 border-emerald-500/25',
   },
   {
     name: 'WordPress Sync',
     description: 'Connect self-hosted WordPress sites and publish directly.',
-    useCase: 'Best for instantly shipping generated articles without manual copy-paste.',
+    useCase: 'Instantly shipping generated articles without manual copy-paste.',
     href: '/dashboard/wordpress',
     category: 'SEO Workspace',
     icon: Globe,
-    color: 'text-amber-400',
-    bg: 'bg-amber-500/10 border-amber-500/20',
+    color: 'text-blue-400',
+    bg: 'bg-blue-500/10 border-blue-500/25',
   },
   {
     name: 'My Articles',
     description: 'Manage and review your generated article reports.',
-    useCase: 'Best for tracking word count, keyword densities, and active exports.',
+    useCase: 'Tracking word count, keyword densities, and active exports.',
     href: '/dashboard/articles',
     category: 'SEO Workspace',
     icon: FileText,
     color: 'text-pink-400',
-    bg: 'bg-pink-500/10 border-pink-500/20',
+    bg: 'bg-pink-500/10 border-pink-500/25',
   },
   {
     name: 'Website Analyzer',
     description: 'Perform deep SEO audits, verify HTML metadata structure, headings hierarchy, and get AI CRO suggestions.',
-    useCase: 'Best for diagnosing optimization gaps and copy opportunities on live websites.',
+    useCase: 'Diagnosing optimization gaps and copy opportunities on live websites.',
     href: '/dashboard/website-analyzer',
     category: 'SEO Workspace',
     icon: Globe,
-    tag: 'New',
-    color: 'text-emerald-400',
-    bg: 'bg-emerald-500/10 border-emerald-500/20',
+    tag: 'Audit',
+    color: 'text-teal-400',
+    bg: 'bg-teal-500/10 border-teal-500/25',
   },
 
   // Growth Suite Tools
   {
     name: 'Brand Brain',
     description: 'Save business positioning, target audience profile, and tone of voice.',
-    useCase: 'Best for standardizing inputs so every output stays strictly on-brand.',
+    useCase: 'Standardizing inputs so every output stays strictly on-brand.',
     href: '/dashboard/brand',
     category: 'Growth Suite',
     icon: Brain,
-    tag: 'Core',
+    tag: 'Core AI',
     color: 'text-fuchsia-400',
-    bg: 'bg-fuchsia-500/10 border-fuchsia-500/20',
+    bg: 'bg-fuchsia-500/10 border-fuchsia-500/25',
   },
   {
     name: 'Strategy Audit',
     description: 'Formulate messaging matrices, offer structures, and priority funnels.',
-    useCase: 'Best for assessing current business gaps and positioning your offer.',
+    useCase: 'Assessing current business gaps and positioning your offer.',
     href: '/dashboard/marketing/strategy_audit',
     category: 'Growth Suite',
     icon: Target,
     tag: 'Core',
     color: 'text-violet-400',
-    bg: 'bg-violet-500/10 border-violet-500/20',
+    bg: 'bg-violet-500/10 border-violet-500/25',
   },
   {
     name: 'Launch Pack',
     description: 'Generate high-converting landing copies, emails, and campaign assets in one click.',
-    useCase: 'Best for launching new products, webinar registrations, or digital assets.',
+    useCase: 'Launching new products, webinar registrations, or digital assets.',
     href: '/dashboard/marketing/launch_pack',
     category: 'Growth Suite',
     icon: Rocket,
     tag: 'Popular',
     color: 'text-orange-400',
-    bg: 'bg-orange-500/10 border-orange-500/20',
+    bg: 'bg-orange-500/10 border-orange-500/25',
   },
   {
     name: 'Campaign Planner',
     description: 'Create multi-channel launch calendars (LinkedIn, Facebook, Email).',
-    useCase: 'Best for organizing 7/14/30 day campaign sequences with hooks and CTAs.',
+    useCase: 'Organizing 7/14/30 day campaign sequences with hooks and CTAs.',
     href: '/dashboard/marketing/campaign_planner',
     category: 'Growth Suite',
     icon: ClipboardList,
-    color: 'text-blue-400',
-    bg: 'bg-blue-500/10 border-blue-500/20',
+    color: 'text-sky-400',
+    bg: 'bg-sky-500/10 border-sky-500/25',
   },
   {
     name: 'Video Content Kit',
     description: 'Analyze transcripts and extract titles, short hook structures, and highlights.',
-    useCase: 'Best for converting YouTube/audio clips into short-form social formats.',
+    useCase: 'Converting YouTube/audio clips into short-form viral social formats.',
     href: '/dashboard/video-kit',
     category: 'Growth Suite',
     icon: Video,
-    tag: 'New',
-    color: 'text-emerald-400',
-    bg: 'bg-emerald-500/10 border-emerald-500/20',
+    tag: 'Viral',
+    color: 'text-rose-400',
+    bg: 'bg-rose-500/10 border-rose-500/25',
   },
   {
     name: 'Product Photography',
     description: 'Structure photography briefs and generate high-fidelity product images.',
-    useCase: 'Best for Shopify listings, Instagram lifestyle posts, or web banner assets.',
+    useCase: 'Shopify listings, Instagram lifestyle posts, or web banner assets.',
     href: '/dashboard/marketing/product_photography',
     category: 'Growth Suite',
     icon: Camera,
-    tag: 'MVP',
+    tag: 'Studio',
     color: 'text-cyan-400',
-    bg: 'bg-cyan-500/10 border-cyan-500/20',
+    bg: 'bg-cyan-500/10 border-cyan-500/25',
   },
   {
     name: 'Social Campaign',
     description: 'Generate angles and copy variations tailored for specific social handles.',
-    useCase: 'Best for building engagement and community trust on LinkedIn, Facebook, and X.',
+    useCase: 'Building engagement and community trust on LinkedIn, Facebook, and X.',
     href: '/dashboard/marketing/social_campaign',
     category: 'Growth Suite',
     icon: Share2,
-    color: 'text-[#FF5533]',
-    bg: 'bg-orange-500/10 border-orange-500/20',
+    color: 'text-indigo-400',
+    bg: 'bg-indigo-500/10 border-indigo-500/25',
   },
   {
     name: 'Product Copy',
     description: 'Write conversion-focused copy highlighting features and handling objections.',
-    useCase: 'Best for Shopify descriptions, Amazon copy, and service benefits tables.',
+    useCase: 'Shopify descriptions, Amazon copy, and service benefits tables.',
     href: '/dashboard/marketing/product_copy',
     category: 'Growth Suite',
     icon: FileText,
     color: 'text-pink-400',
-    bg: 'bg-pink-500/10 border-pink-500/20',
+    bg: 'bg-pink-500/10 border-pink-500/25',
   },
   {
     name: 'Email Campaign',
     description: 'Structure promo and welcome email sequence flows.',
-    useCase: 'Best for newsletters, lead magnet deliveries, and subscriber updates.',
+    useCase: 'Newsletters, lead magnet deliveries, and subscriber updates.',
     href: '/dashboard/marketing/email_campaign',
     category: 'Growth Suite',
     icon: Mail,
-    color: 'text-rose-400',
-    bg: 'bg-rose-500/10 border-rose-500/20',
+    color: 'text-amber-400',
+    bg: 'bg-amber-500/10 border-amber-500/25',
   },
   {
     name: 'SMS Campaign',
     description: 'Generate compact, high-action SMS notifications.',
-    useCase: 'Best for order updates, discount codes, or event bookings reminders.',
+    useCase: 'Order updates, discount codes, or event bookings reminders.',
     href: '/dashboard/marketing/sms_campaign',
     category: 'Growth Suite',
     icon: MessageSquare,
     color: 'text-teal-400',
-    bg: 'bg-teal-500/10 border-teal-500/20',
+    bg: 'bg-teal-500/10 border-teal-500/25',
   },
   {
     name: 'Landing Page Copy',
     description: 'Structure hero headings, primary copy, and CTAs for optimal conversion.',
-    useCase: 'Best for lead generation, course sales, or waitlist signups.',
+    useCase: 'Lead generation, course sales, or waitlist signups.',
     href: '/dashboard/marketing/landing_page',
     category: 'Growth Suite',
     icon: Target,
+    tag: 'CRO',
     color: 'text-purple-400',
-    bg: 'bg-purple-500/10 border-purple-500/20',
+    bg: 'bg-purple-500/10 border-purple-500/25',
   },
 ];
 
@@ -246,7 +248,6 @@ export default function DashboardPage() {
     async function loadUser() {
       if (!isSupabaseConfigured()) return;
       try {
-        // refreshSession() fetches fresh user_metadata from server
         const { data } = await getSupabaseBrowserClient().auth.refreshSession();
         const user = data.session?.user;
         if (user) {
@@ -270,7 +271,7 @@ export default function DashboardPage() {
 
   // Filter tools for autocomplete list
   const suggestedTools = useMemo(() => {
-    if (!searchQuery.trim()) return allTools; // Show all tools when query is empty
+    if (!searchQuery.trim()) return allTools;
     return allTools.filter(tool =>
       tool.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       tool.description.toLowerCase().includes(searchQuery.toLowerCase())
@@ -303,11 +304,10 @@ export default function DashboardPage() {
       {/* Main Container */}
       <div className="space-y-10 p-6 lg:p-10 max-w-7xl mx-auto">
         
-        {/* Banner Section matching the requested design */}
+        {/* Banner Section */}
         <section className="relative rounded-[2.5rem] border border-white/10 bg-black min-h-[340px] flex flex-col items-center justify-center text-center p-8 lg:p-12 shadow-2xl">
-          {/* Background image & glows wrapper with overflow-hidden to clip them inside rounded corners */}
+          {/* Background image & glows wrapper */}
           <div className="absolute inset-0 z-0 rounded-[2.5rem] overflow-hidden pointer-events-none">
-            {/* Banner Collage Background Image */}
             <div className="absolute inset-0 opacity-40">
               <Image
                 src="/images/banner_collage.png"
@@ -405,30 +405,49 @@ export default function DashboardPage() {
 
         {/* Dashboard Tools Catalog Categorized */}
         <section className="space-y-8">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-white/5 pb-4">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-white/[0.08] pb-5">
             <div>
-              <h2 className="text-lg font-black tracking-tight text-white uppercase tracking-wider">Workspace Catalog</h2>
-              <p className="text-xs text-white/40 mt-1">Access advanced content generators, strategic campaign briefs, and intelligence tools.</p>
+              <div className="flex items-center gap-2 mb-1.5">
+                <span className="h-2 w-2 rounded-full bg-[#FF5533]" />
+                <h2 className="text-xl font-black tracking-tight text-white uppercase tracking-wider">
+                  Workspace Catalog
+                </h2>
+              </div>
+              <p className="text-xs text-white/50">
+                Access advanced content generators, strategic campaign briefs, and intelligence tools.
+              </p>
             </div>
+
             {/* Category Filter Pills */}
-            <div className="flex flex-wrap gap-2">
-              {(['All', 'SEO Workspace', 'Growth Suite'] as const).map(category => (
-                <button
-                  key={category}
-                  onClick={() => setActiveCategory(category)}
-                  className={`rounded-full px-4 py-1.5 text-xs font-black transition cursor-pointer ${
-                    activeCategory === category
-                      ? 'bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] text-white shadow-md shadow-[#FF5533]/25'
-                      : 'bg-white/5 text-white/40 hover:bg-white/10 hover:text-white'
-                  }`}
-                >
-                  {category}
-                </button>
-              ))}
+            <div className="flex flex-wrap items-center gap-2">
+              {(['All', 'SEO Workspace', 'Growth Suite'] as const).map(category => {
+                const count = category === 'All' 
+                  ? allTools.length 
+                  : allTools.filter(t => t.category === category).length;
+                const isActive = activeCategory === category;
+                return (
+                  <button
+                    key={category}
+                    onClick={() => setActiveCategory(category)}
+                    className={`relative inline-flex items-center gap-2 rounded-2xl px-4 py-2 text-xs font-black uppercase tracking-wider transition-all duration-300 cursor-pointer ${
+                      isActive
+                        ? 'bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] text-white shadow-lg shadow-[#FF5533]/25 border border-transparent'
+                        : 'bg-white/[0.03] text-white/50 border border-white/[0.08] hover:bg-white/[0.07] hover:text-white hover:border-white/15'
+                    }`}
+                  >
+                    <span>{category}</span>
+                    <span className={`rounded-full px-2 py-0.5 text-[10px] font-mono font-bold ${
+                      isActive ? 'bg-black/25 text-white' : 'bg-white/10 text-white/40'
+                    }`}>
+                      {count}
+                    </span>
+                  </button>
+                );
+              })}
             </div>
           </div>
 
-          {/* Cards Grid Layout */}
+          {/* Redesigned Cards Grid Layout */}
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {filteredCards.map(tool => {
               const Icon = tool.icon;
@@ -436,37 +455,84 @@ export default function DashboardPage() {
                 <Link
                   key={tool.name}
                   href={tool.href}
-                  className="group relative flex flex-col justify-between rounded-3xl border border-white/10 bg-white/[0.02] p-6 hover-glow-card transition-all duration-300 hover:border-white/20 hover:bg-white/[0.04]"
+                  className="group relative flex flex-col justify-between rounded-[2rem] border border-white/[0.08] bg-gradient-to-b from-white/[0.05] via-white/[0.02] to-transparent p-6 sm:p-7 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1.5 hover:border-[#FF5533]/40 hover:shadow-[0_20px_45px_rgba(255,85,51,0.14)] overflow-hidden text-left"
                 >
+                  {/* Ambient Hover Glow behind card */}
+                  <div className="pointer-events-none absolute -right-16 -top-16 h-44 w-44 rounded-full bg-gradient-to-br from-[#FF4D42]/0 via-[#FF6A3D]/0 to-transparent blur-2xl transition-all duration-500 group-hover:from-[#FF4D42]/15 group-hover:via-[#FF8526]/12" />
+                  
+                  {/* Top specular hairline */}
+                  <div className="pointer-events-none absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent group-hover:via-[#FF6A3D]/60 transition-all duration-500" />
+
                   <div>
-                    <div className="mb-4 flex items-center justify-between">
-                      <div className={`flex h-11 w-11 items-center justify-center rounded-2xl ${tool.bg} ${tool.color}`}>
-                        <Icon size={20} />
+                    {/* Top Row: Icon + Badges */}
+                    <div className="mb-5 flex items-center justify-between">
+                      {/* 3D Glass Squircle Icon with glow */}
+                      <div className="relative">
+                        <div className={`absolute inset-0 rounded-2xl blur-md opacity-30 group-hover:opacity-75 transition-opacity ${tool.bg}`} />
+                        <div className={`relative flex h-12 w-12 items-center justify-center rounded-2xl border shadow-inner transition-transform duration-300 group-hover:scale-105 ${tool.bg} ${tool.color}`}>
+                          <Icon size={22} className="transition-transform duration-300 group-hover:scale-110" />
+                        </div>
                       </div>
-                      {tool.tag && (
-                        <span className="rounded-full bg-white/5 px-2.5 py-0.5 text-[9px] font-black uppercase tracking-widest text-white/40 border border-white/5">
-                          {tool.tag}
+
+                      {/* Badges: Category & Tag */}
+                      <div className="flex items-center gap-1.5">
+                        <span className="rounded-full bg-white/[0.04] px-2.5 py-1 text-[9px] font-bold uppercase tracking-wider text-white/40 border border-white/[0.06]">
+                          {tool.category === 'SEO Workspace' ? 'SEO' : 'Growth'}
                         </span>
-                      )}
+                        {tool.tag && (
+                          <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[9px] font-black uppercase tracking-wider border shadow-xs ${
+                            tool.tag === 'Hot'
+                              ? 'bg-gradient-to-r from-red-500/15 to-orange-500/15 text-[#FF5533] border-orange-500/30 shadow-orange-500/10'
+                              : tool.tag === 'New'
+                              ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30 shadow-emerald-500/10'
+                              : tool.tag === 'Popular'
+                              ? 'bg-purple-500/15 text-purple-300 border-purple-500/30 shadow-purple-500/10'
+                              : tool.tag === 'Core' || tool.tag === 'Core AI'
+                              ? 'bg-amber-500/15 text-amber-300 border-amber-500/30 shadow-amber-500/10'
+                              : 'bg-cyan-500/15 text-cyan-300 border-cyan-500/30 shadow-cyan-500/10'
+                          }`}>
+                            {tool.tag === 'Hot' && <Flame size={10} className="text-[#FF5533]" />}
+                            {tool.tag}
+                          </span>
+                        )}
+                      </div>
                     </div>
-                    
-                    <h3 className="text-base font-black text-white group-hover:text-[#FF7A45] transition-colors">
+
+                    {/* Title with Gradient Hover */}
+                    <h3 className="text-lg font-black tracking-tight text-white transition-colors duration-200 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-white group-hover:via-white group-hover:to-[#FF8526] group-hover:bg-clip-text">
                       {tool.name}
                     </h3>
-                    
-                    <p className="mt-2 text-xs leading-relaxed text-white/50 group-hover:text-white/60 transition-colors">
+
+                    {/* Description */}
+                    <p className="mt-2 text-xs leading-relaxed text-white/50 transition-colors duration-200 group-hover:text-white/70 line-clamp-2">
                       {tool.description}
                     </p>
                   </div>
 
-                  <div className="mt-6 border-t border-white/5 pt-4">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-white/30">Use Case</p>
-                    <p className="mt-1 text-[11px] text-white/45 leading-relaxed group-hover:text-white/60 transition-colors">
-                      {tool.useCase}
-                    </p>
-                    
-                    <div className="mt-4 flex items-center gap-1.5 text-xs font-bold text-[#FF5533] dark:text-[#FF7A45] group-hover:translate-x-0.5 transition-all">
-                      Launch workspace <ArrowRight size={13} className="group-hover:translate-x-1 transition-transform" />
+                  {/* Bottom section: Workflow Use-Case Chip & Launch CTA */}
+                  <div className="mt-6">
+                    {/* Workflow Hook Chip */}
+                    <div className="rounded-2xl border border-white/[0.05] bg-black/30 p-3.5 backdrop-blur-xs transition-colors duration-300 group-hover:border-white/[0.12] group-hover:bg-black/45">
+                      <div className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest text-white/40">
+                        <Sparkles size={11} className="text-[#FF5533]" />
+                        <span>Best Used For</span>
+                      </div>
+                      <p className="mt-1 text-[11px] leading-relaxed text-white/60 transition-colors duration-200 group-hover:text-white/80 line-clamp-2">
+                        {tool.useCase}
+                      </p>
+                    </div>
+
+                    {/* Interactive Launch Button Row */}
+                    <div className="mt-4 flex items-center justify-between pt-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-black uppercase tracking-wider text-white/70 transition-colors duration-200 group-hover:text-white">
+                          Launch Studio
+                        </span>
+                        <span className="h-1.5 w-1.5 rounded-full bg-[#FF5533]/60 group-hover:bg-[#FF5533] group-hover:animate-ping transition-all" />
+                      </div>
+                      <div className="flex h-8 w-8 items-center justify-center rounded-xl border border-white/10 bg-white/[0.04] text-white/60 transition-all duration-300 group-hover:border-[#FF5533]/50 group-hover:bg-gradient-to-r group-hover:from-[#FF473A] group-hover:to-[#FF8526] group-hover:text-white group-hover:shadow-md group-hover:shadow-orange-500/25 group-hover:translate-x-1">
+                        <ArrowRight size={14} />
+                      </div>
                     </div>
                   </div>
                 </Link>

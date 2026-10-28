@@ -204,31 +204,60 @@ function MarketingHubContent() {
               .map(([category, categoryTools]) => (
                 <div key={category} className="space-y-4">
                   <h3 className="text-xs font-black uppercase tracking-[0.2em] text-white/30 px-1">{category}</h3>
-                  <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                     {categoryTools.map(tool => {
                       const IconComponent = tool.icon;
                       return (
                         <Link
                           key={tool.id}
                           href={`/dashboard/marketing/${tool.id}`}
-                          className="group relative rounded-3xl border border-white/10 bg-white/[0.02] p-6 hover-glow-card transition-all duration-300 hover:border-[#FF5533]/30 hover:bg-white/[0.04] text-left"
+                          className="group relative flex flex-col justify-between rounded-[2rem] border border-white/[0.08] bg-gradient-to-b from-white/[0.05] via-white/[0.02] to-transparent p-6 sm:p-7 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1.5 hover:border-[#FF5533]/40 hover:shadow-[0_20px_45px_rgba(255,85,51,0.14)] overflow-hidden text-left"
                         >
-                          <div className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-[#FF5533]/10 text-[#FF5533] shadow-md">
-                            <IconComponent size={20} />
+                          {/* Ambient Hover Glow behind card */}
+                          <div className="pointer-events-none absolute -right-16 -top-16 h-44 w-44 rounded-full bg-gradient-to-br from-[#FF4D42]/0 via-[#FF6A3D]/0 to-transparent blur-2xl transition-all duration-500 group-hover:from-[#FF4D42]/15 group-hover:via-[#FF8526]/12" />
+                          
+                          {/* Top specular hairline */}
+                          <div className="pointer-events-none absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent group-hover:via-[#FF6A3D]/60 transition-all duration-500" />
+
+                          <div>
+                            <div className="mb-5 flex items-center justify-between">
+                              <div className="relative">
+                                <div className="absolute inset-0 rounded-2xl blur-md opacity-30 group-hover:opacity-75 transition-opacity bg-orange-500/10" />
+                                <div className="relative flex h-12 w-12 items-center justify-center rounded-2xl border border-orange-500/25 bg-orange-500/10 text-[#FF5533] shadow-inner transition-transform duration-300 group-hover:scale-105">
+                                  <IconComponent size={22} className="transition-transform duration-300 group-hover:scale-110" />
+                                </div>
+                              </div>
+
+                              <div className="flex items-center gap-1.5">
+                                <span className="rounded-full bg-white/[0.04] px-2.5 py-1 text-[9px] font-bold uppercase tracking-wider text-white/40 border border-white/[0.06]">
+                                  {tool.category}
+                                </span>
+                                {tool.featured && (
+                                  <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30 px-2.5 py-1 text-[9px] font-black uppercase tracking-wider shadow-amber-500/10">
+                                    Core
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+
+                            <h4 className="text-lg font-black tracking-tight text-white transition-colors duration-200 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-white group-hover:via-white group-hover:to-[#FF8526] group-hover:bg-clip-text">
+                              {tool.label}
+                            </h4>
+                            <p className="mt-2 text-xs leading-relaxed text-white/50 transition-colors duration-200 group-hover:text-white/70 line-clamp-2">
+                              {tool.description}
+                            </p>
                           </div>
-                          {tool.featured && (
-                            <span className="absolute right-6 top-6 rounded-full bg-orange-500/10 px-2 py-0.5 text-[9px] font-black uppercase tracking-widest text-[#FF5533] border border-orange-500/20">
-                              Core
-                            </span>
-                          )}
-                          <h4 className="text-base font-black text-white group-hover:text-[#FF7A45] transition-colors">
-                            {tool.label}
-                          </h4>
-                          <p className="mt-2 text-xs leading-relaxed text-white/40 group-hover:text-white/50 transition-colors">
-                            {tool.description}
-                          </p>
-                          <div className="mt-4 flex items-center gap-1.5 text-xs font-bold text-[#FF5533] group-hover:text-[#FF8A00] transition-colors">
-                            Launch workspace <ArrowRight size={13} className="group-hover:translate-x-1 transition-transform" />
+
+                          <div className="mt-6 flex items-center justify-between border-t border-white/[0.06] pt-4 transition-colors duration-300 group-hover:border-white/[0.1]">
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs font-black uppercase tracking-wider text-white/70 transition-colors duration-200 group-hover:text-white">
+                                Launch Studio
+                              </span>
+                              <span className="h-1.5 w-1.5 rounded-full bg-[#FF5533]/60 group-hover:bg-[#FF5533] group-hover:animate-ping transition-all" />
+                            </div>
+                            <div className="flex h-8 w-8 items-center justify-center rounded-xl border border-white/10 bg-white/[0.04] text-white/60 transition-all duration-300 group-hover:border-[#FF5533]/50 group-hover:bg-gradient-to-r group-hover:from-[#FF473A] group-hover:to-[#FF8526] group-hover:text-white group-hover:shadow-md group-hover:shadow-orange-500/25 group-hover:translate-x-1">
+                              <ArrowRight size={14} />
+                            </div>
                           </div>
                         </Link>
                       );
