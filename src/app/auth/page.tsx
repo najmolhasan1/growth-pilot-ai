@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, Loader2, Sparkles, Zap, Mail, KeyRound, User } from 'lucide-react';
+import { ArrowRight, Loader2, Sparkles, Mail, KeyRound, User } from 'lucide-react';
 import { getSupabaseBrowserClient, isSupabaseConfigured } from '@/lib/supabase';
 import BrandLogo from '@/components/layout/BrandLogo';
 
@@ -187,28 +187,22 @@ function AuthContent() {
         {/* Left branding panel */}
         <div className="relative hidden overflow-hidden border-r border-border p-12 lg:block bg-muted/20">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,85,51,0.12),transparent_40%),radial-gradient(circle_at_bottom_right,rgba(255,138,0,0.1),transparent_40%)]" />
-          <div className="relative h-full flex flex-col justify-between">
-            <div>
-              <div className="mb-16">
-                <BrandLogo href="/" imgClassName="h-10 w-auto" />
-              </div>
-
-              <div className="max-w-lg mt-12">
-                <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-3.5 py-1 text-[10px] font-black uppercase tracking-widest text-[#FF5533] dark:text-[#FF7A45] shadow-xs">
-                  <Sparkles size={12} className="animate-pulse text-[#FF6A3D]" /> Your AI growth workspace
-                </div>
-                <h1 className="text-4xl font-black leading-tight tracking-tight text-foreground">
-                  Plan, create, and package marketing assets from one focused workspace.
-                </h1>
-                <p className="mt-6 text-sm leading-7 text-muted-foreground">
-                  Use GrowthPilot AI for SEO content, keyword research, trend ideas, video creator kits, social campaigns, and launch assets.
-                </p>
-              </div>
+          <div className="relative h-full flex flex-col justify-start">
+            <div className="mb-16">
+              <BrandLogo href="/" imgClassName="h-10 w-auto" />
             </div>
-            
-            <p className="text-[10px] font-bold text-muted-foreground/60 tracking-wider">
-              2026 GROWTHPILOT AI • ALL RIGHTS RESERVED
-            </p>
+
+            <div className="max-w-lg mt-8">
+              <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-3.5 py-1 text-[10px] font-black uppercase tracking-widest text-[#FF5533] dark:text-[#FF7A45] shadow-xs">
+                <Sparkles size={12} className="animate-pulse text-[#FF6A3D]" /> Your AI growth workspace
+              </div>
+              <h1 className="text-4xl font-black leading-tight tracking-tight text-foreground">
+                Plan, create, and package marketing assets from one focused workspace.
+              </h1>
+              <p className="mt-6 text-sm leading-7 text-muted-foreground">
+                Use GrowthPilot AI for SEO content, keyword research, trend ideas, video creator kits, social campaigns, and launch assets.
+              </p>
+            </div>
           </div>
         </div>
 
@@ -219,17 +213,9 @@ function AuthContent() {
           </div>
 
           <div className="mb-6">
-            <p className="mb-2 text-xs font-black uppercase tracking-[0.2em] text-[#FF5533] dark:text-[#FF7A45]">
-              {mode === 'register' ? 'Start your workspace' : 'Welcome back'}
-            </p>
             <h2 className="text-2xl font-black tracking-tight text-foreground sm:text-3xl">
-              {mode === 'register' ? 'Create your account' : 'Continue your work'}
+              {mode === 'register' ? 'Create your account' : 'Welcome back'}
             </h2>
-            <p className="mt-2 text-xs leading-5 text-muted-foreground">
-              {mode === 'register'
-                ? 'Start with the workflows your business needs most: content, video, research, and campaigns.'
-                : 'Pick up where you left off and keep building your marketing assets.'}
-            </p>
           </div>
 
           {/* Toggle pill selector */}
@@ -257,47 +243,6 @@ function AuthContent() {
                 right: mode === 'register' ? '50%' : '4px',
               }}
             />
-          </div>
-
-          {/* Social OAuth Buttons */}
-          <div className="grid grid-cols-2 gap-3 mb-5">
-            <button
-              type="button"
-              onClick={() => handleOAuthSignIn('google')}
-              disabled={loading || oauthLoading !== null}
-              className="flex items-center justify-center gap-2.5 rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white/80 dark:bg-[#0f172a]/80 hover:bg-neutral-100 dark:hover:bg-neutral-800/80 px-4 py-3 text-xs font-bold text-foreground transition-all duration-200 hover:border-neutral-300 dark:hover:border-neutral-700 shadow-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {oauthLoading === 'google' ? (
-                <Loader2 className="h-4 w-4 animate-spin text-[#FF5533]" />
-              ) : (
-                <GoogleIcon className="h-4 w-4 shrink-0" />
-              )}
-              <span>Google</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => handleOAuthSignIn('github')}
-              disabled={loading || oauthLoading !== null}
-              className="flex items-center justify-center gap-2.5 rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white/80 dark:bg-[#0f172a]/80 hover:bg-neutral-100 dark:hover:bg-neutral-800/80 px-4 py-3 text-xs font-bold text-foreground transition-all duration-200 hover:border-neutral-300 dark:hover:border-neutral-700 shadow-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {oauthLoading === 'github' ? (
-                <Loader2 className="h-4 w-4 animate-spin text-[#FF5533]" />
-              ) : (
-                <GithubIcon className="h-4 w-4 shrink-0" />
-              )}
-              <span>GitHub</span>
-            </button>
-          </div>
-
-          {/* Divider */}
-          <div className="relative mb-5 flex items-center justify-center">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-border/80" />
-            </div>
-            <span className="relative bg-card px-3 text-[10px] font-black uppercase tracking-wider text-muted-foreground/60">
-              Or continue with email
-            </span>
           </div>
 
           <form onSubmit={submit} className="space-y-4">
@@ -386,9 +331,46 @@ function AuthContent() {
             </motion.button>
           </form>
 
-          <p className="mt-6 text-center text-xs leading-6 text-muted-foreground/60 font-semibold">
-            No clutter. No generic prompts. Just focused workflows.
-          </p>
+          {/* Divider */}
+          <div className="relative my-6 flex items-center justify-center">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-border/80" />
+            </div>
+            <span className="relative bg-card px-3 text-[10px] font-black uppercase tracking-wider text-muted-foreground/60">
+              Or continue with
+            </span>
+          </div>
+
+          {/* Social OAuth Buttons with Logos below Start Free Trial button */}
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              type="button"
+              onClick={() => handleOAuthSignIn('google')}
+              disabled={loading || oauthLoading !== null}
+              className="flex items-center justify-center gap-2.5 rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white/80 dark:bg-[#0f172a]/80 hover:bg-neutral-100 dark:hover:bg-neutral-800/80 px-4 py-3 text-xs font-bold text-foreground transition-all duration-200 hover:border-neutral-300 dark:hover:border-neutral-700 shadow-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {oauthLoading === 'google' ? (
+                <Loader2 className="h-4 w-4 animate-spin text-[#FF5533]" />
+              ) : (
+                <GoogleIcon className="h-4 w-4 shrink-0" />
+              )}
+              <span>Google</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => handleOAuthSignIn('github')}
+              disabled={loading || oauthLoading !== null}
+              className="flex items-center justify-center gap-2.5 rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white/80 dark:bg-[#0f172a]/80 hover:bg-neutral-100 dark:hover:bg-neutral-800/80 px-4 py-3 text-xs font-bold text-foreground transition-all duration-200 hover:border-neutral-300 dark:hover:border-neutral-700 shadow-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {oauthLoading === 'github' ? (
+                <Loader2 className="h-4 w-4 animate-spin text-[#FF5533]" />
+              ) : (
+                <GithubIcon className="h-4 w-4 shrink-0" />
+              )}
+              <span>GitHub</span>
+            </button>
+          </div>
         </div>
       </motion.div>
     </div>
