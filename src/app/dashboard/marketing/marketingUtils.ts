@@ -2,6 +2,31 @@ import { Brain, Search, FileText, TrendingUp, Video, Megaphone, Target, CheckCir
 
 export type BrandProfile = Record<string, string>;
 
+export type BusinessModelType = 'fcommerce' | 'ecommerce' | 'b2b' | 'saas';
+
+export type AdCreativeItem = {
+  angleName: string;
+  platform: string;
+  hook: string;
+  bodyCopy: string;
+  callToAction: string;
+  visualDirection?: string;
+};
+
+export type ChatClosingScript = {
+  customerTrigger: string;
+  psychologicalAngle: string;
+  salesScript: string;
+  nextStepCta: string;
+};
+
+export type CampaignPhase = {
+  phaseName: string;
+  objective: string;
+  keyAction: string;
+  copyOrScriptSnippet: string;
+};
+
 export type MarketingResult = {
   executiveSummary: string;
   assumptions: string[];
@@ -11,7 +36,150 @@ export type MarketingResult = {
   variations: string[];
   checklist: string[];
   nextBestActions: string[];
+  // 🌟 Real-World 40-Year CMO Battle-Tested Structures:
+  adCreatives?: AdCreativeItem[];
+  chatClosingScripts?: ChatClosingScript[];
+  campaignPhases?: CampaignPhase[];
+  guaranteeAndRiskReversal?: string;
+  unitEconomicsAdvice?: string;
 };
+
+export interface CampaignPreset {
+  id: string;
+  label: string;
+  businessModel: BusinessModelType;
+  badge: string;
+  description: string;
+  inputs: Record<string, string>;
+}
+
+export const CAMPAIGN_PRESETS: CampaignPreset[] = [
+  {
+    id: 'fcom_clothing_drop',
+    label: '👗 F-Commerce Collection Drop (BD COD)',
+    businessModel: 'fcommerce',
+    badge: 'Popular in BD',
+    description: 'Festive/seasonal fashion collection with Cash On Delivery & delivery risk reversal.',
+    inputs: {
+      topic: 'Premium Cotton Panjabi & Kurti Festive Collection Drop',
+      productName: 'Handcrafted Combed Cotton Panjabi & Kurti Set',
+      offer: 'Buy 2 get Free Shipping all over Bangladesh + Cash on Delivery (check in front of rider)',
+      goal: 'Direct Messenger orders, WhatsApp queries, and COD confirmations',
+      audience: 'Fashion-conscious youth, professionals, and gift buyers aged 20-40 in BD',
+      notes: 'Price range 1450 - 2800 BDT. Deliver via Steadfast / Pathao within 48 hours. Include "delivery man er samne check kore payment korun" trust line.',
+      product: 'Festive Panjabi & Kurti Set',
+      buyerPain: 'Fear of low-quality fabric, mismatched size, and online fake photo scams',
+      proof: 'Over 12,000+ happy buyers, real video review clips, 7-day hassle-free size replacement',
+      sequenceType: 'Festive Flash Launch Sequence',
+      urgency: 'Only 150 pieces per design, stock running out fast',
+      pageGoal: 'Direct WhatsApp/Messenger Order Button with instant COD form',
+      campaignName: 'Boishakh / Eid Festive Collection Mega Drop',
+      duration: '14 days multi-touch',
+      channels: 'Facebook, Instagram Reels, Messenger, WhatsApp, SMS Broadcast',
+      launchName: 'Festive Premium Drop 2026',
+    }
+  },
+  {
+    id: 'fcom_skincare_trust',
+    label: '🧴 Organic Skincare / Beauty (F-Commerce)',
+    businessModel: 'fcommerce',
+    badge: 'High Conversion',
+    description: 'Chemical-free natural hair oil & aloe serums overcoming low trust and cheap chemical competitors.',
+    inputs: {
+      topic: '100% Pure Organic Cold-Pressed Hair Oil & Glowing Aloe Serum',
+      productName: 'Organic Rosemary & Onion Hair Growth Elixir',
+      offer: 'Starter Duo Pack at 1,350 BDT (Save 350 BDT) + Free Scalp Massager',
+      goal: 'High-trust Messenger inquiries and repeat customer orders',
+      audience: 'Women and men aged 18-38 suffering from hair fall and dull skin due to pollution and hard water',
+      notes: 'No harsh chemicals, BSTI lab certified, visible difference in 21 days or money-back assurance. Cash on delivery available nationwide.',
+      product: 'Organic Rosemary Hair Growth Oil',
+      buyerPain: 'Severe hair fall, hair thinning, tried chemical brands that worsened scalp damage',
+      proof: 'Dermatologist tested, 4.9/5 star ratings from 3,500+ real verified customers with before/after photos',
+      sequenceType: 'Educational 3-step hair recovery sequence',
+      urgency: 'Fresh cold-pressed batch of only 300 bottles prepared this week',
+      pageGoal: 'Direct order form with COD & courier delivery tracking',
+      campaignName: '21-Day Hair Transformation Challenge',
+      duration: '21 days',
+      channels: 'Facebook Page, Instagram Reels, Messenger, TikTok UGC, SMS',
+      launchName: 'Organic Scalp Elixir 2.0 Launch',
+    }
+  },
+  {
+    id: 'ecom_d2c_gadget',
+    label: '⚡ D2C Ecommerce Gadget / Tech (Shopify / Web)',
+    businessModel: 'ecommerce',
+    badge: 'AOV Booster',
+    description: 'High-converting electronic gadget with 1-year replacement warranty and bundle upsells.',
+    inputs: {
+      topic: 'Ultra-Compact 65W GaN Fast Charger & Multi-Device Charging Station',
+      productName: 'PulseCharge 65W GaN Dual-Port Smart Charger',
+      offer: 'Bundle 2 cables + Charger for $49 / 3,200 BDT (Save 25%) + 1-Year Official Replacement Guarantee',
+      goal: 'Direct online Shopify checkouts, add-to-cart velocity, and cart recovery',
+      audience: 'Tech enthusiasts, remote workers, students, and gadget lovers with multiple devices',
+      notes: 'Compact pocket size, charges laptop + phone simultaneously, surge protection certified.',
+      product: 'PulseCharge 65W GaN Station',
+      buyerPain: 'Carrying 3 bulky chargers, slow charging, fake imitation chargers that heat up dangerously',
+      proof: 'CE & FCC safety certified, over 25,000 units sold globally with 1-year instant replacement policy',
+      sequenceType: 'Product Unboxing & Feature Breakdown',
+      urgency: 'Flash Sale: Free Braided Type-C Cable for the first 100 orders only',
+      pageGoal: 'Shopify Product Page with 1-Click Buy Now button and customer video reviews',
+      campaignName: 'Summer Tech Gear Upgrade',
+      duration: '7 days',
+      channels: 'Meta Ads, Google Search, TikTok, Instagram Carousel, Email Cart Recovery',
+      launchName: 'PulseCharge GaN Station Drop',
+    }
+  },
+  {
+    id: 'b2b_agency_retainer',
+    label: '🤝 B2B Performance Agency / High-Ticket Services',
+    businessModel: 'b2b',
+    badge: 'High Ticket',
+    description: 'Client acquisition engine for digital agencies and consultants offering retainers ($1,500 - $5,000/mo).',
+    inputs: {
+      topic: 'Full-Funnel Meta Ads & CRO Scaling for 7-Figure Ecommerce Brands',
+      productName: 'Performance Growth Engine Retainer',
+      offer: 'Free 30-Minute Growth Audit & Creative Ad Leak Diagnostic (No Pitch Guarantee)',
+      goal: 'Book qualified discovery calls with e-commerce brand owners and founders',
+      audience: 'Ecommerce founders and marketing directors doing $20k - $100k/mo looking to scale profitably',
+      notes: 'Retainer pricing $2,500/mo + revenue share. Minimum $10k/mo ad spend requirement to qualify.',
+      product: 'Ecommerce Performance Marketing Retainer',
+      buyerPain: 'Rising ad costs, ROAS dropping below 2.0, burned by cheap agencies who delivered poor vanity metrics',
+      proof: 'Generated over $14M in verified client revenue with average 3.8x blended ROAS across 42 brands',
+      sequenceType: '4-Step Outbound Cold Outreach & LinkedIn Authority Campaign',
+      urgency: 'Only taking 2 new brands this quarter for dedicated senior focus',
+      pageGoal: 'Book a Strategy Audit Call on Calendly after viewing VSL breakdown',
+      campaignName: 'Q2 Ecommerce Scale Sprint',
+      duration: '30 days',
+      channels: 'LinkedIn Outbound, Cold Email, Meta Video Retargeting, Case Study Carousels',
+      launchName: 'Agency Client Acquisition Machine',
+    }
+  },
+  {
+    id: 'b2b_saas_trial',
+    label: '🚀 B2B SaaS Product Launch & Free Trial',
+    businessModel: 'saas',
+    badge: 'Product Led',
+    description: 'Product-led growth campaign driving free trial signups and friction-free onboarding.',
+    inputs: {
+      topic: 'AI Marketing Automation & Multi-Channel Social Hub for SMEs',
+      productName: 'GrowthPilot AI Social Suite',
+      offer: '14-Day Full Feature Free Trial (No Credit Card Required) + 5 Free Viral Scripts',
+      goal: 'Free trial signups, active daily users, and paid upgrade conversions',
+      audience: 'Small business owners, digital marketing agencies, content creators, and startup founders',
+      notes: 'Replaces 4 fragmented tools (Buffer, Copy.ai, Hootsuite, Canva prompts) into 1 unified workspace.',
+      product: 'GrowthPilot AI Marketing Suite',
+      buyerPain: 'Spending 15 hours a week writing repetitive posts, hiring costly copywriters, inconsistent posting',
+      proof: 'Used by 8,000+ marketers and business owners to produce over 120,000 published content assets',
+      sequenceType: 'Trial Onboarding & Activation Email Sequence',
+      urgency: 'Early Adopter pricing locked for life during this launch window',
+      pageGoal: 'Direct Free Trial Signup Page with interactive live demo preview',
+      campaignName: 'Version 2.0 Global Launch',
+      duration: '14 days',
+      channels: 'Product Hunt, LinkedIn, Twitter/X, Email Newsletter, Meta Retargeting',
+      launchName: 'GrowthPilot 2.0 Product Launch',
+    }
+  }
+];
 
 export type GeneratedProductImage = {
   id: string;
@@ -185,6 +353,11 @@ export const defaultResult: MarketingResult = {
   variations: [],
   checklist: [],
   nextBestActions: [],
+  adCreatives: [],
+  chatClosingScripts: [],
+  campaignPhases: [],
+  guaranteeAndRiskReversal: '',
+  unitEconomicsAdvice: '',
 };
 
 export function fileBaseName(value: string) {
@@ -206,7 +379,7 @@ export function escapeHtml(value: string) {
 
 export function resultToText(asset: Pick<SavedAsset, 'title' | 'tool' | 'language' | 'inputs' | 'result' | 'createdAt'>) {
   const resultValue = asset.result;
-  return [
+  const sections: string[] = [
     asset.title,
     `Tool: ${asset.tool}`,
     `Language: ${asset.language}`,
@@ -214,31 +387,75 @@ export function resultToText(asset: Pick<SavedAsset, 'title' | 'tool' | 'languag
     '',
     'Executive Summary',
     resultValue.executiveSummary,
-    '',
-    'Strategy',
-    ...resultValue.strategy.map(item => `- ${item}`),
+  ];
+
+  if (resultValue.adCreatives && resultValue.adCreatives.length > 0) {
+    sections.push('', '--- AD CREATIVES & DIRECT COPY ---');
+    resultValue.adCreatives.forEach((c, idx) => {
+      sections.push(
+        `\n[Angle ${idx + 1}: ${c.angleName} (${c.platform})]`,
+        `Hook: ${c.hook}`,
+        `Body:\n${c.bodyCopy}`,
+        `CTA: ${c.callToAction}`,
+        c.visualDirection ? `Visual Direction: ${c.visualDirection}` : ''
+      );
+    });
+  }
+
+  if (resultValue.chatClosingScripts && resultValue.chatClosingScripts.length > 0) {
+    sections.push('', '--- MESSENGER & WHATSAPP CLOSING SCRIPTS ---');
+    resultValue.chatClosingScripts.forEach((s, idx) => {
+      sections.push(
+        `\n[Trigger: "${s.customerTrigger}"]`,
+        `Angle: ${s.psychologicalAngle}`,
+        `Script:\n${s.salesScript}`,
+        `Next Action: ${s.nextStepCta}`
+      );
+    });
+  }
+
+  if (resultValue.campaignPhases && resultValue.campaignPhases.length > 0) {
+    sections.push('', '--- CAMPAIGN PHASES & ROADMAP ---');
+    resultValue.campaignPhases.forEach((p) => {
+      sections.push(
+        `\n[${p.phaseName}]`,
+        `Objective: ${p.objective}`,
+        `Key Action: ${p.keyAction}`,
+        `Copy/Script:\n${p.copyOrScriptSnippet}`
+      );
+    });
+  }
+
+  if (resultValue.guaranteeAndRiskReversal) {
+    sections.push('', 'Guarantee & Risk Reversal', resultValue.guaranteeAndRiskReversal);
+  }
+
+  if (resultValue.unitEconomicsAdvice) {
+    sections.push('', 'Unit Economics & Pricing Advice', resultValue.unitEconomicsAdvice);
+  }
+
+  sections.push(
     '',
     'Primary Output',
     resultValue.primaryOutput,
     '',
+    'Strategy',
+    ...(resultValue.strategy || []).map(item => `- ${item}`),
+    '',
     'Variations',
-    ...resultValue.variations.map(item => `- ${item}`),
+    ...(resultValue.variations || []).map(item => `- ${item}`),
     '',
     'Quality Checklist',
-    ...resultValue.checklist.map(item => `- ${item}`),
-    '',
-    'Assumptions',
-    ...resultValue.assumptions.map(item => `- ${item}`),
-    '',
-    'Missing Inputs',
-    ...resultValue.missingInputs.map(item => `- ${item}`),
+    ...(resultValue.checklist || []).map(item => `- ${item}`),
     '',
     'Next Best Actions',
-    ...resultValue.nextBestActions.map(item => `- ${item}`),
+    ...(resultValue.nextBestActions || []).map(item => `- ${item}`),
     '',
     'Inputs',
-    JSON.stringify(asset.inputs || {}, null, 2),
-  ].filter(line => line !== undefined).join('\n');
+    JSON.stringify(asset.inputs || {}, null, 2)
+  );
+
+  return sections.filter(line => line !== undefined).join('\n');
 }
 
 export function resultToMarkdown(asset: Pick<SavedAsset, 'title' | 'tool' | 'language' | 'inputs' | 'result' | 'createdAt'>) {
