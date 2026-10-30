@@ -3,12 +3,14 @@
 import Sidebar from "@/components/layout/Sidebar";
 import AuthGate from "@/components/auth/AuthGate";
 import { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
 
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const pathname = usePathname();
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   useEffect(() => {
@@ -22,6 +24,11 @@ export default function DashboardLayout({
     setIsCollapsed(collapsed);
     localStorage.setItem("sidebar_collapsed", collapsed ? "true" : "false");
   };
+
+  // If visiting GrowthPilot 2.0 standalone platform, bypass dashboard sidebar & layout completely
+  if (pathname?.startsWith('/dashboard/growthpilot-2')) {
+    return <>{children}</>;
+  }
 
   return (
     <AuthGate>
