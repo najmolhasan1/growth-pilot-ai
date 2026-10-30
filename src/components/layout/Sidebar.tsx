@@ -41,7 +41,8 @@ import {
   ShieldCheck,
   ArrowLeft,
   ArrowRight,
-  Lock
+  Lock,
+  Cpu
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -59,6 +60,7 @@ const menuGroups = [
   {
     title: 'GROWTH SUITE',
     items: [
+      { icon: Cpu, label: 'GrowthPilot 2.0', href: '/dashboard/growthpilot-2', tag: 'V2' },
       { icon: Brain, label: 'Brand Brain', href: '/dashboard/brand' },
       { icon: Sparkles, label: 'Social Workspace', href: '/dashboard/social-media', tag: 'Hot' },
       { icon: Target, label: 'Strategy Audit', href: '/dashboard/marketing/strategy_audit', tag: 'Core' },
