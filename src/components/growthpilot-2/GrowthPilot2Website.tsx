@@ -386,8 +386,9 @@ export default function GrowthPilot2Website() {
         body: JSON.stringify({ url: scraperUrl }),
       });
       const data = await res.json();
-      if (data.success && data.product) {
-        setScrapedPreview(data.product);
+      const product = data.data || data.product;
+      if (data.success && product) {
+        setScrapedPreview(product);
       } else {
         setScraperError(data.error || 'Failed to extract store product');
       }
@@ -1360,22 +1361,28 @@ export default function GrowthPilot2Website() {
                         </div>
                       )}
 
-                      {courierResult.courierIntegrations && (
+                      {(courierResult.courierIntegrations || courierResult.courierCompatibility) && (
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-2">
                           <div className="p-2.5 rounded-lg bg-white/[0.02] border border-white/5 text-[11px]">
                             <div className="font-bold text-white">Steadfast Courier</div>
-                            <div className="text-white/50 text-[10px]">API Status: {courierResult.courierIntegrations.steadfast.status}</div>
-                            <div className="text-[#D4F54C] font-mono mt-1">Est. Del: {courierResult.courierIntegrations.steadfast.estimatedDelivery}</div>
+                            <div className="text-white/50 text-[10px]">
+                              Dispatch Status: {courierResult.courierCompatibility?.steadfast !== false ? 'Approved for COD' : 'Advance Required'}
+                            </div>
+                            <div className="text-[#D4F54C] font-mono mt-1">Est. Delivery: 24–48 Hours</div>
                           </div>
                           <div className="p-2.5 rounded-lg bg-white/[0.02] border border-white/5 text-[11px]">
                             <div className="font-bold text-white">Pathao Logistics</div>
-                            <div className="text-white/50 text-[10px]">API Status: {courierResult.courierIntegrations.pathao.status}</div>
-                            <div className="text-[#D4F54C] font-mono mt-1">Est. Del: {courierResult.courierIntegrations.pathao.estimatedDelivery}</div>
+                            <div className="text-white/50 text-[10px]">
+                              Dispatch Status: {courierResult.courierCompatibility?.pathao !== false ? 'Approved for COD' : 'Advance Required'}
+                            </div>
+                            <div className="text-[#D4F54C] font-mono mt-1">Est. Delivery: Same / Next Day</div>
                           </div>
                           <div className="p-2.5 rounded-lg bg-white/[0.02] border border-white/5 text-[11px]">
                             <div className="font-bold text-white">RedX Delivery</div>
-                            <div className="text-white/50 text-[10px]">API Status: {courierResult.courierIntegrations.redx.status}</div>
-                            <div className="text-[#D4F54C] font-mono mt-1">Est. Del: {courierResult.courierIntegrations.redx.estimatedDelivery}</div>
+                            <div className="text-white/50 text-[10px]">
+                              Dispatch Status: {courierResult.courierCompatibility?.redx !== false ? 'Approved for COD' : 'Advance Required'}
+                            </div>
+                            <div className="text-[#D4F54C] font-mono mt-1">Est. Delivery: 48–72 Hours</div>
                           </div>
                         </div>
                       )}
