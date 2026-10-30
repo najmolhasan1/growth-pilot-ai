@@ -9,8 +9,9 @@
   if (PilotTag.initialized) return;
   PilotTag.initialized = true;
 
-  var siteId = document.currentScript ? document.currentScript.getAttribute('data-site-id') : 'DEMO_SITE';
-  var endpoint = (document.currentScript ? document.currentScript.getAttribute('data-endpoint') : '') || '/api/gp2/capi';
+  var currentScript = document.currentScript;
+  var siteId = currentScript ? currentScript.getAttribute('data-site-id') : 'DEMO_STORE';
+  var endpoint = (currentScript ? currentScript.getAttribute('data-endpoint') : '') || '/api/gp2/events';
 
   var state = {
     sessionId: 'gp2_sess_' + Math.random().toString(36).slice(2, 10),
@@ -18,9 +19,11 @@
     maxScroll: 0,
     hesitations: 0,
     pageSwitches: 0,
+    tracked50: false,
+    tracked90: false,
   };
 
-  function sendEvent(name, customData) {
+  function sendEvent(name, customData, user) {
     var payload = {
       eventName: name,
       eventSourceUrl: window.location.href,
@@ -30,6 +33,7 @@
       scrollDepth: state.maxScroll,
       hesitations: state.hesitations,
       customData: customData || {},
+      user: user || {},
     };
 
     try {
@@ -59,16 +63,19 @@
       b = document.body,
       st = 'scrollTop',
       sh = 'scrollHeight';
-    var percent = Math.round(((h[st] || b[st]) / ((h[sh] || b[sh]) - h.clientHeight)) * 100);
-    if (percent > state.maxScroll) {
-      state.maxScroll = percent;
-      if (percent >= 50 && !state.tracked50) {
-        state.tracked50 = true;
-        sendEvent('Scroll50', { depth: 50 });
-      }
-      if (percent >= 90 && !state.tracked90) {
-        state.tracked90 = true;
-        sendEvent('Scroll90', { depth: 90 });
+    var totalHeight = (h[sh] || b[sh]) - h.clientHeight;
+    if (totalHeight > 0) {
+      var percent = Math.round(((h[st] || b[st]) / totalHeight) * 100);
+      if (percent > state.maxScroll) {
+        state.maxScroll = percent;
+        if (percent >= 50 && !state.tracked50) {
+          state.tracked50 = true;
+          sendEvent('Scroll50', { depth: 50 });
+        }
+        if (percent >= 90 && !state.tracked90) {
+          state.tracked90 = true;
+          sendEvent('Scroll90', { depth: 90 });
+        }
       }
     }
   }, { passive: true });
@@ -78,7 +85,14 @@
     var target = e.target.closest('button, a, [role="button"]');
     if (!target) return;
     var txt = (target.innerText || '').toLowerCase();
-    if (txt.includes('buy') || txt.includes('order') || txt.includes('cart') || txt.includes('checkout') || txt.includes('অর্ডার')) {
+    if (
+      txt.includes('buy') ||
+      txt.includes('order') ||
+      txt.includes('cart') ||
+      txt.includes('checkout') ||
+      txt.includes('অর্ডার') ||
+      txt.includes('কিনুন')
+    ) {
       var hoverStart = Date.now();
       var onLeave = function () {
         var hoverDuration = Date.now() - hoverStart;
@@ -102,11 +116,11 @@
 
   // Public SDK methods
   PilotTag.track = sendEvent;
-  PilotTag.trackPurchase = function (amount, currency, orderId) {
-    sendEvent('Purchase', { value: amount, currency: currency || 'BDT', orderId: orderId });
+  PilotTag.trackPurchase = function (amount, currency, orderId, user) {
+    sendEvent('Purchase', { value: amount, currency: currency || 'BDT', orderId: orderId }, user);
   };
-  PilotTag.trackAddToCart = function (productName, price) {
-    sendEvent('AddToCart', { contentName: productName, value: price });
+  PilotTag.trackAddToCart = function (productName, price, user) {
+    sendEvent('AddToCart', { contentName: productName, value: price }, user);
   };
 
   window.PilotTag = PilotTag;

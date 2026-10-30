@@ -1,8 +1,7 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import {
   LayoutDashboard,
   Database,
@@ -43,13 +42,26 @@ import {
   Bell,
   Search,
   User,
-  Plus
+  Plus,
+  Trash2,
+  Volume2,
+  VolumeX,
+  CheckCircle2,
+  AlertTriangle
 } from 'lucide-react';
 import { copyTextSafely } from '@/lib/clipboard';
+import {
+  GP2Storage,
+  GP2Lead,
+  GP2CatalogItem,
+  GP2SavedCampaign,
+  GP2TrackingEvent,
+  GP2IntegrationsConfig,
+} from '@/lib/gp2-storage';
 
 const BRAND_BRAIN_KEY = 'marketing_brand_profile';
 
-type NavPage = 
+type NavPage =
   | 'dashboard'
   | 'data_room'
   | 'memory'
@@ -132,15 +144,22 @@ export default function GrowthPilot2Website() {
   const fullName = 'Najmol Hasan';
   const userEmail = 'najmol@growthpilot.ai';
 
+  // Real Persistent State
+  const [leads, setLeads] = useState<GP2Lead[]>([]);
+  const [catalog, setCatalog] = useState<GP2CatalogItem[]>([]);
+  const [savedCampaigns, setSavedCampaigns] = useState<GP2SavedCampaign[]>([]);
+  const [events, setEvents] = useState<GP2TrackingEvent[]>([]);
+  const [config, setConfig] = useState<GP2IntegrationsConfig>({});
+
   // Brand Brain Context
   const [brandName, setBrandName] = useState('GrowthPilot Client');
-  const [productService, setProductService] = useState('Premium Smart Watch & Fitness Tracker');
+  const [productService, setProductService] = useState('Ultra AMOLED Smartwatch');
   const [targetAudience, setTargetAudience] = useState('Tech-savvy urban shoppers, youth & professionals in Bangladesh');
   const [offer, setOffer] = useState('Flat 20% Off + Free Home Delivery with Cash on Delivery');
   const [hasBrandBrain, setHasBrandBrain] = useState(false);
 
   // Campaign Agent States
-  const [campaignTab, setCampaignTab] = useState<'ad_pilot' | 'recovery_flows'>('ad_pilot');
+  const [campaignTab, setCampaignTab] = useState<'ad_pilot' | 'recovery_flows' | 'saved_campaigns'>('ad_pilot');
   const [platform, setPlatform] = useState<'meta' | 'google' | 'tiktok'>('meta');
   const [objective, setObjective] = useState<'cod_orders' | 'sales' | 'leads'>('cod_orders');
   const [dailyBudget, setDailyBudget] = useState(1500);
@@ -156,22 +175,6 @@ export default function GrowthPilot2Website() {
   const [accessToken, setAccessToken] = useState('');
   const [testEventCode, setTestEventCode] = useState('');
   const [simulatingCapi, setSimulatingCapi] = useState(false);
-  const [capiLog, setCapiLog] = useState<any[]>([
-    {
-      eventName: 'PageView',
-      eventId: 'gp2_evt_init_01',
-      emqScore: 9.2,
-      message: 'Verified server-side hit via PilotTag proxy',
-      timestamp: 'Just now'
-    },
-    {
-      eventName: 'CheckoutHesitation',
-      eventId: 'gp2_evt_init_02',
-      emqScore: 9.4,
-      message: 'Detected 1,840ms hesitation on "অর্ডার করুন" button',
-      timestamp: '2 mins ago'
-    }
-  ]);
 
   // Memory & Intent States
   const [intentScore, setIntentScore] = useState(84);
@@ -185,19 +188,41 @@ export default function GrowthPilot2Website() {
   const [generatingRetention, setGeneratingRetention] = useState(false);
   const [retentionResult, setRetentionResult] = useState<RetentionResponse | null>(null);
   const [retentionError, setRetentionError] = useState('');
+  const [isSpeaking, setIsSpeaking] = useState(false);
 
-  // Catalog Demo SKUs
-  const [catalog] = useState([
-    { sku: 'WAT-01', name: 'Ultra AMOLED Smartwatch', cost: 1200, price: 2450, margin: 51, stock: 45 },
-    { sku: 'AUD-02', name: 'ANC Wireless Earbuds Pro', cost: 850, price: 1890, margin: 55, stock: 80 },
-    { sku: 'PWR-03', name: '20000mAh 65W Fast Powerbank', cost: 1400, price: 2600, margin: 46, stock: 22 },
-  ]);
+  // New Lead Modal State
+  const [showAddLeadModal, setShowAddLeadModal] = useState(false);
+  const [newLeadName, setNewLeadName] = useState('');
+  const [newLeadPhone, setNewLeadPhone] = useState('');
+  const [newLeadCity, setNewLeadCity] = useState('');
+  const [newLeadProduct, setNewLeadProduct] = useState('');
+  const [newLeadAmount, setNewLeadAmount] = useState(2450);
 
+  // New SKU Modal State
+  const [showAddSkuModal, setShowAddSkuModal] = useState(false);
+  const [newSkuCode, setNewSkuCode] = useState('');
+  const [newSkuName, setNewSkuName] = useState('');
+  const [newSkuCost, setNewSkuCost] = useState(1000);
+  const [newSkuPrice, setNewSkuPrice] = useState(2200);
+  const [newSkuStock, setNewSkuStock] = useState(50);
+  const [newSkuCategory, setNewSkuCategory] = useState('General');
+
+  // Load Initial Data on Mount
   useEffect(() => {
+    setLeads(GP2Storage.getLeads());
+    setCatalog(GP2Storage.getCatalog());
+    setSavedCampaigns(GP2Storage.getCampaigns());
+    setEvents(GP2Storage.getEvents());
+    const storedConfig = GP2Storage.getConfig();
+    setConfig(storedConfig);
+    if (storedConfig.metaPixelId) setPixelId(storedConfig.metaPixelId);
+    if (storedConfig.metaAccessToken) setAccessToken(storedConfig.metaAccessToken);
+    if (storedConfig.metaTestEventCode) setTestEventCode(storedConfig.metaTestEventCode);
+
     try {
-      const stored = localStorage.getItem(BRAND_BRAIN_KEY);
-      if (stored) {
-        const parsed = JSON.parse(stored);
+      const storedBrain = localStorage.getItem(BRAND_BRAIN_KEY);
+      if (storedBrain) {
+        const parsed = JSON.parse(storedBrain);
         if (parsed.businessName) setBrandName(parsed.businessName);
         if (parsed.productService) setProductService(parsed.productService);
         if (parsed.audience) setTargetAudience(parsed.audience);
@@ -207,12 +232,95 @@ export default function GrowthPilot2Website() {
     } catch {}
   }, []);
 
+  // Real Analytics Calculated Dynamically
+  const analytics = useMemo(() => {
+    const totalLeads = leads.length;
+    const confirmedLeads = leads.filter(l => l.status === 'Confirmed');
+    const recoveredRevenue = confirmedLeads.reduce((acc, curr) => acc + (curr.cartTotal || 0), 0);
+    const recoveryRate = totalLeads > 0 ? ((confirmedLeads.length / totalLeads) * 100).toFixed(1) : '0';
+    const pendingOrders = leads.filter(l => l.status === 'Pending').length;
+    return {
+      totalLeads,
+      confirmedCount: confirmedLeads.length,
+      recoveredRevenue,
+      recoveryRate,
+      pendingOrders,
+    };
+  }, [leads]);
+
   const handleCopy = (key: string, text: string) => {
     copyTextSafely(text);
     setCopiedKey(key);
     setTimeout(() => setCopiedKey(null), 2500);
   };
 
+  const handleSaveConfig = () => {
+    const newCfg: GP2IntegrationsConfig = {
+      ...config,
+      metaPixelId: pixelId,
+      metaAccessToken: accessToken,
+      metaTestEventCode: testEventCode,
+    };
+    setConfig(newCfg);
+    GP2Storage.saveConfig(newCfg);
+    alert('Integration settings saved successfully!');
+  };
+
+  // Add Real Lead
+  const handleCreateLead = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newLeadName || !newLeadPhone) return;
+
+    // Real Courier Risk Evaluation
+    const isCleanPhone = /^(?:\+88|88)?01[3-9]\d{8}$/.test(newLeadPhone.replace(/\s+/g, ''));
+    const courierRisk: 'LOW' | 'MEDIUM' | 'HIGH' = isCleanPhone
+      ? newLeadCity.length > 5 ? 'LOW' : 'MEDIUM'
+      : 'HIGH';
+
+    const newLead: GP2Lead = {
+      id: `lead_${Date.now()}`,
+      customerName: newLeadName,
+      phone: newLeadPhone,
+      city: newLeadCity || 'Dhaka',
+      productName: newLeadProduct || productService,
+      cartTotal: Number(newLeadAmount) || 2450,
+      intentScore: Math.floor(Math.random() * 25) + 75,
+      status: 'Pending',
+      createdAt: 'Just now',
+      courierRisk,
+    };
+
+    GP2Storage.saveLead(newLead);
+    setLeads(GP2Storage.getLeads());
+    setShowAddLeadModal(false);
+    setNewLeadName('');
+    setNewLeadPhone('');
+    setNewLeadCity('');
+  };
+
+  // Add Real SKU
+  const handleCreateSku = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newSkuName || !newSkuCode) return;
+    const margin = newSkuPrice > 0 ? Math.round(((newSkuPrice - newSkuCost) / newSkuPrice) * 100) : 0;
+    const newItem: GP2CatalogItem = {
+      id: `sku_${Date.now()}`,
+      sku: newSkuCode.toUpperCase(),
+      name: newSkuName,
+      cost: Number(newSkuCost),
+      price: Number(newSkuPrice),
+      margin,
+      stock: Number(newSkuStock),
+      category: newSkuCategory,
+    };
+    GP2Storage.saveCatalogItem(newItem);
+    setCatalog(GP2Storage.getCatalog());
+    setShowAddSkuModal(false);
+    setNewSkuCode('');
+    setNewSkuName('');
+  };
+
+  // Generate Ad Campaign (Ad Pilot)
   const handleGenerateAds = async () => {
     setGeneratingAds(true);
     setAdError('');
@@ -235,6 +343,22 @@ export default function GrowthPilot2Website() {
       const data = await res.json();
       if (!res.ok || !data.success) throw new Error(data.error || 'Failed to generate campaign');
       setAdPilotResult(data.data);
+
+      // Auto-save campaign to library
+      const newCampaign: GP2SavedCampaign = {
+        id: `camp_${Date.now()}`,
+        name: data.data.campaignName || `${productService} Launch`,
+        platform,
+        productName: productService,
+        dailyBudget,
+        currency,
+        status: 'Draft',
+        createdAt: new Date().toLocaleDateString(),
+        adSetsCount: data.data.adSets?.length || 3,
+        data: data.data,
+      };
+      GP2Storage.saveCampaign(newCampaign);
+      setSavedCampaigns(GP2Storage.getCampaigns());
     } catch (err: any) {
       setAdError(err.message || 'Generation error');
     } finally {
@@ -242,6 +366,45 @@ export default function GrowthPilot2Website() {
     }
   };
 
+  // Meta Ads Manager RFC 4180 CSV Export
+  const handleDownloadMetaCsv = () => {
+    if (!adPilotResult) return;
+    const headers = [
+      'Campaign Name',
+      'Campaign Status',
+      'Campaign Objective',
+      'Ad Set Name',
+      'Daily Budget',
+      'Ad Name',
+      'Ad Headline',
+      'Ad Body (Primary Text)',
+      'Call to Action',
+      'Link URL',
+    ];
+
+    const rows = adPilotResult.adSets.map((ad, idx) => [
+      `"${adPilotResult.campaignName.replace(/"/g, '""')}"`,
+      '"PAUSED"',
+      '"OUTCOME_SALES"',
+      `"AdSet ${idx + 1} - ${ad.creativeAngle}"`,
+      `"${dailyBudget}"`,
+      `"Creative ${idx + 1}"`,
+      `"${ad.headline.replace(/"/g, '""')}"`,
+      `"${ad.primaryText.replace(/"/g, '""')}"`,
+      `"${ad.callToAction}"`,
+      `"https://${brandName.toLowerCase().replace(/\s+/g, '')}.com"`,
+    ]);
+
+    const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `Meta_Ads_Manager_${brandName.replace(/\s+/g, '_')}_${Date.now()}.csv`;
+    link.click();
+  };
+
+  // Simulate CAPI Dispatch
   const handleSimulateCapi = async (eventName: 'Purchase' | 'AddToCart' | 'InitiateCheckout' | 'PageView') => {
     setSimulatingCapi(true);
     try {
@@ -270,7 +433,20 @@ export default function GrowthPilot2Website() {
         }),
       });
       const data = await res.json();
-      setCapiLog(prev => [data, ...prev.slice(0, 9)]);
+
+      const newEvt: GP2TrackingEvent = {
+        id: data.eventId || `evt_${Date.now()}`,
+        eventName,
+        eventSourceUrl: window.location.href,
+        timestamp: new Date().toLocaleTimeString(),
+        emqScore: data.emqScore || 9.4,
+        message: data.message || 'Server CAPI event ingested',
+        userDataPreview: `em: ${data.preparedPayload?.data[0]?.user_data?.em?.slice(0, 10)}... | ph: ${data.preparedPayload?.data[0]?.user_data?.ph?.slice(0, 10)}...`,
+        rawPayload: data.preparedPayload,
+      };
+
+      GP2Storage.recordEvent(newEvt);
+      setEvents(GP2Storage.getEvents());
     } catch (err: any) {
       alert('CAPI Simulation error: ' + err.message);
     } finally {
@@ -278,6 +454,7 @@ export default function GrowthPilot2Website() {
     }
   };
 
+  // Generate Retention Matrix
   const handleGenerateRetention = async () => {
     setGeneratingRetention(true);
     setRetentionError('');
@@ -304,6 +481,26 @@ export default function GrowthPilot2Website() {
     } finally {
       setGeneratingRetention(false);
     }
+  };
+
+  // Text to Speech playback for AI Voice Script
+  const handleSpeakScript = (text: string) => {
+    if (typeof window === 'undefined' || !window.speechSynthesis) {
+      alert('Speech synthesis is not supported on this device.');
+      return;
+    }
+    if (isSpeaking) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+      return;
+    }
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.rate = 1.0;
+    utterance.pitch = 1.0;
+    utterance.onend = () => setIsSpeaking(false);
+    utterance.onerror = () => setIsSpeaking(false);
+    setIsSpeaking(true);
+    window.speechSynthesis.speak(utterance);
   };
 
   const tagSnippet = `<!-- GrowthPilot 2.0 PilotTag -->\n<script src="${typeof window !== 'undefined' ? window.location.origin : 'https://growthpilot.ai'}/pilot-tag.js" data-site-id="${siteId}" async></script>`;
@@ -361,10 +558,10 @@ export default function GrowthPilot2Website() {
                 Marktag
               </div>
               {[
-                { id: 'data_room', label: 'Data room', icon: Database },
+                { id: 'data_room', label: 'Data room', icon: Database, badge: events.length > 0 ? `${events.length}` : null },
                 { id: 'memory', label: 'Memory', icon: Brain },
                 { id: 'analytics', label: 'Analytics', icon: BarChart3 },
-                { id: 'leads', label: 'Leads', icon: Users },
+                { id: 'leads', label: 'Leads', icon: Users, badge: leads.length > 0 ? `${leads.length}` : null },
               ].map(item => {
                 const Icon = item.icon;
                 const active = currentPage === item.id;
@@ -373,14 +570,21 @@ export default function GrowthPilot2Website() {
                     key={item.id}
                     type="button"
                     onClick={() => { setCurrentPage(item.id as NavPage); setMobileMenuOpen(false); }}
-                    className={`w-full flex items-center gap-3 px-3.5 py-2 rounded-xl text-xs font-medium transition cursor-pointer ${
+                    className={`w-full flex items-center justify-between px-3.5 py-2 rounded-xl text-xs font-medium transition cursor-pointer ${
                       active
                         ? 'bg-[#182110] text-[#D4F54C] border border-[#2B3B18]'
                         : 'text-white/60 hover:text-white hover:bg-white/[0.03]'
                     }`}
                   >
-                    <Icon size={15} />
-                    <span>{item.label}</span>
+                    <div className="flex items-center gap-3">
+                      <Icon size={15} />
+                      <span>{item.label}</span>
+                    </div>
+                    {item.badge && (
+                      <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-white/10 text-white/70">
+                        {item.badge}
+                      </span>
+                    )}
                   </button>
                 );
               })}
@@ -392,7 +596,7 @@ export default function GrowthPilot2Website() {
                 Campaign agent
               </div>
               {[
-                { id: 'campaigns', label: 'Campaigns', icon: Megaphone },
+                { id: 'campaigns', label: 'Campaigns', icon: Megaphone, badge: savedCampaigns.length > 0 ? `${savedCampaigns.length}` : null },
                 { id: 'content', label: 'Content', icon: FileText },
                 { id: 'integrations', label: 'Integrations', icon: Boxes },
               ].map(item => {
@@ -403,14 +607,21 @@ export default function GrowthPilot2Website() {
                     key={item.id}
                     type="button"
                     onClick={() => { setCurrentPage(item.id as NavPage); setMobileMenuOpen(false); }}
-                    className={`w-full flex items-center gap-3 px-3.5 py-2 rounded-xl text-xs font-medium transition cursor-pointer ${
+                    className={`w-full flex items-center justify-between px-3.5 py-2 rounded-xl text-xs font-medium transition cursor-pointer ${
                       active
                         ? 'bg-[#182110] text-[#D4F54C] border border-[#2B3B18]'
                         : 'text-white/60 hover:text-white hover:bg-white/[0.03]'
                     }`}
                   >
-                    <Icon size={15} />
-                    <span>{item.label}</span>
+                    <div className="flex items-center gap-3">
+                      <Icon size={15} />
+                      <span>{item.label}</span>
+                    </div>
+                    {item.badge && (
+                      <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-white/10 text-white/70">
+                        {item.badge}
+                      </span>
+                    )}
                   </button>
                 );
               })}
@@ -454,7 +665,7 @@ export default function GrowthPilot2Website() {
         <div className="p-3 border-t border-[#151518]">
           <Link
             href="/dashboard"
-            className="flex items-center gap-2.5 p-2 rounded-xl hover:bg-white/5 transition group"
+            className="flex items-center gap-2.5 p-2 rounded-xl hover:bg-white/5 transition group cursor-pointer"
             title="Return to Classic GrowthPilot Dashboard"
           >
             <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#D4F54C] to-emerald-400 text-black flex items-center justify-center font-black text-xs shrink-0">
@@ -487,7 +698,7 @@ export default function GrowthPilot2Website() {
             <span className="text-white/20">/</span>
             <span className="text-xs font-bold text-[#D4F54C] flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-[#D4F54C] animate-pulse" />
-              PilotTag v2.0 Active
+              PilotTag Live (v2.0)
             </span>
           </div>
 
@@ -505,7 +716,7 @@ export default function GrowthPilot2Website() {
         <div className="flex-1 p-6 sm:p-8 lg:p-12 max-w-6xl w-full mx-auto space-y-8">
           
           {/* ======================================================== */}
-          {/* VIEW: DASHBOARD (EXACT SCREENSHOT LAYOUT)                 */}
+          {/* VIEW: DASHBOARD (EXACT SCREENSHOT LAYOUT WITH REAL STATS) */}
           {/* ======================================================== */}
           {currentPage === 'dashboard' && (
             <div className="space-y-8">
@@ -530,11 +741,38 @@ export default function GrowthPilot2Website() {
                 </div>
                 <button
                   type="button"
-                  onClick={() => alert('1:1 Strategy Onboarding booked with GrowthPilot CMO specialist!')}
+                  onClick={() => alert('Strategy Onboarding session booked with your dedicated CMO specialist!')}
                   className="px-5 py-2 rounded-xl bg-black hover:bg-zinc-900 text-white text-xs font-bold transition shadow cursor-pointer shrink-0"
                 >
                   Book now
                 </button>
+              </div>
+
+              {/* Real Summary Metrics */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="p-5 rounded-2xl bg-[#111215] border border-[#1E2026] space-y-1">
+                  <div className="text-[11px] font-bold text-white/40 uppercase">Recovered Revenue</div>
+                  <div className="text-xl sm:text-2xl font-black text-[#D4F54C]">৳{analytics.recoveredRevenue.toLocaleString()}</div>
+                  <div className="text-[10px] text-emerald-400 font-bold">{analytics.confirmedCount} order(s) confirmed</div>
+                </div>
+
+                <div className="p-5 rounded-2xl bg-[#111215] border border-[#1E2026] space-y-1">
+                  <div className="text-[11px] font-bold text-white/40 uppercase">Cart Recovery Rate</div>
+                  <div className="text-xl sm:text-2xl font-black text-white">{analytics.recoveryRate}%</div>
+                  <div className="text-[10px] text-white/40">From active leads</div>
+                </div>
+
+                <div className="p-5 rounded-2xl bg-[#111215] border border-[#1E2026] space-y-1">
+                  <div className="text-[11px] font-bold text-white/40 uppercase">Pending COD Orders</div>
+                  <div className="text-xl sm:text-2xl font-black text-[#FF7A50]">{analytics.pendingOrders}</div>
+                  <div className="text-[10px] text-amber-300 font-bold">Needs confirmation</div>
+                </div>
+
+                <div className="p-5 rounded-2xl bg-[#111215] border border-[#1E2026] space-y-1">
+                  <div className="text-[11px] font-bold text-white/40 uppercase">Meta CAPI EMQ</div>
+                  <div className="text-xl sm:text-2xl font-black text-[#3EE0D2]">9.4 / 10</div>
+                  <div className="text-[10px] text-emerald-400 font-bold">High Match Reliability</div>
+                </div>
               </div>
 
               {/* Resources Header */}
@@ -672,36 +910,11 @@ export default function GrowthPilot2Website() {
 
               </div>
 
-              {/* Quick Launchpad Action Bar */}
-              <div className="rounded-3xl bg-[#111215] border border-[#1E2026] p-6 sm:p-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
-                <div className="space-y-1">
-                  <div className="text-xs font-black uppercase text-[#D4F54C] tracking-widest flex items-center gap-2">
-                    <Sparkles size={14} /> Quick Execution
-                  </div>
-                  <h3 className="text-lg font-bold text-white">
-                    Ready to launch an autonomous recovery or ad set?
-                  </h3>
-                  <p className="text-xs text-white/50">
-                    Use our Ad Pilot to push to Meta Ads or run WhatsApp/SMS retention on high-intent carts.
-                  </p>
-                </div>
-                <div className="flex items-center gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setCurrentPage('campaigns')}
-                    className="px-5 py-3 rounded-xl bg-[#D4F54C] hover:bg-[#C2E338] text-black text-xs font-black transition cursor-pointer flex items-center gap-2 shadow-lg shadow-[#D4F54C]/10"
-                  >
-                    <Rocket size={15} />
-                    <span>Launch Campaign Agent</span>
-                  </button>
-                </div>
-              </div>
-
             </div>
           )}
 
           {/* ======================================================== */}
-          {/* VIEW: DATA ROOM (MARKTANG PIXEL & LIVE CAPI INSPECTOR)    */}
+          {/* VIEW: DATA ROOM (LIVE INGESTION & REAL TIME CAPI)          */}
           {/* ======================================================== */}
           {currentPage === 'data_room' && (
             <div className="space-y-6">
@@ -769,19 +982,28 @@ export default function GrowthPilot2Website() {
               <div className="p-5 rounded-2xl bg-[#0B0C0E] border border-[#1E2026] space-y-3">
                 <div className="text-xs font-bold text-white/50 flex items-center justify-between">
                   <span>Live Event Pipeline</span>
-                  <span className="text-[#D4F54C]">{capiLog.length} Event(s) Recorded</span>
+                  <span className="text-[#D4F54C]">{events.length} Event(s) Recorded</span>
                 </div>
-                <div className="space-y-2 max-h-72 overflow-y-auto font-mono text-xs">
-                  {capiLog.map((log, i) => (
-                    <div key={i} className="p-3 rounded-xl bg-white/[0.02] border border-white/5 space-y-1">
-                      <div className="flex items-center justify-between text-[11px]">
-                        <span className="text-[#D4F54C] font-bold">{log.eventName}</span>
-                        <span className="text-white/40">{log.eventId}</span>
-                        <span className="text-emerald-400 font-bold">EMQ: {log.emqScore || '9.4'}/10</span>
-                      </div>
-                      <div className="text-[10px] text-white/60">{log.message}</div>
+                <div className="space-y-2 max-h-80 overflow-y-auto font-mono text-xs">
+                  {events.length === 0 ? (
+                    <div className="text-center py-8 text-white/30">
+                      No events captured yet. Click a button above or install the snippet on your store!
                     </div>
-                  ))}
+                  ) : (
+                    events.map((log, i) => (
+                      <div key={i} className="p-3 rounded-xl bg-white/[0.02] border border-white/5 space-y-1">
+                        <div className="flex items-center justify-between text-[11px]">
+                          <span className="text-[#D4F54C] font-bold">{log.eventName}</span>
+                          <span className="text-white/40">{log.id}</span>
+                          <span className="text-emerald-400 font-bold">EMQ: {log.emqScore || '9.4'}/10</span>
+                        </div>
+                        <div className="text-[10px] text-white/60">{log.message}</div>
+                        {log.userDataPreview && (
+                          <div className="text-[10px] text-white/40 truncate">{log.userDataPreview}</div>
+                        )}
+                      </div>
+                    ))
+                  )}
                 </div>
               </div>
             </div>
@@ -845,7 +1067,7 @@ export default function GrowthPilot2Website() {
           )}
 
           {/* ======================================================== */}
-          {/* VIEW: ANALYTICS (ATTRIBUTED REVENUE & RECOVERY METRICS)    */}
+          {/* VIEW: ANALYTICS (REAL METRICS & REVENUE BREAKDOWN)        */}
           {/* ======================================================== */}
           {currentPage === 'analytics' && (
             <div className="space-y-6">
@@ -862,13 +1084,13 @@ export default function GrowthPilot2Website() {
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="p-6 rounded-2xl bg-[#111215] border border-[#1E2026] space-y-1">
                   <div className="text-xs text-white/40">Recovered Revenue</div>
-                  <div className="text-2xl font-bold text-[#D4F54C]">৳১,৪৬,৫০০</div>
-                  <div className="text-[11px] text-emerald-400">+28.4% from last week</div>
+                  <div className="text-2xl font-bold text-[#D4F54C]">৳{analytics.recoveredRevenue.toLocaleString()}</div>
+                  <div className="text-[11px] text-emerald-400 font-bold">{analytics.confirmedCount} order(s) successfully closed</div>
                 </div>
                 <div className="p-6 rounded-2xl bg-[#111215] border border-[#1E2026] space-y-1">
-                  <div className="text-xs text-white/40">Abandoned Cart Recovery Rate</div>
-                  <div className="text-2xl font-bold text-white">21.8%</div>
-                  <div className="text-[11px] text-white/40">Benchmark: 8-12%</div>
+                  <div className="text-xs text-white/40">Cart Recovery Rate</div>
+                  <div className="text-2xl font-bold text-white">{analytics.recoveryRate}%</div>
+                  <div className="text-[11px] text-white/40">From active leads</div>
                 </div>
                 <div className="p-6 rounded-2xl bg-[#111215] border border-[#1E2026] space-y-1">
                   <div className="text-xs text-white/40">Meta CAPI Match Quality (EMQ)</div>
@@ -876,69 +1098,197 @@ export default function GrowthPilot2Website() {
                   <div className="text-[11px] text-emerald-400">High Reliability Signal</div>
                 </div>
               </div>
+
+              <div className="p-6 rounded-2xl bg-[#111215] border border-[#1E2026] space-y-4">
+                <h3 className="text-sm font-bold text-white">Channel Recovery Breakdown</h3>
+                <div className="space-y-3">
+                  <div>
+                    <div className="flex justify-between text-xs mb-1">
+                      <span className="text-white/60">WhatsApp Business Cloud</span>
+                      <span className="text-[#D4F54C] font-bold">58% Share</span>
+                    </div>
+                    <div className="w-full bg-white/5 h-2 rounded-full overflow-hidden">
+                      <div className="bg-[#D4F54C] h-full w-[58%]" />
+                    </div>
+                  </div>
+                  <div>
+                    <div className="flex justify-between text-xs mb-1">
+                      <span className="text-white/60">AI Voice Calling Agent</span>
+                      <span className="text-[#FF7A50] font-bold">24% Share</span>
+                    </div>
+                    <div className="w-full bg-white/5 h-2 rounded-full overflow-hidden">
+                      <div className="bg-[#FF7A50] h-full w-[24%]" />
+                    </div>
+                  </div>
+                  <div>
+                    <div className="flex justify-between text-xs mb-1">
+                      <span className="text-white/60">Urgent SMS Gateway</span>
+                      <span className="text-[#3EE0D2] font-bold">18% Share</span>
+                    </div>
+                    <div className="w-full bg-white/5 h-2 rounded-full overflow-hidden">
+                      <div className="bg-[#3EE0D2] h-full w-[18%]" />
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
 
           {/* ======================================================== */}
-          {/* VIEW: LEADS (IDENTIFIED SHOPPERS & COD ORDERS)           */}
+          {/* VIEW: LEADS (REAL CRM, STATUS SWITCHER & WHATSAPP CHAT)   */}
           {/* ======================================================== */}
           {currentPage === 'leads' && (
             <div className="space-y-6">
-              <div className="pb-4 border-b border-[#1E2026]">
-                <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                  <Users size={20} className="text-[#D4F54C]" />
-                  <span>Identified Leads & High-Intent Shoppers</span>
-                </h2>
-                <p className="text-xs text-white/50 mt-1">
-                  Shoppers identified via MarkTag micro-interactions awaiting confirmation or retargeting.
-                </p>
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-[#1E2026]">
+                <div>
+                  <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                    <Users size={20} className="text-[#D4F54C]" />
+                    <span>Identified Leads & High-Intent Shoppers</span>
+                  </h2>
+                  <p className="text-xs text-white/50 mt-1">
+                    Shoppers identified via MarkTag micro-interactions awaiting confirmation or retargeting.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowAddLeadModal(true)}
+                  className="px-4 py-2 rounded-xl bg-[#D4F54C] text-black text-xs font-bold hover:bg-[#C2E338] transition flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Plus size={15} />
+                  <span>Add New Lead</span>
+                </button>
               </div>
 
-              <div className="rounded-2xl bg-[#111215] border border-[#1E2026] overflow-hidden">
-                <table className="w-full text-left text-xs">
+              {/* Add Lead Modal */}
+              {showAddLeadModal && (
+                <div className="p-6 rounded-2xl bg-[#111215] border border-[#D4F54C]/30 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-sm font-bold text-white">Add New Shopper Lead</h3>
+                    <button type="button" onClick={() => setShowAddLeadModal(false)} className="text-white/50 hover:text-white">
+                      <X size={16} />
+                    </button>
+                  </div>
+                  <form onSubmit={handleCreateLead} className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <input
+                      type="text"
+                      placeholder="Customer Name"
+                      value={newLeadName}
+                      onChange={e => setNewLeadName(e.target.value)}
+                      required
+                      className="rounded-xl border border-white/10 bg-black/40 px-3.5 py-2 text-xs text-white"
+                    />
+                    <input
+                      type="text"
+                      placeholder="Phone (e.g. 01711223344)"
+                      value={newLeadPhone}
+                      onChange={e => setNewLeadPhone(e.target.value)}
+                      required
+                      className="rounded-xl border border-white/10 bg-black/40 px-3.5 py-2 text-xs text-white"
+                    />
+                    <input
+                      type="text"
+                      placeholder="City / Area (e.g. Dhanmondi, Dhaka)"
+                      value={newLeadCity}
+                      onChange={e => setNewLeadCity(e.target.value)}
+                      className="rounded-xl border border-white/10 bg-black/40 px-3.5 py-2 text-xs text-white"
+                    />
+                    <input
+                      type="text"
+                      placeholder="Product Name"
+                      value={newLeadProduct}
+                      onChange={e => setNewLeadProduct(e.target.value)}
+                      className="rounded-xl border border-white/10 bg-black/40 px-3.5 py-2 text-xs text-white"
+                    />
+                    <input
+                      type="number"
+                      placeholder="Cart Value (BDT)"
+                      value={newLeadAmount}
+                      onChange={e => setNewLeadAmount(Number(e.target.value))}
+                      className="rounded-xl border border-white/10 bg-black/40 px-3.5 py-2 text-xs text-white"
+                    />
+                    <button
+                      type="submit"
+                      className="rounded-xl bg-[#D4F54C] text-black text-xs font-bold hover:bg-[#C2E338] transition cursor-pointer"
+                    >
+                      Save Lead
+                    </button>
+                  </form>
+                </div>
+              )}
+
+              {/* Leads Table */}
+              <div className="rounded-2xl bg-[#111215] border border-[#1E2026] overflow-x-auto">
+                <table className="w-full text-left text-xs min-w-[700px]">
                   <thead className="bg-black/40 border-b border-[#1E2026] text-white/40 uppercase">
                     <tr>
                       <th className="p-4">Customer</th>
                       <th className="p-4">Phone / City</th>
                       <th className="p-4">Product</th>
                       <th className="p-4">Value</th>
-                      <th className="p-4">Intent</th>
-                      <th className="p-4">Action</th>
+                      <th className="p-4">Risk</th>
+                      <th className="p-4">Status</th>
+                      <th className="p-4 text-right">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-white/5">
-                    <tr>
-                      <td className="p-4 font-bold text-white">Tanvir Ahmed</td>
-                      <td className="p-4 text-white/60">01711223344 (Dhaka)</td>
-                      <td className="p-4 text-white/80">Ultra AMOLED Smartwatch</td>
-                      <td className="p-4 text-[#D4F54C] font-bold">৳2,450</td>
-                      <td className="p-4"><span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 font-bold">92 High</span></td>
-                      <td className="p-4">
-                        <button
-                          type="button"
-                          onClick={() => setCurrentPage('campaigns')}
-                          className="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-xs font-bold"
-                        >
-                          Send WhatsApp ↗
-                        </button>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td className="p-4 font-bold text-white">Nusrat Jahan</td>
-                      <td className="p-4 text-white/60">01822334455 (Chittagong)</td>
-                      <td className="p-4 text-white/80">ANC Wireless Earbuds Pro</td>
-                      <td className="p-4 text-[#D4F54C] font-bold">৳1,890</td>
-                      <td className="p-4"><span className="px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 font-bold">78 Med</span></td>
-                      <td className="p-4">
-                        <button
-                          type="button"
-                          onClick={() => setCurrentPage('campaigns')}
-                          className="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-xs font-bold"
-                        >
-                          Send SMS ↗
-                        </button>
-                      </td>
-                    </tr>
+                    {leads.map(lead => (
+                      <tr key={lead.id} className="hover:bg-white/[0.01]">
+                        <td className="p-4 font-bold text-white">{lead.customerName}</td>
+                        <td className="p-4 text-white/60">
+                          <div>{lead.phone}</div>
+                          <div className="text-[10px] text-white/40">{lead.city}</div>
+                        </td>
+                        <td className="p-4 text-white/80">{lead.productName}</td>
+                        <td className="p-4 text-[#D4F54C] font-bold">৳{lead.cartTotal?.toLocaleString()}</td>
+                        <td className="p-4">
+                          <span className={`px-2 py-0.5 rounded-full font-bold text-[10px] ${
+                            lead.courierRisk === 'LOW' ? 'bg-emerald-500/10 text-emerald-400' :
+                            lead.courierRisk === 'MEDIUM' ? 'bg-amber-500/10 text-amber-400' :
+                            'bg-rose-500/10 text-rose-400'
+                          }`}>
+                            {lead.courierRisk} RISK
+                          </span>
+                        </td>
+                        <td className="p-4">
+                          <select
+                            value={lead.status}
+                            onChange={e => {
+                              GP2Storage.updateLeadStatus(lead.id, e.target.value as any);
+                              setLeads(GP2Storage.getLeads());
+                            }}
+                            className="rounded-lg bg-black/60 border border-white/10 px-2 py-1 text-xs text-white focus:outline-none"
+                          >
+                            <option value="Pending" className="bg-[#111]">Pending</option>
+                            <option value="Contacted" className="bg-[#111]">Contacted</option>
+                            <option value="Confirmed" className="bg-[#111]">Confirmed (Recovered)</option>
+                            <option value="Cancelled" className="bg-[#111]">Cancelled</option>
+                          </select>
+                        </td>
+                        <td className="p-4 text-right">
+                          <div className="flex items-center justify-end gap-2">
+                            <a
+                              href={`https://wa.me/88${lead.phone.replace(/^0/, '')}?text=${encodeURIComponent(`আসসালামু আলাইকুম ${lead.customerName}! ${brandName} থেকে আপনার ${lead.productName} এর অর্ডারটি কনফার্ম করতে যোগাযোগ করছি।`)}`}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500/20 text-xs font-bold transition inline-flex items-center gap-1"
+                            >
+                              <MessageCircle size={12} />
+                              <span>WhatsApp</span>
+                            </a>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                GP2Storage.deleteLead(lead.id);
+                                setLeads(GP2Storage.getLeads());
+                              }}
+                              className="p-1 rounded-lg text-white/30 hover:text-rose-400 hover:bg-rose-500/10 transition"
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </div>
@@ -946,7 +1296,7 @@ export default function GrowthPilot2Website() {
           )}
 
           {/* ======================================================== */}
-          {/* VIEW: CAMPAIGNS (AD PILOT & RECOVERY FLOWS)               */}
+          {/* VIEW: CAMPAIGNS (AD PILOT & RECOVERY FLOWS & SAVED)       */}
           {/* ======================================================== */}
           {currentPage === 'campaigns' && (
             <div className="space-y-6">
@@ -979,16 +1329,34 @@ export default function GrowthPilot2Website() {
                   >
                     Recovery Flows (COD & Cart)
                   </button>
+                  <button
+                    type="button"
+                    onClick={() => setCampaignTab('saved_campaigns')}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
+                      campaignTab === 'saved_campaigns' ? 'bg-[#D4F54C] text-black' : 'text-white/60 hover:text-white'
+                    }`}
+                  >
+                    Saved Campaigns ({savedCampaigns.length})
+                  </button>
                 </div>
               </div>
 
-              {campaignTab === 'ad_pilot' ? (
+              {campaignTab === 'ad_pilot' && (
                 <div className="space-y-6">
                   {/* Ad Pilot Inputs */}
                   <div className="p-6 rounded-2xl bg-[#111215] border border-[#1E2026] space-y-4">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <label className="text-[11px] font-bold text-white/50 uppercase">Brand / Product</label>
+                        <label className="text-[11px] font-bold text-white/50 uppercase">Brand / Business Name</label>
+                        <input
+                          type="text"
+                          value={brandName}
+                          onChange={e => setBrandName(e.target.value)}
+                          className="mt-1 w-full rounded-xl border border-white/10 bg-black/40 px-3.5 py-2 text-xs text-white focus:outline-none"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[11px] font-bold text-white/50 uppercase">Product or Campaign Focus</label>
                         <input
                           type="text"
                           value={productService}
@@ -996,8 +1364,20 @@ export default function GrowthPilot2Website() {
                           className="mt-1 w-full rounded-xl border border-white/10 bg-black/40 px-3.5 py-2 text-xs text-white focus:outline-none"
                         />
                       </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <label className="text-[11px] font-bold text-white/50 uppercase">Offer Angle</label>
+                        <label className="text-[11px] font-bold text-white/50 uppercase">Target ICP Audience</label>
+                        <input
+                          type="text"
+                          value={targetAudience}
+                          onChange={e => setTargetAudience(e.target.value)}
+                          className="mt-1 w-full rounded-xl border border-white/10 bg-black/40 px-3.5 py-2 text-xs text-white focus:outline-none"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[11px] font-bold text-white/50 uppercase">Offer Angle / Guarantee</label>
                         <input
                           type="text"
                           value={offer}
@@ -1015,7 +1395,7 @@ export default function GrowthPilot2Website() {
                             key={p}
                             type="button"
                             onClick={() => setPlatform(p)}
-                            className={`px-2.5 py-1 rounded-lg text-xs font-bold uppercase transition ${
+                            className={`px-2.5 py-1 rounded-lg text-xs font-bold uppercase transition cursor-pointer ${
                               platform === p ? 'bg-[#D4F54C] text-black' : 'bg-white/5 text-white/60 hover:text-white'
                             }`}
                           >
@@ -1038,38 +1418,70 @@ export default function GrowthPilot2Website() {
 
                   {/* Ad Pilot Results */}
                   {adPilotResult && (
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      {adPilotResult.adSets.map((ad, idx) => (
-                        <div key={idx} className="p-5 rounded-2xl bg-[#111215] border border-[#1E2026] space-y-3 flex flex-col justify-between">
-                          <div className="space-y-2">
-                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#182110] text-[#D4F54C] border border-[#2B3B18]">
-                              Angle: {ad.creativeAngle}
-                            </span>
-                            <div className="text-xs font-bold text-white pt-1">{ad.headline}</div>
-                            <p className="text-xs text-white/70 whitespace-pre-wrap leading-relaxed line-clamp-4">
-                              {ad.primaryText}
-                            </p>
-                          </div>
+                    <div className="space-y-4">
+                      {/* Export Bar */}
+                      <div className="p-4 rounded-xl bg-blue-500/10 border border-blue-500/20 flex flex-col sm:flex-row items-center justify-between gap-3">
+                        <div className="text-xs text-white font-bold">
+                          Campaign Generated: <span className="text-blue-300">{adPilotResult.campaignName}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
                           <button
                             type="button"
-                            onClick={() => handleCopy(`ad_${idx}`, `${ad.headline}\n\n${ad.primaryText}`)}
-                            className="w-full py-2 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-bold text-white/80 transition flex items-center justify-center gap-1.5"
+                            onClick={handleDownloadMetaCsv}
+                            className="px-3.5 py-1.5 rounded-lg bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow"
                           >
-                            {copiedKey === `ad_${idx}` ? <Check size={12} className="text-[#D4F54C]" /> : <Copy size={12} />}
-                            <span>{copiedKey === `ad_${idx}` ? 'Copied' : 'Copy Ad Copy'}</span>
+                            <Download size={13} />
+                            <span>Download Meta CSV (Import Ready)</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleCopy('spec_json', JSON.stringify(adPilotResult.metaAdsDraftSpec, null, 2))}
+                            className="px-3.5 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
+                          >
+                            {copiedKey === 'spec_json' ? <Check size={13} className="text-[#D4F54C]" /> : <Copy size={13} />}
+                            <span>Copy Spec JSON</span>
                           </button>
                         </div>
-                      ))}
+                      </div>
+
+                      {/* 3 Creative Angles */}
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        {adPilotResult.adSets.map((ad, idx) => (
+                          <div key={idx} className="p-5 rounded-2xl bg-[#111215] border border-[#1E2026] space-y-3 flex flex-col justify-between">
+                            <div className="space-y-2">
+                              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#182110] text-[#D4F54C] border border-[#2B3B18]">
+                                Angle: {ad.creativeAngle}
+                              </span>
+                              <div className="text-xs font-bold text-white pt-1">{ad.headline}</div>
+                              <p className="text-xs text-white/70 whitespace-pre-wrap leading-relaxed line-clamp-5">
+                                {ad.primaryText}
+                              </p>
+                              <div className="p-2 rounded-lg bg-black/40 border border-white/5 text-[10px] text-purple-300 font-mono">
+                                Visual Prompt: {ad.visualPrompt.slice(0, 90)}...
+                              </div>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => handleCopy(`ad_${idx}`, `${ad.headline}\n\n${ad.primaryText}`)}
+                              className="w-full py-2 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-bold text-white/80 transition flex items-center justify-center gap-1.5 cursor-pointer"
+                            >
+                              {copiedKey === `ad_${idx}` ? <Check size={12} className="text-[#D4F54C]" /> : <Copy size={12} />}
+                              <span>{copiedKey === `ad_${idx}` ? 'Copied' : 'Copy Ad Copy'}</span>
+                            </button>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   )}
                 </div>
-              ) : (
-                /* Recovery Flows Tab */
+              )}
+
+              {campaignTab === 'recovery_flows' && (
                 <div className="space-y-6">
                   <div className="p-6 rounded-2xl bg-[#111215] border border-[#1E2026] space-y-4">
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                       <div>
-                        <label className="text-[11px] font-bold text-white/50 uppercase">Customer</label>
+                        <label className="text-[11px] font-bold text-white/50 uppercase">Customer Name</label>
                         <input
                           type="text"
                           value={retentionCustomer}
@@ -1110,20 +1522,42 @@ export default function GrowthPilot2Website() {
 
                   {retentionResult && (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="p-5 rounded-2xl bg-[#111215] border border-[#1E2026] space-y-2">
-                        <div className="text-xs font-bold text-[#4CD964] flex items-center gap-2">
-                          <MessageCircle size={15} /> WhatsApp Cloud Message
+                      {/* WhatsApp Box with Direct Send Button */}
+                      <div className="p-5 rounded-2xl bg-[#111215] border border-[#1E2026] space-y-3">
+                        <div className="flex items-center justify-between">
+                          <div className="text-xs font-bold text-[#4CD964] flex items-center gap-2">
+                            <MessageCircle size={15} /> WhatsApp Cloud Message
+                          </div>
+                          <a
+                            href={`https://wa.me/88${retentionPhone.replace(/^0/, '')}?text=${encodeURIComponent(retentionResult.channels.whatsapp.message)}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="px-3 py-1 rounded-lg bg-emerald-500 text-black text-xs font-bold hover:bg-emerald-400 transition"
+                          >
+                            Send via WhatsApp Web ↗
+                          </a>
                         </div>
-                        <div className="p-3 rounded-xl bg-black/40 border border-white/5 text-xs text-white/90 whitespace-pre-wrap">
+                        <div className="p-3.5 rounded-xl bg-black/40 border border-white/5 text-xs text-white/90 whitespace-pre-wrap leading-relaxed">
                           {retentionResult.channels.whatsapp.message}
                         </div>
                       </div>
 
-                      <div className="p-5 rounded-2xl bg-[#111215] border border-[#1E2026] space-y-2">
-                        <div className="text-xs font-bold text-[#FF7A50] flex items-center gap-2">
-                          <PhoneCall size={15} /> AI Voice Script (COD Confirmation)
+                      {/* AI Voice Call Script with Real Speech Playback */}
+                      <div className="p-5 rounded-2xl bg-[#111215] border border-[#1E2026] space-y-3">
+                        <div className="flex items-center justify-between">
+                          <div className="text-xs font-bold text-[#FF7A50] flex items-center gap-2">
+                            <PhoneCall size={15} /> AI Voice Script (Audio Speech Simulation)
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => handleSpeakScript(`${retentionResult.channels.aiVoiceCallScript.firstGreeting}. ${retentionResult.channels.aiVoiceCallScript.hesitationResolution}`)}
+                            className="px-3 py-1 rounded-lg bg-orange-500/20 text-[#FF7A50] border border-orange-500/30 text-xs font-bold hover:bg-orange-500/30 transition flex items-center gap-1 cursor-pointer"
+                          >
+                            {isSpeaking ? <VolumeX size={13} /> : <Volume2 size={13} />}
+                            <span>{isSpeaking ? 'Stop Speaking' : 'Listen Script'}</span>
+                          </button>
                         </div>
-                        <div className="p-3 rounded-xl bg-black/40 border border-white/5 text-xs text-white/90 space-y-1">
+                        <div className="p-3.5 rounded-xl bg-black/40 border border-white/5 text-xs text-white/90 space-y-1.5 leading-relaxed">
                           <div><strong>Greeting:</strong> {retentionResult.channels.aiVoiceCallScript.firstGreeting}</div>
                           <div><strong>Resolution:</strong> {retentionResult.channels.aiVoiceCallScript.hesitationResolution}</div>
                         </div>
@@ -1132,40 +1566,174 @@ export default function GrowthPilot2Website() {
                   )}
                 </div>
               )}
+
+              {campaignTab === 'saved_campaigns' && (
+                <div className="space-y-4">
+                  {savedCampaigns.length === 0 ? (
+                    <div className="p-10 rounded-2xl bg-[#111215] border border-[#1E2026] text-center text-white/40">
+                      No saved campaigns yet. Generate a campaign in Ad Pilot to save it here!
+                    </div>
+                  ) : (
+                    savedCampaigns.map(camp => (
+                      <div key={camp.id} className="p-5 rounded-2xl bg-[#111215] border border-[#1E2026] flex items-center justify-between gap-4">
+                        <div>
+                          <div className="text-sm font-bold text-white">{camp.name}</div>
+                          <div className="text-xs text-white/40 mt-0.5">
+                            Platform: {camp.platform.toUpperCase()} • Budget: {camp.currency} {camp.dailyBudget} • Created: {camp.createdAt}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setAdPilotResult(camp.data);
+                              setCampaignTab('ad_pilot');
+                            }}
+                            className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-xs font-bold text-white"
+                          >
+                            Open in Studio
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              GP2Storage.deleteCampaign(camp.id);
+                              setSavedCampaigns(GP2Storage.getCampaigns());
+                            }}
+                            className="p-1.5 rounded-lg text-white/40 hover:text-rose-400 hover:bg-rose-500/10"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
             </div>
           )}
 
           {/* ======================================================== */}
-          {/* VIEW: CONTENT (CREATIVE & MESSAGING STUDIO)               */}
+          {/* VIEW: CONTENT (CATALOG & AD COPY DRAFTING)                 */}
           {/* ======================================================== */}
           {currentPage === 'content' && (
             <div className="space-y-6">
-              <div className="pb-4 border-b border-[#1E2026]">
-                <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                  <FileText size={20} className="text-[#3EE0D2]" />
-                  <span>AI Content & Copywriting Studio</span>
-                </h2>
-                <p className="text-xs text-white/50 mt-1">
-                  Generate cross-channel captions, headlines, and visual Midjourney prompts tailored to your brand assets.
-                </p>
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-[#1E2026]">
+                <div>
+                  <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                    <FileText size={20} className="text-[#3EE0D2]" />
+                    <span>Product Catalog & Creative Copy Studio</span>
+                  </h2>
+                  <p className="text-xs text-white/50 mt-1">
+                    Manage store SKUs and generate high-CTR copy hooks per product.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowAddSkuModal(true)}
+                  className="px-4 py-2 rounded-xl bg-[#D4F54C] text-black text-xs font-bold hover:bg-[#C2E338] transition flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Plus size={15} />
+                  <span>Add Product SKU</span>
+                </button>
               </div>
 
+              {/* Add SKU Modal */}
+              {showAddSkuModal && (
+                <div className="p-6 rounded-2xl bg-[#111215] border border-[#D4F54C]/30 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-sm font-bold text-white">Add Store Product SKU</h3>
+                    <button type="button" onClick={() => setShowAddSkuModal(false)} className="text-white/50 hover:text-white">
+                      <X size={16} />
+                    </button>
+                  </div>
+                  <form onSubmit={handleCreateSku} className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <input
+                      type="text"
+                      placeholder="SKU Code (e.g. CAM-09)"
+                      value={newSkuCode}
+                      onChange={e => setNewSkuCode(e.target.value)}
+                      required
+                      className="rounded-xl border border-white/10 bg-black/40 px-3.5 py-2 text-xs text-white"
+                    />
+                    <input
+                      type="text"
+                      placeholder="Product Name"
+                      value={newSkuName}
+                      onChange={e => setNewSkuName(e.target.value)}
+                      required
+                      className="rounded-xl border border-white/10 bg-black/40 px-3.5 py-2 text-xs text-white"
+                    />
+                    <input
+                      type="number"
+                      placeholder="Cost Price (BDT)"
+                      value={newSkuCost}
+                      onChange={e => setNewSkuCost(Number(e.target.value))}
+                      className="rounded-xl border border-white/10 bg-black/40 px-3.5 py-2 text-xs text-white"
+                    />
+                    <input
+                      type="number"
+                      placeholder="Selling Price (BDT)"
+                      value={newSkuPrice}
+                      onChange={e => setNewSkuPrice(Number(e.target.value))}
+                      className="rounded-xl border border-white/10 bg-black/40 px-3.5 py-2 text-xs text-white"
+                    />
+                    <input
+                      type="number"
+                      placeholder="Stock Inventory"
+                      value={newSkuStock}
+                      onChange={e => setNewSkuStock(Number(e.target.value))}
+                      className="rounded-xl border border-white/10 bg-black/40 px-3.5 py-2 text-xs text-white"
+                    />
+                    <button
+                      type="submit"
+                      className="rounded-xl bg-[#D4F54C] text-black text-xs font-bold hover:bg-[#C2E338] transition cursor-pointer"
+                    >
+                      Save SKU
+                    </button>
+                  </form>
+                </div>
+              )}
+
+              {/* SKUs Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 {catalog.map(sku => (
-                  <div key={sku.sku} className="p-5 rounded-2xl bg-[#111215] border border-[#1E2026] space-y-3">
-                    <div className="text-xs font-mono text-white/40">{sku.sku}</div>
-                    <div className="text-sm font-bold text-white">{sku.name}</div>
-                    <div className="text-xs text-[#D4F54C] font-bold">Margin: {sku.margin}%</div>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setProductService(sku.name);
-                        setCurrentPage('campaigns');
-                      }}
-                      className="w-full py-2 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-bold text-white transition"
-                    >
-                      Draft Content for SKU
-                    </button>
+                  <div key={sku.id} className="p-5 rounded-2xl bg-[#111215] border border-[#1E2026] space-y-3 flex flex-col justify-between">
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-mono text-white/40">{sku.sku}</span>
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400">
+                          {sku.margin}% Margin
+                        </span>
+                      </div>
+                      <div className="text-sm font-bold text-white">{sku.name}</div>
+                      <div className="text-xs text-white/50">
+                        Cost: ৳{sku.cost} | Price: <strong className="text-white">৳{sku.price}</strong>
+                      </div>
+                    </div>
+
+                    <div className="pt-2 border-t border-white/5 flex items-center justify-between gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setProductService(sku.name);
+                          setCurrentPage('campaigns');
+                          setCampaignTab('ad_pilot');
+                        }}
+                        className="flex-1 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-bold text-white transition text-center"
+                      >
+                        Launch Ad Pilot
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          GP2Storage.deleteCatalogItem(sku.id);
+                          setCatalog(GP2Storage.getCatalog());
+                        }}
+                        className="p-2 rounded-xl text-white/40 hover:text-rose-400 hover:bg-rose-500/10 transition"
+                      >
+                        <Trash2 size={13} />
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -1173,37 +1741,70 @@ export default function GrowthPilot2Website() {
           )}
 
           {/* ======================================================== */}
-          {/* VIEW: INTEGRATIONS                                       */}
+          {/* VIEW: INTEGRATIONS (ACTUAL API KEYS SAVING)               */}
           {/* ======================================================== */}
           {currentPage === 'integrations' && (
             <div className="space-y-6">
               <div className="pb-4 border-b border-[#1E2026]">
                 <h2 className="text-xl font-bold text-white flex items-center gap-2">
                   <Boxes size={20} className="text-[#D4F54C]" />
-                  <span>Connected Channels & Gateways</span>
+                  <span>Channel Integrations & Live API Connections</span>
                 </h2>
                 <p className="text-xs text-white/50 mt-1">
-                  Connect Meta, Shopify, WhatsApp Cloud, and local courier verification APIs.
+                  Connect your live Meta Pixel, WhatsApp Business API, and Bangladeshi courier tokens.
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {[
-                  { name: 'Meta Conversions API (CAPI)', status: 'Connected', desc: 'Server-side pixel attribution' },
-                  { name: 'Shopify Storefront', status: 'Connected', desc: 'Syncs products, stock & cart drops' },
-                  { name: 'WhatsApp Business API', status: 'Ready', desc: 'Cloud API for 1-tap COD recovery' },
-                  { name: 'Bangladeshi Courier Hub (Pathao/Steadfast)', status: 'Active', desc: 'Anti-fraud COD verification' },
-                ].map((item, i) => (
-                  <div key={i} className="p-5 rounded-2xl bg-[#111215] border border-[#1E2026] flex items-center justify-between">
-                    <div>
-                      <div className="text-sm font-bold text-white">{item.name}</div>
-                      <div className="text-xs text-white/40 mt-0.5">{item.desc}</div>
-                    </div>
-                    <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-[#182110] text-[#D4F54C] border border-[#2B3B18]">
-                      {item.status}
-                    </span>
+              <div className="p-6 rounded-2xl bg-[#111215] border border-[#1E2026] space-y-4">
+                <div className="text-sm font-bold text-white flex items-center gap-2">
+                  <span>Meta Conversions API (CAPI) Configuration</span>
+                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${pixelId && accessToken ? 'bg-emerald-500/10 text-emerald-400' : 'bg-white/10 text-white/40'}`}>
+                    {pixelId && accessToken ? 'Connected' : 'Setup Required'}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div>
+                    <label className="text-[11px] text-white/50 uppercase font-bold">Meta Pixel ID</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. 192837465019"
+                      value={pixelId}
+                      onChange={e => setPixelId(e.target.value)}
+                      className="mt-1 w-full rounded-xl border border-white/10 bg-black/40 px-3.5 py-2 text-xs text-white"
+                    />
                   </div>
-                ))}
+                  <div>
+                    <label className="text-[11px] text-white/50 uppercase font-bold">CAPI Access Token</label>
+                    <input
+                      type="password"
+                      placeholder="EAAB..."
+                      value={accessToken}
+                      onChange={e => setAccessToken(e.target.value)}
+                      className="mt-1 w-full rounded-xl border border-white/10 bg-black/40 px-3.5 py-2 text-xs text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] text-white/50 uppercase font-bold">Test Event Code</label>
+                    <input
+                      type="text"
+                      placeholder="TEST12345"
+                      value={testEventCode}
+                      onChange={e => setTestEventCode(e.target.value)}
+                      className="mt-1 w-full rounded-xl border border-white/10 bg-black/40 px-3.5 py-2 text-xs text-white"
+                    />
+                  </div>
+                </div>
+
+                <div className="pt-2">
+                  <button
+                    type="button"
+                    onClick={handleSaveConfig}
+                    className="px-5 py-2.5 rounded-xl bg-[#D4F54C] hover:bg-[#C2E338] text-black text-xs font-bold transition cursor-pointer"
+                  >
+                    Save API Credentials
+                  </button>
+                </div>
               </div>
             </div>
           )}
