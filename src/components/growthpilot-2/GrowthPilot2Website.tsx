@@ -47,7 +47,8 @@ import {
   Volume2,
   VolumeX,
   CheckCircle2,
-  AlertTriangle
+  AlertTriangle,
+  Globe
 } from 'lucide-react';
 import { copyTextSafely } from '@/lib/clipboard';
 import {
@@ -58,6 +59,8 @@ import {
   GP2TrackingEvent,
   GP2IntegrationsConfig,
 } from '@/lib/gp2-storage';
+import AdBannerStudio from '@/components/growthpilot-2/AdBannerStudio';
+import RecoveryWorkflowBuilder from '@/components/growthpilot-2/RecoveryWorkflowBuilder';
 
 const BRAND_BRAIN_KEY = 'marketing_brand_profile';
 
@@ -159,7 +162,7 @@ export default function GrowthPilot2Website() {
   const [hasBrandBrain, setHasBrandBrain] = useState(false);
 
   // Campaign Agent States
-  const [campaignTab, setCampaignTab] = useState<'ad_pilot' | 'recovery_flows' | 'saved_campaigns'>('ad_pilot');
+  const [campaignTab, setCampaignTab] = useState<'ad_pilot' | 'ad_canvas' | 'recovery_flows' | 'saved_campaigns'>('ad_pilot');
   const [platform, setPlatform] = useState<'meta' | 'google' | 'tiktok'>('meta');
   const [objective, setObjective] = useState<'cod_orders' | 'sales' | 'leads'>('cod_orders');
   const [dailyBudget, setDailyBudget] = useState(1500);
@@ -197,6 +200,23 @@ export default function GrowthPilot2Website() {
   const [newLeadCity, setNewLeadCity] = useState('');
   const [newLeadProduct, setNewLeadProduct] = useState('');
   const [newLeadAmount, setNewLeadAmount] = useState(2450);
+
+  // Stage 2: Courier Fraud Scanner State
+  const [showCourierModal, setShowCourierModal] = useState(false);
+  const [courierPhone, setCourierPhone] = useState('01711223344');
+  const [courierName, setCourierName] = useState('Tanvir Ahmed');
+  const [courierAddress, setCourierAddress] = useState('House 12, Road 4, Sector 7, Uttara');
+  const [courierCity, setCourierCity] = useState('Dhaka');
+  const [courierOrderValue, setCourierOrderValue] = useState(2450);
+  const [courierLoading, setCourierLoading] = useState(false);
+  const [courierResult, setCourierResult] = useState<any>(null);
+
+  // Stage 2: Store Scraper Modal State
+  const [showScraperModal, setShowScraperModal] = useState(false);
+  const [scraperUrl, setScraperUrl] = useState('');
+  const [scrapingUrl, setScrapingUrl] = useState(false);
+  const [scraperError, setScraperError] = useState('');
+  const [scrapedPreview, setScrapedPreview] = useState<any>(null);
 
   // New SKU Modal State
   const [showAddSkuModal, setShowAddSkuModal] = useState(false);
@@ -318,6 +338,85 @@ export default function GrowthPilot2Website() {
     setShowAddSkuModal(false);
     setNewSkuCode('');
     setNewSkuName('');
+  };
+
+  // Stage 2: Courier Fraud Verification Handler
+  const handleVerifyCourier = async (
+    phoneToVerify?: string,
+    nameToVerify?: string,
+    addressToVerify?: string,
+    valToVerify?: number
+  ) => {
+    setCourierLoading(true);
+    setCourierResult(null);
+    try {
+      const res = await fetch('/api/gp2/courier/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          phone: phoneToVerify || courierPhone,
+          customerName: nameToVerify || courierName,
+          address: addressToVerify || courierAddress,
+          city: courierCity,
+          orderValue: valToVerify || courierOrderValue,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setCourierResult(data.data);
+      }
+    } catch (err) {
+      console.error('Failed to verify courier:', err);
+    } finally {
+      setCourierLoading(false);
+    }
+  };
+
+  // Stage 2: Store URL Scraper Handler
+  const handleScrapeStoreUrl = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!scraperUrl) return;
+    setScrapingUrl(true);
+    setScraperError('');
+    setScrapedPreview(null);
+    try {
+      const res = await fetch('/api/gp2/catalog/scrape', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: scraperUrl }),
+      });
+      const data = await res.json();
+      if (data.success && data.product) {
+        setScrapedPreview(data.product);
+      } else {
+        setScraperError(data.error || 'Failed to extract store product');
+      }
+    } catch (err: any) {
+      setScraperError(err.message || 'Error communicating with store scraper');
+    } finally {
+      setScrapingUrl(false);
+    }
+  };
+
+  const handleImportScrapedProduct = () => {
+    if (!scrapedPreview) return;
+    const estimatedCost = Math.round(scrapedPreview.price * 0.55);
+    const margin = Math.round(((scrapedPreview.price - estimatedCost) / scrapedPreview.price) * 100);
+    const newItem: GP2CatalogItem = {
+      id: `sku_${Date.now()}`,
+      sku: scrapedPreview.suggestedSku || `SKU-${Date.now().toString().slice(-4)}`,
+      name: scrapedPreview.title,
+      cost: estimatedCost,
+      price: scrapedPreview.price,
+      margin,
+      stock: 50,
+      category: 'Imported',
+    };
+    GP2Storage.saveCatalogItem(newItem);
+    setCatalog(GP2Storage.getCatalog());
+    setShowScraperModal(false);
+    setScraperUrl('');
+    setScrapedPreview(null);
   };
 
   // Generate Ad Campaign (Ad Pilot)
@@ -1149,15 +1248,141 @@ export default function GrowthPilot2Website() {
                     Shoppers identified via MarkTag micro-interactions awaiting confirmation or retargeting.
                   </p>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => setShowAddLeadModal(true)}
-                  className="px-4 py-2 rounded-xl bg-[#D4F54C] text-black text-xs font-bold hover:bg-[#C2E338] transition flex items-center gap-1.5 cursor-pointer"
-                >
-                  <Plus size={15} />
-                  <span>Add New Lead</span>
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCourierResult(null);
+                      setShowCourierModal(true);
+                    }}
+                    className="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-white text-xs font-bold border border-white/10 transition flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <ShieldCheck size={14} className="text-[#D4F54C]" />
+                    <span>Courier Fraud Scanner</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowAddLeadModal(true)}
+                    className="px-4 py-2 rounded-xl bg-[#D4F54C] text-black text-xs font-bold hover:bg-[#C2E338] transition flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <Plus size={15} />
+                    <span>Add New Lead</span>
+                  </button>
+                </div>
               </div>
+
+              {/* Courier Fraud Scanner Modal */}
+              {showCourierModal && (
+                <div className="p-6 rounded-2xl bg-[#111215] border border-[#D4F54C]/30 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <ShieldCheck size={18} className="text-[#D4F54C]" />
+                      <h3 className="text-sm font-bold text-white">Bangladeshi Courier COD Fraud Scanner (Steadfast / Pathao / RedX)</h3>
+                    </div>
+                    <button type="button" onClick={() => setShowCourierModal(false)} className="text-white/50 hover:text-white cursor-pointer">
+                      <X size={16} />
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                    <input
+                      type="text"
+                      placeholder="Customer Phone (e.g. 01711223344)"
+                      value={courierPhone}
+                      onChange={e => setCourierPhone(e.target.value)}
+                      className="rounded-xl border border-white/10 bg-black/40 px-3.5 py-2 text-xs text-white focus:outline-none"
+                    />
+                    <input
+                      type="text"
+                      placeholder="Customer Name"
+                      value={courierName}
+                      onChange={e => setCourierName(e.target.value)}
+                      className="rounded-xl border border-white/10 bg-black/40 px-3.5 py-2 text-xs text-white focus:outline-none"
+                    />
+                    <input
+                      type="text"
+                      placeholder="Delivery Address (e.g. Uttara Sector 7)"
+                      value={courierAddress}
+                      onChange={e => setCourierAddress(e.target.value)}
+                      className="rounded-xl border border-white/10 bg-black/40 px-3.5 py-2 text-xs text-white focus:outline-none"
+                    />
+                    <div className="flex gap-2">
+                      <input
+                        type="number"
+                        placeholder="Value (BDT)"
+                        value={courierOrderValue}
+                        onChange={e => setCourierOrderValue(Number(e.target.value))}
+                        className="w-24 rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-xs text-white focus:outline-none"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleVerifyCourier()}
+                        disabled={courierLoading}
+                        className="flex-1 rounded-xl bg-[#D4F54C] text-black text-xs font-bold hover:bg-[#C2E338] transition flex items-center justify-center gap-1 cursor-pointer disabled:opacity-50"
+                      >
+                        {courierLoading ? <Loader2 size={13} className="animate-spin" /> : <Search size={13} />}
+                        <span>Verify</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {courierResult && (
+                    <div className="mt-4 p-4 rounded-xl bg-black/50 border border-white/10 space-y-3">
+                      <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-white/10">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-white/50">Operator: <strong className="text-white">{courierResult.operator}</strong></span>
+                          <span className="text-xs text-white/30">•</span>
+                          <span className="text-xs text-white/50">Risk Score: <strong className={courierResult.riskScore > 40 ? 'text-rose-400' : 'text-[#D4F54C]'}>{courierResult.riskScore}/100</strong></span>
+                        </div>
+                        <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${
+                          courierResult.riskLevel === 'LOW' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' :
+                          courierResult.riskLevel === 'MEDIUM' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' :
+                          'bg-rose-500/20 text-rose-400 border border-rose-500/30'
+                        }`}>
+                          {courierResult.riskLevel} RETURN RISK
+                        </span>
+                      </div>
+
+                      <div className="text-xs text-white/90">
+                        <strong>Courier Recommendation:</strong> {courierResult.recommendation}
+                      </div>
+
+                      {courierResult.flags && courierResult.flags.length > 0 && (
+                        <div className="space-y-1">
+                          <div className="text-[10px] uppercase font-bold text-white/40">Risk Flags Detected:</div>
+                          <div className="flex flex-wrap gap-1.5">
+                            {courierResult.flags.map((flag: string, idx: number) => (
+                              <span key={idx} className="px-2 py-0.5 rounded-md bg-rose-500/10 border border-rose-500/20 text-rose-300 text-[11px]">
+                                ⚠️ {flag}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {courierResult.courierIntegrations && (
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-2">
+                          <div className="p-2.5 rounded-lg bg-white/[0.02] border border-white/5 text-[11px]">
+                            <div className="font-bold text-white">Steadfast Courier</div>
+                            <div className="text-white/50 text-[10px]">API Status: {courierResult.courierIntegrations.steadfast.status}</div>
+                            <div className="text-[#D4F54C] font-mono mt-1">Est. Del: {courierResult.courierIntegrations.steadfast.estimatedDelivery}</div>
+                          </div>
+                          <div className="p-2.5 rounded-lg bg-white/[0.02] border border-white/5 text-[11px]">
+                            <div className="font-bold text-white">Pathao Logistics</div>
+                            <div className="text-white/50 text-[10px]">API Status: {courierResult.courierIntegrations.pathao.status}</div>
+                            <div className="text-[#D4F54C] font-mono mt-1">Est. Del: {courierResult.courierIntegrations.pathao.estimatedDelivery}</div>
+                          </div>
+                          <div className="p-2.5 rounded-lg bg-white/[0.02] border border-white/5 text-[11px]">
+                            <div className="font-bold text-white">RedX Delivery</div>
+                            <div className="text-white/50 text-[10px]">API Status: {courierResult.courierIntegrations.redx.status}</div>
+                            <div className="text-[#D4F54C] font-mono mt-1">Est. Del: {courierResult.courierIntegrations.redx.estimatedDelivery}</div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Add Lead Modal */}
               {showAddLeadModal && (
@@ -1266,6 +1491,21 @@ export default function GrowthPilot2Website() {
                         </td>
                         <td className="p-4 text-right">
                           <div className="flex items-center justify-end gap-2">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setCourierPhone(lead.phone);
+                                setCourierName(lead.customerName);
+                                setCourierAddress(lead.city || 'Dhaka');
+                                setCourierOrderValue(lead.cartTotal || 2450);
+                                setShowCourierModal(true);
+                                handleVerifyCourier(lead.phone, lead.customerName, lead.city || 'Dhaka', lead.cartTotal || 2450);
+                              }}
+                              title="Verify Courier COD Risk"
+                              className="p-1.5 rounded-lg bg-white/5 text-white/70 hover:text-[#D4F54C] hover:bg-[#D4F54C]/10 transition cursor-pointer"
+                            >
+                              <ShieldCheck size={13} />
+                            </button>
                             <a
                               href={`https://wa.me/88${lead.phone.replace(/^0/, '')}?text=${encodeURIComponent(`আসসালামু আলাইকুম ${lead.customerName}! ${brandName} থেকে আপনার ${lead.productName} এর অর্ডারটি কনফার্ম করতে যোগাযোগ করছি।`)}`}
                               target="_blank"
@@ -1310,11 +1550,11 @@ export default function GrowthPilot2Website() {
                     Deploy multi-platform media buying and automated cart recovery sequences.
                   </p>
                 </div>
-                <div className="flex items-center gap-2 bg-[#111215] p-1 rounded-xl border border-[#1E2026]">
+                <div className="flex items-center gap-2 bg-[#111215] p-1 rounded-xl border border-[#1E2026] overflow-x-auto">
                   <button
                     type="button"
                     onClick={() => setCampaignTab('ad_pilot')}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer whitespace-nowrap ${
                       campaignTab === 'ad_pilot' ? 'bg-[#D4F54C] text-black' : 'text-white/60 hover:text-white'
                     }`}
                   >
@@ -1322,8 +1562,18 @@ export default function GrowthPilot2Website() {
                   </button>
                   <button
                     type="button"
+                    onClick={() => setCampaignTab('ad_canvas')}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
+                      campaignTab === 'ad_canvas' ? 'bg-[#D4F54C] text-black' : 'text-white/60 hover:text-white'
+                    }`}
+                  >
+                    <Palette size={13} />
+                    <span>Visual Banner Studio</span>
+                  </button>
+                  <button
+                    type="button"
                     onClick={() => setCampaignTab('recovery_flows')}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer whitespace-nowrap ${
                       campaignTab === 'recovery_flows' ? 'bg-[#D4F54C] text-black' : 'text-white/60 hover:text-white'
                     }`}
                   >
@@ -1332,7 +1582,7 @@ export default function GrowthPilot2Website() {
                   <button
                     type="button"
                     onClick={() => setCampaignTab('saved_campaigns')}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer whitespace-nowrap ${
                       campaignTab === 'saved_campaigns' ? 'bg-[#D4F54C] text-black' : 'text-white/60 hover:text-white'
                     }`}
                   >
@@ -1476,9 +1726,33 @@ export default function GrowthPilot2Website() {
                 </div>
               )}
 
+              {campaignTab === 'ad_canvas' && (
+                <div className="space-y-6">
+                  <AdBannerStudio
+                    productName={productService}
+                    brandName={brandName}
+                    offerText={offer}
+                    priceText="৳2,450"
+                  />
+                </div>
+              )}
+
               {campaignTab === 'recovery_flows' && (
                 <div className="space-y-6">
+                  {/* Stage 2 Visual Workflow Pipeline */}
+                  <RecoveryWorkflowBuilder />
+
+                  {/* Stage 1 Retention Execution Console */}
                   <div className="p-6 rounded-2xl bg-[#111215] border border-[#1E2026] space-y-4">
+                    <div className="flex items-center justify-between pb-2 border-b border-white/5">
+                      <div>
+                        <h4 className="text-xs font-bold text-white flex items-center gap-1.5">
+                          <Sparkles size={14} className="text-[#D4F54C]" />
+                          <span>Direct Retention Dispatcher</span>
+                        </h4>
+                        <p className="text-[11px] text-white/40">Execute instant omnichannel recovery messages for a high-intent shopper.</p>
+                      </div>
+                    </div>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                       <div>
                         <label className="text-[11px] font-bold text-white/50 uppercase">Customer Name</label>
@@ -1627,15 +1901,90 @@ export default function GrowthPilot2Website() {
                     Manage store SKUs and generate high-CTR copy hooks per product.
                   </p>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => setShowAddSkuModal(true)}
-                  className="px-4 py-2 rounded-xl bg-[#D4F54C] text-black text-xs font-bold hover:bg-[#C2E338] transition flex items-center gap-1.5 cursor-pointer"
-                >
-                  <Plus size={15} />
-                  <span>Add Product SKU</span>
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setScrapedPreview(null);
+                      setScraperError('');
+                      setShowScraperModal(true);
+                    }}
+                    className="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-white text-xs font-bold border border-white/10 transition flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <Globe size={14} className="text-[#3EE0D2]" />
+                    <span>Import Store URL</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowAddSkuModal(true)}
+                    className="px-4 py-2 rounded-xl bg-[#D4F54C] text-black text-xs font-bold hover:bg-[#C2E338] transition flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <Plus size={15} />
+                    <span>Add Product SKU</span>
+                  </button>
+                </div>
               </div>
+
+              {/* Stage 2: Store URL Scraper Modal */}
+              {showScraperModal && (
+                <div className="p-6 rounded-2xl bg-[#111215] border border-[#3EE0D2]/30 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Globe size={18} className="text-[#3EE0D2]" />
+                      <h3 className="text-sm font-bold text-white">Auto-Import Product from Store URL (Shopify / WooCommerce / Daraz)</h3>
+                    </div>
+                    <button type="button" onClick={() => setShowScraperModal(false)} className="text-white/50 hover:text-white cursor-pointer">
+                      <X size={16} />
+                    </button>
+                  </div>
+
+                  <form onSubmit={handleScrapeStoreUrl} className="flex flex-col sm:flex-row gap-3">
+                    <input
+                      type="url"
+                      placeholder="Paste store product URL (e.g. https://mystore.com/products/wireless-earbuds)"
+                      value={scraperUrl}
+                      onChange={e => setScraperUrl(e.target.value)}
+                      required
+                      className="flex-1 rounded-xl border border-white/10 bg-black/40 px-3.5 py-2.5 text-xs text-white focus:outline-none"
+                    />
+                    <button
+                      type="submit"
+                      disabled={scrapingUrl}
+                      className="px-5 py-2.5 rounded-xl bg-[#3EE0D2] text-black text-xs font-bold hover:bg-[#34C5B8] transition flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+                    >
+                      {scrapingUrl ? <Loader2 size={13} className="animate-spin" /> : <Sparkles size={13} />}
+                      <span>{scrapingUrl ? 'Extracting...' : 'Fetch Product Data'}</span>
+                    </button>
+                  </form>
+
+                  {scraperError && (
+                    <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs">
+                      {scraperError}
+                    </div>
+                  )}
+
+                  {scrapedPreview && (
+                    <div className="p-4 rounded-xl bg-black/50 border border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
+                      <div className="space-y-1">
+                        <div className="text-xs font-bold text-white">{scrapedPreview.title}</div>
+                        <div className="text-xs text-white/60">
+                          Detected Price: <strong className="text-[#3EE0D2]">৳{scrapedPreview.price}</strong> • Suggested SKU: <code className="text-white/40">{scrapedPreview.suggestedSku}</code>
+                        </div>
+                        {scrapedPreview.description && (
+                          <p className="text-[11px] text-white/50 line-clamp-2">{scrapedPreview.description}</p>
+                        )}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleImportScrapedProduct}
+                        className="px-4 py-2 rounded-xl bg-[#D4F54C] text-black text-xs font-bold hover:bg-[#C2E338] transition whitespace-nowrap cursor-pointer shadow-md shadow-[#D4F54C]/10"
+                      >
+                        Add to Catalog
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Add SKU Modal */}
               {showAddSkuModal && (
@@ -1722,6 +2071,18 @@ export default function GrowthPilot2Website() {
                         className="flex-1 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-bold text-white transition text-center"
                       >
                         Launch Ad Pilot
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setProductService(sku.name);
+                          setCurrentPage('campaigns');
+                          setCampaignTab('ad_canvas');
+                        }}
+                        title="Design Banner Creative"
+                        className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-white/70 hover:text-[#D4F54C] transition cursor-pointer"
+                      >
+                        <Palette size={13} />
                       </button>
                       <button
                         type="button"
