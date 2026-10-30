@@ -41,6 +41,7 @@ import {
   User,
   Bot,
   Video,
+  SlidersHorizontal,
 } from 'lucide-react';
 import { copyTextSafely } from '@/lib/clipboard';
 import { getSupabaseBrowserClient, isSupabaseConfigured } from '@/lib/supabase';
@@ -97,6 +98,8 @@ function ToolWorkspaceContent() {
   const [showPresets, setShowPresets] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
 
+  const outputRef = useRef<HTMLDivElement | null>(null);
+
   // Bilingual Voice Typing (Bangla / Banglish / English)
   const [isRecording, setIsRecording] = useState(false);
   const [isTranscribing, setIsTranscribing] = useState(false);
@@ -135,6 +138,9 @@ function ToolWorkspaceContent() {
         setLanguage(asset.language);
         setInputs(asset.inputs || {});
         setResult(asset.result);
+        setTimeout(() => {
+          outputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 150);
       }
     }
   }, [searchParams, savedAssets]);
@@ -482,6 +488,11 @@ function ToolWorkspaceContent() {
       }
     }
 
+    // Scroll smoothly to output container so user sees generation progress
+    setTimeout(() => {
+      outputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
+
     try {
       const response = await fetch('/api/marketing-suite', {
         method: 'POST',
@@ -513,6 +524,11 @@ function ToolWorkspaceContent() {
       } else {
         setOutputTab('canvas');
       }
+
+      // Re-scroll gently to output to show results
+      setTimeout(() => {
+        outputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 200);
 
       const asset: SavedAsset = {
         id: `local-${Date.now()}`,
@@ -619,6 +635,9 @@ function ToolWorkspaceContent() {
     setInputs(asset.inputs || {});
     setResult(asset.result);
     setError('');
+    setTimeout(() => {
+      outputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 150);
   };
 
   const deleteAsset = async (id: string) => {
@@ -670,7 +689,7 @@ function ToolWorkspaceContent() {
           </div>
         </div>
 
-        {/* Clean Hero Header Card */}
+        {/* Hero Header Card */}
         <div className="mb-8 rounded-3xl border border-white/[0.08] bg-[#0d0d0f] p-6 sm:p-7 relative overflow-hidden shadow-2xl">
           <div className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-orange-500/10 blur-3xl" />
 
@@ -715,125 +734,41 @@ function ToolWorkspaceContent() {
           </div>
         </div>
 
-        {/* Form and Result Grid Columns */}
-        <div className="grid gap-6 xl:grid-cols-[430px,1fr] items-start">
-          {/* LEFT COLUMN: Input Deck */}
-          <div className="space-y-5">
-            <form onSubmit={generate} className="rounded-3xl border border-white/10 bg-[#0d0d0f] p-5 shadow-2xl space-y-5">
-              {/* Business Model Segmented Pill Control */}
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-white/40">Target Business Model</span>
-                  <span className="text-[10px] text-orange-400 font-bold uppercase">{businessModel}</span>
-                </div>
-                <div className="grid grid-cols-2 gap-1.5 p-1 rounded-2xl bg-[#030303] border border-white/5">
-                  <button
-                    type="button"
-                    onClick={() => setBusinessModel('fcommerce')}
-                    className={`py-2 px-2.5 rounded-xl text-xs font-black transition text-left flex items-center justify-between cursor-pointer ${
-                      businessModel === 'fcommerce'
-                        ? 'bg-gradient-to-r from-[#FF473A] to-[#FF8526] text-white shadow-md'
-                        : 'text-white/60 hover:text-white hover:bg-white/[0.03]'
-                    }`}
-                  >
-                    <span>🇧🇩 F-Commerce</span>
-                    {businessModel === 'fcommerce' && <Check size={12} className="stroke-[3]" />}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setBusinessModel('ecommerce')}
-                    className={`py-2 px-2.5 rounded-xl text-xs font-black transition text-left flex items-center justify-between cursor-pointer ${
-                      businessModel === 'ecommerce'
-                        ? 'bg-gradient-to-r from-[#FF473A] to-[#FF8526] text-white shadow-md'
-                        : 'text-white/60 hover:text-white hover:bg-white/[0.03]'
-                    }`}
-                  >
-                    <span>🛍️ D2C Ecom</span>
-                    {businessModel === 'ecommerce' && <Check size={12} className="stroke-[3]" />}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setBusinessModel('b2b')}
-                    className={`py-2 px-2.5 rounded-xl text-xs font-black transition text-left flex items-center justify-between cursor-pointer ${
-                      businessModel === 'b2b'
-                        ? 'bg-gradient-to-r from-[#FF473A] to-[#FF8526] text-white shadow-md'
-                        : 'text-white/60 hover:text-white hover:bg-white/[0.03]'
-                    }`}
-                  >
-                    <span>💼 B2B Agency</span>
-                    {businessModel === 'b2b' && <Check size={12} className="stroke-[3]" />}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setBusinessModel('saas')}
-                    className={`py-2 px-2.5 rounded-xl text-xs font-black transition text-left flex items-center justify-between cursor-pointer ${
-                      businessModel === 'saas'
-                        ? 'bg-gradient-to-r from-[#FF473A] to-[#FF8526] text-white shadow-md'
-                        : 'text-white/60 hover:text-white hover:bg-white/[0.03]'
-                    }`}
-                  >
-                    <span>🚀 SaaS Product</span>
-                    {businessModel === 'saas' && <Check size={12} className="stroke-[3]" />}
-                  </button>
-                </div>
-              </div>
-
-              {/* Clean Quick Presets Toggle */}
-              <div className="rounded-2xl border border-white/5 bg-[#030303] overflow-hidden">
-                <button
-                  type="button"
-                  onClick={() => setShowPresets(!showPresets)}
-                  className="w-full px-3.5 py-2.5 flex items-center justify-between text-xs font-bold text-white/70 hover:text-white transition cursor-pointer"
-                >
-                  <div className="flex items-center gap-2">
-                    <Sparkles size={13} className="text-[#FF7A45]" />
-                    <span>Quick Campaign Presets</span>
-                    <span className="px-1.5 py-0.2 rounded-md bg-orange-500/20 text-[#FF7A45] text-[10px] font-black">
-                      {modelPresets.length} Available
-                    </span>
+        {/* STACKED LAYOUT: Input Card (TOP) & Output Card (BOTTOM) */}
+        <div className="flex flex-col gap-8 w-full">
+          {/* ======================================================== */}
+          {/* STEP 1: INPUT CARD (TOP)                                */}
+          {/* ======================================================== */}
+          <div className="w-full space-y-4">
+            <form onSubmit={generate} className="rounded-3xl border border-white/10 bg-[#0d0d0f] p-5 sm:p-7 shadow-2xl space-y-6">
+              {/* Top Bar of Input Card: Section Title + Voice Typing + Language */}
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-4 border-b border-white/5">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-xl bg-orange-500/10 border border-orange-500/20 text-[#FF5533] flex items-center justify-center text-xs font-black">
+                    01
                   </div>
-                  {showPresets ? <ChevronUp size={14} className="text-white/40" /> : <ChevronDown size={14} className="text-white/40" />}
-                </button>
-
-                {showPresets && (
-                  <div className="p-2 pt-0 space-y-1.5 border-t border-white/5">
-                    {modelPresets.map(preset => (
-                      <button
-                        key={preset.id}
-                        type="button"
-                        onClick={() => applyPreset(preset)}
-                        className="w-full text-left p-2.5 rounded-xl bg-white/[0.02] hover:bg-orange-500/10 hover:border-orange-500/30 border border-white/5 transition flex items-center justify-between text-xs text-white/80 cursor-pointer group"
-                      >
-                        <span className="font-bold line-clamp-1 group-hover:text-white">{preset.label}</span>
-                        <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded-md bg-white/5 text-white/40">
-                          {preset.badge}
-                        </span>
-                      </button>
-                    ))}
+                  <div>
+                    <h2 className="text-base font-black text-white">Campaign Parameters & Configuration</h2>
+                    <p className="text-[11px] text-white/40">Select your business model and input your campaign details below.</p>
                   </div>
-                )}
-              </div>
+                </div>
 
-              {/* Parameters Header with Voice Typing & Language */}
-              <div className="flex items-center justify-between gap-2 pt-1 border-t border-white/5">
-                <span className="text-[10px] font-black uppercase tracking-widest text-white/40">Parameters</span>
-
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 shrink-0">
                   {/* Voice Typing Button */}
                   {!isRecording ? (
                     <button
                       type="button"
                       onClick={startVoiceRecording}
                       disabled={isTranscribing}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-orange-500/30 bg-orange-500/10 hover:bg-orange-500/20 text-[#FF7A45] text-xs font-bold transition cursor-pointer"
+                      className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-orange-500/30 bg-orange-500/10 hover:bg-orange-500/20 text-[#FF7A45] text-xs font-bold transition cursor-pointer"
                       title="Speak in Bangla, Banglish or English to auto-type"
                     >
                       {isTranscribing ? <Loader2 size={13} className="animate-spin" /> : <Mic size={13} />}
-                      <span>{isTranscribing ? 'Transcribing...' : 'Voice Type'}</span>
+                      <span>{isTranscribing ? 'Transcribing...' : 'Voice Type (বাংলা/EN)'}</span>
                     </button>
                   ) : (
                     <div className="flex items-center gap-1.5">
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-rose-500/20 border border-rose-500/40 text-rose-300 text-xs font-mono font-bold animate-pulse">
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-rose-500/20 border border-rose-500/40 text-rose-300 text-xs font-mono font-bold animate-pulse">
                         <span className="w-2 h-2 rounded-full bg-rose-500" />
                         {Math.floor(recordSeconds / 60).toString().padStart(2, '0')}:{(recordSeconds % 60).toString().padStart(2, '0')}
                       </span>
@@ -859,7 +794,7 @@ function ToolWorkspaceContent() {
                   <select
                     value={language}
                     onChange={event => setLanguage(event.target.value)}
-                    className="rounded-xl border border-white/10 bg-[#030303] px-2.5 py-1.5 text-xs font-bold text-white outline-none cursor-pointer focus:border-[#FF5533]/50"
+                    className="rounded-xl border border-white/10 bg-[#030303] px-3 py-2 text-xs font-bold text-white outline-none cursor-pointer focus:border-[#FF5533]/50"
                   >
                     <option value="Bengali">Bangla (DHAKA)</option>
                     <option value="Banglish">Banglish</option>
@@ -870,22 +805,122 @@ function ToolWorkspaceContent() {
 
               {/* Status messages for voice typing */}
               {voiceSuccessMsg && (
-                <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/25 text-emerald-300 text-xs flex items-center gap-2">
+                <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/25 text-emerald-300 text-xs flex items-center gap-2">
                   <CheckCircle2 size={14} className="shrink-0" />
-                  <span className="line-clamp-1">{voiceSuccessMsg}</span>
+                  <span>{voiceSuccessMsg}</span>
                 </div>
               )}
               {voiceErrorMsg && (
-                <div className="p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/25 text-rose-300 text-xs flex items-center gap-2">
+                <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/25 text-rose-300 text-xs flex items-center gap-2">
                   <AlertCircle size={14} className="shrink-0" />
-                  <span className="line-clamp-1">{voiceErrorMsg}</span>
+                  <span>{voiceErrorMsg}</span>
                 </div>
               )}
 
-              {/* Dynamic Input Fields */}
-              <div className="space-y-3.5">
+              {/* Business Model Horizontal Responsive Segmented Control */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-white/40">Target Business Archetype</span>
+                  <span className="text-[10px] text-orange-400 font-bold uppercase tracking-wider">{businessModel} mode active</span>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 p-1.5 rounded-2xl bg-[#030303] border border-white/5">
+                  <button
+                    type="button"
+                    onClick={() => setBusinessModel('fcommerce')}
+                    className={`py-2.5 px-3 rounded-xl text-xs font-black transition text-left sm:text-center flex items-center justify-between sm:justify-center gap-2 cursor-pointer ${
+                      businessModel === 'fcommerce'
+                        ? 'bg-gradient-to-r from-[#FF473A] to-[#FF8526] text-white shadow-md'
+                        : 'text-white/60 hover:text-white hover:bg-white/[0.03]'
+                    }`}
+                  >
+                    <span>🇧🇩 F-Commerce (COD)</span>
+                    {businessModel === 'fcommerce' && <Check size={12} className="stroke-[3]" />}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setBusinessModel('ecommerce')}
+                    className={`py-2.5 px-3 rounded-xl text-xs font-black transition text-left sm:text-center flex items-center justify-between sm:justify-center gap-2 cursor-pointer ${
+                      businessModel === 'ecommerce'
+                        ? 'bg-gradient-to-r from-[#FF473A] to-[#FF8526] text-white shadow-md'
+                        : 'text-white/60 hover:text-white hover:bg-white/[0.03]'
+                    }`}
+                  >
+                    <span>🛍️ D2C Ecommerce</span>
+                    {businessModel === 'ecommerce' && <Check size={12} className="stroke-[3]" />}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setBusinessModel('b2b')}
+                    className={`py-2.5 px-3 rounded-xl text-xs font-black transition text-left sm:text-center flex items-center justify-between sm:justify-center gap-2 cursor-pointer ${
+                      businessModel === 'b2b'
+                        ? 'bg-gradient-to-r from-[#FF473A] to-[#FF8526] text-white shadow-md'
+                        : 'text-white/60 hover:text-white hover:bg-white/[0.03]'
+                    }`}
+                  >
+                    <span>💼 B2B / Agency</span>
+                    {businessModel === 'b2b' && <Check size={12} className="stroke-[3]" />}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setBusinessModel('saas')}
+                    className={`py-2.5 px-3 rounded-xl text-xs font-black transition text-left sm:text-center flex items-center justify-between sm:justify-center gap-2 cursor-pointer ${
+                      businessModel === 'saas'
+                        ? 'bg-gradient-to-r from-[#FF473A] to-[#FF8526] text-white shadow-md'
+                        : 'text-white/60 hover:text-white hover:bg-white/[0.03]'
+                    }`}
+                  >
+                    <span>🚀 SaaS Product</span>
+                    {businessModel === 'saas' && <Check size={12} className="stroke-[3]" />}
+                  </button>
+                </div>
+              </div>
+
+              {/* Clean Quick Presets Toggle (Horizontal Grid when expanded) */}
+              <div className="rounded-2xl border border-white/5 bg-[#030303] overflow-hidden">
+                <button
+                  type="button"
+                  onClick={() => setShowPresets(!showPresets)}
+                  className="w-full px-4 py-3 flex items-center justify-between text-xs font-bold text-white/70 hover:text-white transition cursor-pointer"
+                >
+                  <div className="flex items-center gap-2">
+                    <Sparkles size={14} className="text-[#FF7A45]" />
+                    <span>Quick Battle-Tested Campaign Presets</span>
+                    <span className="px-2 py-0.5 rounded-md bg-orange-500/20 text-[#FF7A45] text-[10px] font-black">
+                      {modelPresets.length} Ready
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-[11px] text-white/40">
+                    <span>{showPresets ? 'Collapse' : '1-Click Auto Fill'}</span>
+                    {showPresets ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                  </div>
+                </button>
+
+                {showPresets && (
+                  <div className="p-3 pt-0 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 border-t border-white/5">
+                    {modelPresets.map(preset => (
+                      <button
+                        key={preset.id}
+                        type="button"
+                        onClick={() => applyPreset(preset)}
+                        className="text-left p-3 rounded-xl bg-white/[0.02] hover:bg-orange-500/10 hover:border-orange-500/30 border border-white/5 transition flex flex-col justify-between gap-1 text-xs text-white/80 cursor-pointer group"
+                      >
+                        <span className="font-bold line-clamp-1 group-hover:text-white">{preset.label}</span>
+                        <div className="flex items-center justify-between text-[10px] text-white/40">
+                          <span className="line-clamp-1">{preset.description}</span>
+                          <span className="font-black uppercase px-1.5 py-0.2 rounded bg-white/5 text-white/50 shrink-0 ml-1">
+                            {preset.badge}
+                          </span>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Responsive Dynamic Input Fields (2 Columns on Tablet/Desktop, Full width for textareas) */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {activeTool.fields.map(field => (
-                  <div key={field.key}>
+                  <div key={field.key} className={field.textarea ? 'col-span-1 md:col-span-2' : 'col-span-1'}>
                     <label className="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-white/50">
                       {field.label}
                     </label>
@@ -909,16 +944,31 @@ function ToolWorkspaceContent() {
                 ))}
               </div>
 
-              <button
-                disabled={loading}
-                className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] px-6 py-3.5 text-sm font-black text-white shadow-xl shadow-[#FF5533]/25 transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer"
-              >
-                {loading ? <Loader2 className="animate-spin" size={17} /> : <Wand2 size={17} />}
-                <span>{loading ? 'Assembling 40-Yr CMO Engine...' : 'Generate Expert Growth Engine'}</span>
-              </button>
+              {/* Form Bottom Row: Brand Brain Status + Action Button */}
+              <div className="pt-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-t border-white/5">
+                <div className="flex items-center gap-2 text-xs text-white/50">
+                  {hasBrandBrain ? (
+                    <span className="flex items-center gap-1.5 text-emerald-400 font-bold">
+                      <CheckCircle2 size={14} /> Brand Brain active ({brandProfile.businessName || 'Configured'})
+                    </span>
+                  ) : (
+                    <span className="text-amber-300/80">
+                      💡 Tip: Setup Brand Brain to automatically power all campaign outputs.
+                    </span>
+                  )}
+                </div>
+
+                <button
+                  disabled={loading}
+                  className="inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] px-8 py-3.5 text-sm font-black text-white shadow-xl shadow-[#FF5533]/25 transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer w-full sm:w-auto"
+                >
+                  {loading ? <Loader2 className="animate-spin" size={17} /> : <Wand2 size={17} />}
+                  <span>{loading ? 'Assembling 40-Yr CMO Engine...' : 'Generate Expert Growth Engine'}</span>
+                </button>
+              </div>
             </form>
 
-            {/* Collapsible History Section */}
+            {/* Collapsible History Section (Under Input Form) */}
             <div className="rounded-3xl border border-white/10 bg-[#0d0d0f] overflow-hidden shadow-lg">
               <button
                 type="button"
@@ -927,7 +977,7 @@ function ToolWorkspaceContent() {
               >
                 <div className="flex items-center gap-2">
                   <Clock size={14} className="text-white/40" />
-                  <span>Previous Drafts</span>
+                  <span>Previous Drafts for {activeTool.label}</span>
                   <span className="px-2 py-0.5 rounded-full bg-white/5 text-[10px] text-white/50 border border-white/5">
                     {toolSavedAssets.length}
                   </span>
@@ -936,9 +986,9 @@ function ToolWorkspaceContent() {
               </button>
 
               {showHistory && (
-                <div className="p-4 pt-0 space-y-2.5 border-t border-white/5 max-h-72 overflow-y-auto">
+                <div className="p-4 pt-0 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 border-t border-white/5 max-h-80 overflow-y-auto">
                   {toolSavedAssets.length === 0 ? (
-                    <p className="text-xs text-white/30 text-center py-4">No drafts saved yet for this tool.</p>
+                    <p className="col-span-full text-xs text-white/30 text-center py-4">No drafts saved yet for this tool.</p>
                   ) : (
                     toolSavedAssets.map(asset => (
                       <div key={asset.id} className="p-3 rounded-2xl bg-[#030303] border border-white/5 flex flex-col justify-between gap-2">
@@ -983,26 +1033,33 @@ function ToolWorkspaceContent() {
             </div>
           </div>
 
-          {/* RIGHT COLUMN: Execution Studio Deck */}
-          <div className="rounded-3xl border border-white/10 bg-[#0d0d0f] p-5 sm:p-6 shadow-2xl space-y-6">
+          {/* ======================================================== */}
+          {/* STEP 2: OUTPUT CARD (BOTTOM)                            */}
+          {/* ======================================================== */}
+          <div ref={outputRef} id="execution-output" className="rounded-3xl border border-white/10 bg-[#0d0d0f] p-5 sm:p-7 shadow-2xl space-y-6 w-full">
             {/* Studio Header Bar with Global Actions */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-white/5 pb-4">
-              <div>
-                <p className="text-[10px] font-black uppercase tracking-widest text-white/35">Execution Canvas</p>
-                <h2 className="mt-0.5 text-lg font-black text-white flex items-center gap-2">
-                  <Megaphone size={18} className="text-[#FF5533]" />
-                  <span>CMO Output Command</span>
-                </h2>
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-orange-500/10 border border-orange-500/20 text-[#FF5533] flex items-center justify-center text-xs font-black">
+                  02
+                </div>
+                <div>
+                  <h2 className="text-base font-black text-white flex items-center gap-2">
+                    <Megaphone size={16} className="text-[#FF5533]" />
+                    <span>CMO Execution Studio</span>
+                  </h2>
+                  <p className="text-[11px] text-white/40">Review your generated copy assets, closing scripts, and roadmaps.</p>
+                </div>
               </div>
 
               {fullOutput && (
                 <div className="flex flex-wrap items-center gap-2">
                   <button
                     onClick={() => copyBlock('all', fullOutput)}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-white/10 bg-white/[0.04] text-xs font-black text-white/80 hover:bg-white/[0.08] hover:text-white transition cursor-pointer"
+                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-white/10 bg-white/[0.04] text-xs font-black text-white/80 hover:bg-white/[0.08] hover:text-white transition cursor-pointer"
                   >
                     {copied === 'all' ? <Check size={13} className="text-emerald-400" /> : <Copy size={13} />}
-                    <span>{copied === 'all' ? 'Copied All' : 'Copy All'}</span>
+                    <span>{copied === 'all' ? 'Copied Entire Output' : 'Copy Entire Output'}</span>
                   </button>
 
                   {currentAsset && (
@@ -1012,7 +1069,7 @@ function ToolWorkspaceContent() {
                           key={format}
                           type="button"
                           onClick={() => downloadAsset(currentAsset, format)}
-                          className="px-2 py-1.5 rounded-xl border border-white/5 bg-white/[0.03] text-[10px] font-black uppercase text-white/50 hover:text-white hover:bg-white/10 transition cursor-pointer"
+                          className="px-2.5 py-2 rounded-xl border border-white/5 bg-white/[0.03] text-[10px] font-black uppercase text-white/50 hover:text-white hover:bg-white/10 transition cursor-pointer"
                         >
                           {format}
                         </button>
@@ -1032,16 +1089,16 @@ function ToolWorkspaceContent() {
 
             {/* Empty State */}
             {!loading && !fullOutput && (
-              <div className="flex min-h-[460px] flex-col items-center justify-center rounded-3xl border border-dashed border-white/10 bg-[#030303]/60 p-8 text-center">
+              <div className="flex min-h-[380px] flex-col items-center justify-center rounded-3xl border border-dashed border-white/10 bg-[#030303]/60 p-8 text-center">
                 <div className="w-14 h-14 rounded-2xl bg-orange-500/10 border border-orange-500/25 flex items-center justify-center text-[#FF5533] mb-4">
                   <Sparkles size={28} />
                 </div>
-                <h3 className="text-lg font-black text-white">40-Year CMO Engine Ready</h3>
+                <h3 className="text-lg font-black text-white">Execution Studio Waiting</h3>
                 <p className="mt-2 max-w-md text-xs leading-6 text-white/45">
-                  Select your Business Model, load a high-converting preset or use Voice Typing, and hit Generate to launch.
+                  Configure your parameters in the input card above and hit <span className="text-white font-bold">Generate Expert Growth Engine</span>. Your ready-to-run copy assets will appear here.
                 </p>
                 <div className="mt-6 flex flex-wrap justify-center gap-2 text-[11px] text-white/40">
-                  <span className="px-3 py-1 rounded-full bg-white/[0.03] border border-white/5">🔥 Meta & UGC Video Ads</span>
+                  <span className="px-3 py-1 rounded-full bg-white/[0.03] border border-white/5">🔥 Meta & Video Ads</span>
                   <span className="px-3 py-1 rounded-full bg-white/[0.03] border border-white/5">💬 Messenger & WhatsApp Closing</span>
                   <span className="px-3 py-1 rounded-full bg-white/[0.03] border border-white/5">🛡️ Rider Inspection Guarantees</span>
                 </div>
@@ -1050,7 +1107,7 @@ function ToolWorkspaceContent() {
 
             {/* Loading State */}
             {loading && (
-              <div className="flex min-h-[460px] flex-col items-center justify-center rounded-3xl border border-white/10 bg-[#030303]/60 p-8 text-center">
+              <div className="flex min-h-[380px] flex-col items-center justify-center rounded-3xl border border-white/10 bg-[#030303]/60 p-8 text-center">
                 <Loader2 className="mb-4 animate-spin text-[#FF5533]" size={34} />
                 <h3 className="text-lg font-black text-white">Generating Strategic Campaign Engine...</h3>
                 <p className="mt-2 max-w-md text-xs leading-6 text-white/45">
@@ -1228,20 +1285,23 @@ function ToolWorkspaceContent() {
                       </div>
                     ) : (
                       <>
-                        <ResultCard
-                          title="CMO Executive Summary"
-                          body={result.executiveSummary}
-                          icon={<Brain size={15} />}
-                          onCopy={() => copyBlock('summary', result.executiveSummary)}
-                          isCopied={copied === 'summary'}
-                        />
-                        <ResultCard
-                          title="Strategic Funnel Framework"
-                          items={result.strategy}
-                          icon={<Target size={15} />}
-                          onCopy={() => copyBlock('strategy', result.strategy.join('\n'))}
-                          isCopied={copied === 'strategy'}
-                        />
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                          <ResultCard
+                            title="CMO Executive Summary"
+                            body={result.executiveSummary}
+                            icon={<Brain size={15} />}
+                            onCopy={() => copyBlock('summary', result.executiveSummary)}
+                            isCopied={copied === 'summary'}
+                          />
+                          <ResultCard
+                            title="Strategic Funnel Framework"
+                            items={result.strategy}
+                            icon={<Target size={15} />}
+                            onCopy={() => copyBlock('strategy', result.strategy.join('\n'))}
+                            isCopied={copied === 'strategy'}
+                          />
+                        </div>
+
                         <ResultCard
                           title="Master Strategic Output"
                           body={result.primaryOutput}
@@ -1293,7 +1353,7 @@ function ToolWorkspaceContent() {
                             )}
 
                             {generatedImages.length > 0 && (
-                              <div className="grid gap-4 md:grid-cols-2 pt-2">
+                              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 pt-2">
                                 {generatedImages.map(image => (
                                   <div key={image.id} className="overflow-hidden rounded-2xl border border-white/10 bg-[#030303]">
                                     <Image
@@ -1321,33 +1381,35 @@ function ToolWorkspaceContent() {
                           </section>
                         )}
 
-                        <ResultCard
-                          title="Campaign Variations & Angles"
-                          items={result.variations}
-                          icon={<Lightbulb size={15} />}
-                          onCopy={() => copyBlock('variations', result.variations.join('\n'))}
-                          isCopied={copied === 'variations'}
-                        />
-                        <ResultCard
-                          title="Execution Checklist"
-                          items={result.checklist}
-                          icon={<ListChecks size={15} />}
-                          onCopy={() => copyBlock('checklist', result.checklist.join('\n'))}
-                          isCopied={copied === 'checklist'}
-                        />
-                        <ResultCard
-                          title="Tactical Next Best Actions"
-                          items={result.nextBestActions}
-                          icon={<Compass size={15} />}
-                          onCopy={() => copyBlock('actions', result.nextBestActions.join('\n'))}
-                          isCopied={copied === 'actions'}
-                        />
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          <ResultCard
+                            title="Campaign Variations"
+                            items={result.variations}
+                            icon={<Lightbulb size={15} />}
+                            onCopy={() => copyBlock('variations', result.variations.join('\n'))}
+                            isCopied={copied === 'variations'}
+                          />
+                          <ResultCard
+                            title="Execution Checklist"
+                            items={result.checklist}
+                            icon={<ListChecks size={15} />}
+                            onCopy={() => copyBlock('checklist', result.checklist.join('\n'))}
+                            isCopied={copied === 'checklist'}
+                          />
+                          <ResultCard
+                            title="Next Best Actions"
+                            items={result.nextBestActions}
+                            icon={<Compass size={15} />}
+                            onCopy={() => copyBlock('actions', result.nextBestActions.join('\n'))}
+                            isCopied={copied === 'actions'}
+                          />
+                        </div>
                       </>
                     )}
                   </div>
                 )}
 
-                {/* TAB 2: AD CREATIVES (Meta & TikTok Simulator) */}
+                {/* TAB 2: AD CREATIVES (Meta & TikTok Simulator) - Wide Responsive Grid */}
                 {outputTab === 'creatives' && (
                   <div className="space-y-5">
                     <div className="p-3.5 rounded-2xl border border-orange-500/20 bg-orange-500/10 text-xs text-orange-200 flex items-center justify-between">
@@ -1357,7 +1419,7 @@ function ToolWorkspaceContent() {
                       </div>
                     </div>
 
-                    <div className="grid gap-5 md:grid-cols-2">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                       {result.adCreatives?.map((creative, idx) => (
                         <div
                           key={`ad-${idx}`}
@@ -1401,7 +1463,7 @@ function ToolWorkspaceContent() {
                                   <span>{copied === `body-${idx}` ? 'Copied' : 'Copy'}</span>
                                 </button>
                               </div>
-                              <div className="whitespace-pre-wrap text-xs text-white/80 leading-6 bg-white/[0.02] border border-white/5 p-3 rounded-xl max-h-48 overflow-y-auto">
+                              <div className="whitespace-pre-wrap text-xs text-white/80 leading-6 bg-white/[0.02] border border-white/5 p-3 rounded-xl max-h-56 overflow-y-auto">
                                 {creative.bodyCopy}
                               </div>
                             </div>
@@ -1428,7 +1490,7 @@ function ToolWorkspaceContent() {
                               className="px-3 py-1.5 rounded-xl bg-[#FF5533]/15 hover:bg-[#FF5533]/30 text-[#FF7A45] text-xs font-black transition flex items-center gap-1.5 cursor-pointer"
                             >
                               {copied === `full-${idx}` ? <Check size={12} className="text-emerald-400" /> : <Copy size={12} />}
-                              <span>{copied === `full-${idx}` ? 'Copied Complete Ad' : 'Copy Full Ad'}</span>
+                              <span>{copied === `full-${idx}` ? 'Copied Ad' : 'Copy Ad'}</span>
                             </button>
                           </div>
                         </div>
@@ -1437,7 +1499,7 @@ function ToolWorkspaceContent() {
                   </div>
                 )}
 
-                {/* TAB 3: CHAT & SALES CLOSING (Authentic Live Chat Simulator) */}
+                {/* TAB 3: CHAT & SALES CLOSING - Wide Responsive 2-Column Grid */}
                 {outputTab === 'closing' && (
                   <div className="space-y-5">
                     <div className="p-3.5 rounded-2xl border border-emerald-500/20 bg-emerald-500/10 text-xs text-emerald-200 flex items-center justify-between">
@@ -1447,62 +1509,64 @@ function ToolWorkspaceContent() {
                       </div>
                     </div>
 
-                    <div className="space-y-4">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
                       {result.chatClosingScripts?.map((script, idx) => (
                         <div
                           key={`chat-${idx}`}
-                          className="rounded-2xl border border-white/10 bg-[#030303] p-5 shadow-xl space-y-4"
+                          className="rounded-2xl border border-white/10 bg-[#030303] p-5 shadow-xl space-y-4 flex flex-col justify-between"
                         >
-                          <div className="flex items-center justify-between border-b border-white/5 pb-2.5">
-                            <span className="text-xs font-black text-white flex items-center gap-2">
-                              <span className="w-5 h-5 rounded-md bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-[11px]">
-                                {idx + 1}
+                          <div>
+                            <div className="flex items-center justify-between border-b border-white/5 pb-2.5 mb-3">
+                              <span className="text-xs font-black text-white flex items-center gap-2">
+                                <span className="w-5 h-5 rounded-md bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-[11px]">
+                                  {idx + 1}
+                                </span>
+                                <span>Scenario: {script.customerTrigger}</span>
                               </span>
-                              <span>Scenario: {script.customerTrigger}</span>
-                            </span>
-                            <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md bg-white/5 text-white/40">
-                              {script.psychologicalAngle}
-                            </span>
-                          </div>
-
-                          {/* Chat Conversation Simulation */}
-                          <div className="p-4 rounded-2xl bg-[#09090c] border border-white/5 space-y-3">
-                            {/* Customer Incoming Bubble (Left) */}
-                            <div className="flex items-start gap-2.5 max-w-[85%]">
-                              <div className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center text-white/50 shrink-0">
-                                <User size={14} />
-                              </div>
-                              <div className="p-3 rounded-2xl rounded-tl-sm bg-white/[0.06] border border-white/5 text-xs text-white/90">
-                                <span className="text-[9px] font-black text-white/40 uppercase block mb-0.5">Customer</span>
-                                {script.customerTrigger}
-                              </div>
+                              <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md bg-white/5 text-white/40">
+                                {script.psychologicalAngle}
+                              </span>
                             </div>
 
-                            {/* Agent Closing Bubble (Right) */}
-                            <div className="flex items-start justify-end gap-2.5 ml-auto max-w-[92%]">
-                              <div className="p-3.5 rounded-2xl rounded-tr-sm bg-emerald-950/40 border border-emerald-500/30 text-xs text-white/95 space-y-2 shadow-lg">
-                                <div className="flex items-center justify-between gap-4">
-                                  <span className="text-[9px] font-black text-emerald-400 uppercase tracking-wider flex items-center gap-1">
-                                    <Bot size={11} /> High-Converting Response
-                                  </span>
-                                  <button
-                                    type="button"
-                                    onClick={() => copyBlock(`script-${idx}`, script.salesScript)}
-                                    className="px-2.5 py-1 rounded-md bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 text-[10px] font-bold transition flex items-center gap-1 cursor-pointer"
-                                  >
-                                    {copied === `script-${idx}` ? <Check size={11} className="text-emerald-400" /> : <Copy size={11} />}
-                                    <span>{copied === `script-${idx}` ? 'Copied' : 'Copy Script'}</span>
-                                  </button>
+                            {/* Chat Conversation Simulation */}
+                            <div className="p-4 rounded-2xl bg-[#09090c] border border-white/5 space-y-3">
+                              {/* Customer Incoming Bubble (Left) */}
+                              <div className="flex items-start gap-2.5 max-w-[85%]">
+                                <div className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center text-white/50 shrink-0">
+                                  <User size={14} />
                                 </div>
-                                <p className="whitespace-pre-wrap leading-6 font-medium">{script.salesScript}</p>
+                                <div className="p-3 rounded-2xl rounded-tl-sm bg-white/[0.06] border border-white/5 text-xs text-white/90">
+                                  <span className="text-[9px] font-black text-white/40 uppercase block mb-0.5">Customer Inquiry</span>
+                                  {script.customerTrigger}
+                                </div>
                               </div>
-                              <div className="w-7 h-7 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0">
-                                <Send size={13} />
+
+                              {/* Agent Closing Bubble (Right) */}
+                              <div className="flex items-start justify-end gap-2.5 ml-auto max-w-[92%]">
+                                <div className="p-3.5 rounded-2xl rounded-tr-sm bg-emerald-950/40 border border-emerald-500/30 text-xs text-white/95 space-y-2 shadow-lg">
+                                  <div className="flex items-center justify-between gap-4">
+                                    <span className="text-[9px] font-black text-emerald-400 uppercase tracking-wider flex items-center gap-1">
+                                      <Bot size={11} /> High-Converting Response
+                                    </span>
+                                    <button
+                                      type="button"
+                                      onClick={() => copyBlock(`script-${idx}`, script.salesScript)}
+                                      className="px-2.5 py-1 rounded-md bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 text-[10px] font-bold transition flex items-center gap-1 cursor-pointer"
+                                    >
+                                      {copied === `script-${idx}` ? <Check size={11} className="text-emerald-400" /> : <Copy size={11} />}
+                                      <span>{copied === `script-${idx}` ? 'Copied' : 'Copy Script'}</span>
+                                    </button>
+                                  </div>
+                                  <p className="whitespace-pre-wrap leading-6 font-medium">{script.salesScript}</p>
+                                </div>
+                                <div className="w-7 h-7 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0">
+                                  <Send size={13} />
+                                </div>
                               </div>
                             </div>
                           </div>
 
-                          <div className="flex items-center justify-between text-xs text-white/40 pt-1">
+                          <div className="flex items-center justify-between text-xs text-white/40 pt-2 border-t border-white/5">
                             <span>Recommended Next Step:</span>
                             <span className="text-[#FF7A45] font-black">{script.nextStepCta}</span>
                           </div>
@@ -1512,7 +1576,7 @@ function ToolWorkspaceContent() {
                   </div>
                 )}
 
-                {/* TAB 4: 4-PHASE ROADMAP */}
+                {/* TAB 4: 4-PHASE ROADMAP - Wide 4-Column Stepper */}
                 {outputTab === 'phases' && (
                   <div className="space-y-5">
                     <div className="p-3.5 rounded-2xl border border-amber-500/20 bg-amber-500/10 text-xs text-amber-200 flex items-center gap-2">
@@ -1520,34 +1584,36 @@ function ToolWorkspaceContent() {
                       <span>Step-by-step 4-phase launch calendar from curiosity hype to the final 48-hour deadline push.</span>
                     </div>
 
-                    <div className="space-y-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                       {result.campaignPhases?.map((phase, idx) => (
                         <div
                           key={`phase-${idx}`}
-                          className="rounded-2xl border border-white/10 bg-[#030303] p-5 shadow-xl space-y-3.5 relative overflow-hidden"
+                          className="rounded-2xl border border-white/10 bg-[#030303] p-5 shadow-xl space-y-3 relative overflow-hidden flex flex-col justify-between"
                         >
-                          <div className="flex items-center gap-3">
-                            <span className="w-7 h-7 rounded-xl bg-gradient-to-r from-[#FF473A] to-[#FF8526] text-white flex items-center justify-center text-xs font-black">
-                              0{idx + 1}
-                            </span>
-                            <h4 className="text-sm font-black text-white">{phase.phaseName}</h4>
-                          </div>
-
-                          <div className="grid sm:grid-cols-2 gap-3 text-xs">
-                            <div className="p-3 rounded-xl bg-white/[0.02] border border-white/5">
-                              <span className="text-[10px] font-black uppercase tracking-wider text-white/40 block mb-1">Phase Goal</span>
-                              <p className="text-white/80 font-medium leading-5">{phase.objective}</p>
+                          <div>
+                            <div className="flex items-center gap-2.5 mb-2">
+                              <span className="w-7 h-7 rounded-xl bg-gradient-to-r from-[#FF473A] to-[#FF8526] text-white flex items-center justify-center text-xs font-black shrink-0">
+                                0{idx + 1}
+                              </span>
+                              <h4 className="text-xs font-black text-white line-clamp-1">{phase.phaseName}</h4>
                             </div>
-                            <div className="p-3 rounded-xl bg-white/[0.02] border border-white/5">
-                              <span className="text-[10px] font-black uppercase tracking-wider text-orange-400 block mb-1">Key Action</span>
-                              <p className="text-white/80 font-medium leading-5">{phase.keyAction}</p>
+
+                            <div className="space-y-2 text-xs mb-3">
+                              <div className="p-2.5 rounded-xl bg-white/[0.02] border border-white/5">
+                                <span className="text-[9px] font-black uppercase tracking-wider text-white/40 block mb-0.5">Objective</span>
+                                <p className="text-white/80 font-medium leading-4 text-[11px]">{phase.objective}</p>
+                              </div>
+                              <div className="p-2.5 rounded-xl bg-white/[0.02] border border-white/5">
+                                <span className="text-[9px] font-black uppercase tracking-wider text-orange-400 block mb-0.5">Action</span>
+                                <p className="text-white/80 font-medium leading-4 text-[11px]">{phase.keyAction}</p>
+                              </div>
                             </div>
                           </div>
 
                           {phase.copyOrScriptSnippet && (
-                            <div className="p-3 rounded-xl bg-white/[0.03] border border-white/5">
-                              <div className="flex items-center justify-between mb-1.5">
-                                <span className="text-[10px] font-black uppercase tracking-wider text-amber-400">Broadcast Snippet</span>
+                            <div className="p-2.5 rounded-xl bg-white/[0.03] border border-white/5">
+                              <div className="flex items-center justify-between mb-1">
+                                <span className="text-[9px] font-black uppercase tracking-wider text-amber-400">Snippet</span>
                                 <button
                                   type="button"
                                   onClick={() => copyBlock(`phase-${idx}`, phase.copyOrScriptSnippet)}
@@ -1557,7 +1623,7 @@ function ToolWorkspaceContent() {
                                   <span>{copied === `phase-${idx}` ? 'Copied' : 'Copy'}</span>
                                 </button>
                               </div>
-                              <p className="text-xs text-white/85 leading-5 italic">
+                              <p className="text-[11px] text-white/85 leading-4 italic line-clamp-3">
                                 "{phase.copyOrScriptSnippet}"
                               </p>
                             </div>
@@ -1568,43 +1634,57 @@ function ToolWorkspaceContent() {
                   </div>
                 )}
 
-                {/* TAB 5: CMO ECONOMICS & GUARANTEES */}
+                {/* TAB 5: CMO ECONOMICS & GUARANTEES - 2-Column Responsive */}
                 {outputTab === 'economics' && (
-                  <div className="space-y-5">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
                     {result.guaranteeAndRiskReversal && (
-                      <div className="rounded-2xl border border-teal-500/30 bg-teal-500/10 p-5 space-y-3">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <ShieldCheck size={18} className="text-teal-400" />
-                            <h3 className="text-xs font-black uppercase tracking-wider text-teal-300">
-                              Ironclad Risk-Reversal Guarantee
-                            </h3>
+                      <div className="rounded-2xl border border-teal-500/30 bg-teal-500/10 p-5 space-y-3 flex flex-col justify-between">
+                        <div>
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center gap-2">
+                              <ShieldCheck size={18} className="text-teal-400" />
+                              <h3 className="text-xs font-black uppercase tracking-wider text-teal-300">
+                                Ironclad Risk-Reversal Guarantee
+                              </h3>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => copyBlock('guarantee', result.guaranteeAndRiskReversal || '')}
+                              className="px-2.5 py-1 rounded-lg bg-teal-500/20 hover:bg-teal-500/30 text-teal-300 text-xs font-bold transition flex items-center gap-1 cursor-pointer"
+                            >
+                              {copied === 'guarantee' ? <Check size={11} /> : <Copy size={11} />}
+                              <span>{copied === 'guarantee' ? 'Copied' : 'Copy Guarantee'}</span>
+                            </button>
                           </div>
-                          <button
-                            type="button"
-                            onClick={() => copyBlock('guarantee', result.guaranteeAndRiskReversal || '')}
-                            className="px-2.5 py-1 rounded-lg bg-teal-500/20 hover:bg-teal-500/30 text-teal-300 text-xs font-bold transition flex items-center gap-1 cursor-pointer"
-                          >
-                            {copied === 'guarantee' ? <Check size={11} /> : <Copy size={11} />}
-                            <span>{copied === 'guarantee' ? 'Copied' : 'Copy'}</span>
-                          </button>
+                          <p className="text-xs sm:text-sm text-white/90 leading-6 font-medium">
+                            {result.guaranteeAndRiskReversal}
+                          </p>
                         </div>
-                        <p className="text-xs sm:text-sm text-white/90 leading-6 font-medium">
-                          {result.guaranteeAndRiskReversal}
-                        </p>
                       </div>
                     )}
 
                     {result.unitEconomicsAdvice && (
-                      <div className="rounded-2xl border border-orange-500/30 bg-orange-500/10 p-5 space-y-3">
-                        <div className="flex items-center gap-2">
-                          <TrendingUp size={18} className="text-orange-400" />
-                          <h3 className="text-xs font-black uppercase tracking-wider text-orange-300">
-                            Unit Economics, Margin & Scaling Framework
-                          </h3>
-                        </div>
-                        <div className="whitespace-pre-wrap text-xs sm:text-sm text-white/90 leading-6 font-medium">
-                          {result.unitEconomicsAdvice}
+                      <div className="rounded-2xl border border-orange-500/30 bg-orange-500/10 p-5 space-y-3 flex flex-col justify-between">
+                        <div>
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center gap-2">
+                              <TrendingUp size={18} className="text-orange-400" />
+                              <h3 className="text-xs font-black uppercase tracking-wider text-orange-300">
+                                Unit Economics & Margin Architecture
+                              </h3>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => copyBlock('economics', result.unitEconomicsAdvice || '')}
+                              className="px-2.5 py-1 rounded-lg bg-orange-500/20 hover:bg-orange-500/30 text-orange-300 text-xs font-bold transition flex items-center gap-1 cursor-pointer"
+                            >
+                              {copied === 'economics' ? <Check size={11} /> : <Copy size={11} />}
+                              <span>{copied === 'economics' ? 'Copied' : 'Copy Framework'}</span>
+                            </button>
+                          </div>
+                          <div className="whitespace-pre-wrap text-xs sm:text-sm text-white/90 leading-6 font-medium">
+                            {result.unitEconomicsAdvice}
+                          </div>
                         </div>
                       </div>
                     )}

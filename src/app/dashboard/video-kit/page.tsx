@@ -1,7 +1,7 @@
 'use client';
 
 import { FormEvent, useState } from 'react';
-import { Check, Copy, Download, Loader2, Video, Wand2 } from 'lucide-react';
+import { Check, Copy, Download, Loader2, Video, Wand2, AlertCircle } from 'lucide-react';
 import { copyTextSafely } from '@/lib/clipboard';
 
 type VideoKitResult = {
@@ -127,114 +127,129 @@ export default function VideoKitPage() {
           </div>
         </div>
 
-        <div className="grid gap-6 xl:grid-cols-[430px,1fr]">
-          <form onSubmit={generate} className="space-y-5 rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-5">
-            <div>
-              <label className="mb-2 block text-[11px] font-bold uppercase tracking-widest text-white/40">
-                Upload Audio / Video File
-              </label>
-              <input
-                type="file"
-                accept="audio/*,video/*,.mp3,.wav,.m4a,.aac,.ogg,.mp4,.mov,.webm,.m4v"
-                onChange={event => setMediaFile(event.target.files?.[0] || null)}
-                className="w-full rounded-2xl border border-white/10 bg-[#0d0d0f] px-4 py-3 text-sm text-white file:mr-4 file:rounded-xl file:border-0 file:bg-orange-500/15 file:px-4 file:py-2 file:text-xs file:font-black file:text-[#FF7A45]"
-              />
-              <p className="mt-2 text-xs leading-5 text-white/35">
-                Best option for accuracy. Upload MP3, WAV, M4A, MP4, MOV, or WebM under 90MB. This bypasses YouTube bot blocking.
-              </p>
-              {mediaFile && (
-                <div className="mt-3 flex items-center justify-between gap-3 rounded-2xl border border-orange-500/20 bg-orange-500/10 px-4 py-3 text-xs text-[#FF7A45]">
-                  <span className="truncate">{mediaFile.name} ({(mediaFile.size / 1024 / 1024).toFixed(1)} MB)</span>
-                  <button type="button" onClick={() => setMediaFile(null)} className="font-black text-[#FF5533] hover:text-white">
-                    Remove
-                  </button>
+        <div className="flex flex-col gap-8 w-full">
+          <form onSubmit={generate} className="space-y-6 rounded-3xl border border-white/10 bg-[#0d0d0f] p-5 sm:p-7 shadow-2xl">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-4 border-b border-white/5">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-orange-500/10 border border-orange-500/20 text-[#FF5533] flex items-center justify-center text-xs font-black">
+                  01
                 </div>
-              )}
+                <div>
+                  <h2 className="text-base font-black text-white">Media Source & Parameters</h2>
+                  <p className="text-[11px] text-white/40">Upload media or paste link to transcribe and extract viral packaging.</p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-white/40">Language:</span>
+                <select
+                  value={language}
+                  onChange={event => setLanguage(event.target.value)}
+                  className="rounded-xl border border-white/10 bg-[#030303] px-3 py-1.5 text-xs font-bold text-white outline-none cursor-pointer focus:border-[#FF5533]/50"
+                >
+                  <option>English</option>
+                  <option>Bengali</option>
+                  <option>Banglish</option>
+                </select>
+              </div>
             </div>
 
-            <div>
-              <label className="mb-2 block text-[11px] font-bold uppercase tracking-widest text-white/40">
-                Or Video / Audio Link
-              </label>
-              <input
-                value={sourceLink}
-                onChange={event => setSourceLink(event.target.value)}
-                placeholder="YouTube, public Drive file, or direct MP4/MP3 link"
-                className="w-full rounded-2xl border border-white/10 bg-[#0d0d0f] px-4 py-3 text-sm text-white outline-none transition placeholder:text-white/20 focus:border-[#FF5533]/60 focus:ring-1 focus:ring-[#FF5533]/20"
-              />
-              <p className="mt-2 text-xs leading-5 text-white/35">
-                Link fallback supports YouTube captions, public Drive files, and direct MP4/MP3 URLs. Direct upload is more reliable than YouTube links.
-              </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-white/40">
+                  Upload Audio / Video File
+                </label>
+                <input
+                  type="file"
+                  accept="audio/*,video/*,.mp3,.wav,.m4a,.aac,.ogg,.mp4,.mov,.webm,.m4v"
+                  onChange={event => setMediaFile(event.target.files?.[0] || null)}
+                  className="w-full rounded-2xl border border-white/10 bg-[#030303] px-4 py-2.5 text-xs text-white file:mr-4 file:rounded-xl file:border-0 file:bg-orange-500/15 file:px-3 file:py-1.5 file:text-xs file:font-black file:text-[#FF7A45]"
+                />
+                <p className="mt-1.5 text-[11px] leading-4 text-white/35">
+                  Direct upload (under 90MB) bypasses YouTube bot protection.
+                </p>
+                {mediaFile && (
+                  <div className="mt-2.5 flex items-center justify-between gap-3 rounded-xl border border-orange-500/20 bg-orange-500/10 px-3 py-2 text-xs text-[#FF7A45]">
+                    <span className="truncate">{mediaFile.name} ({(mediaFile.size / 1024 / 1024).toFixed(1)} MB)</span>
+                    <button type="button" onClick={() => setMediaFile(null)} className="font-black text-[#FF5533] hover:text-white">
+                      Remove
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <label className="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-white/40">
+                  Or Video / Audio Link
+                </label>
+                <input
+                  value={sourceLink}
+                  onChange={event => setSourceLink(event.target.value)}
+                  placeholder="YouTube, public Drive file, or direct MP4/MP3 link"
+                  className="w-full rounded-2xl border border-white/10 bg-[#030303] px-4 py-2.5 text-xs text-white outline-none transition placeholder:text-white/20 focus:border-[#FF5533]/60 focus:ring-1 focus:ring-[#FF5533]/20"
+                />
+                <p className="mt-1.5 text-[11px] leading-4 text-white/35">
+                  Supports YouTube public videos, Drive links, and direct media URLs.
+                </p>
+              </div>
+
+              <div>
+                <label className="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-white/40">
+                  Audience (Optional)
+                </label>
+                <input
+                  value={audience}
+                  onChange={event => setAudience(event.target.value)}
+                  placeholder="E.g. small business owners, students, developers, founders"
+                  className="w-full rounded-2xl border border-white/10 bg-[#030303] px-4 py-2.5 text-xs text-white outline-none transition placeholder:text-white/20 focus:border-[#FF5533]/60 focus:ring-1 focus:ring-[#FF5533]/20"
+                />
+              </div>
+
+              <div>
+                <label className="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-white/40">
+                  Conversion Goal (Optional)
+                </label>
+                <input
+                  value={goal}
+                  onChange={event => setGoal(event.target.value)}
+                  placeholder="E.g. course sales, leads, subscribers, website visits"
+                  className="w-full rounded-2xl border border-white/10 bg-[#030303] px-4 py-2.5 text-xs text-white outline-none transition placeholder:text-white/20 focus:border-[#FF5533]/60 focus:ring-1 focus:ring-[#FF5533]/20"
+                />
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-white/40">
+                  Transcript / Source Notes (Optional Fallback)
+                </label>
+                <textarea
+                  value={notes}
+                  onChange={event => setNotes(event.target.value)}
+                  placeholder="Paste transcript, summary, or lesson notes if link is unreadable."
+                  rows={4}
+                  className="w-full resize-y rounded-2xl border border-white/10 bg-[#030303] px-4 py-3 text-xs leading-6 text-white outline-none transition placeholder:text-white/20 focus:border-[#FF5533]/60 focus:ring-1 focus:ring-[#FF5533]/20"
+                />
+              </div>
             </div>
 
-            <div>
-              <label className="mb-2 block text-[11px] font-bold uppercase tracking-widest text-white/40">
-                Audience
-              </label>
-              <input
-                value={audience}
-                onChange={event => setAudience(event.target.value)}
-                placeholder="Optional: class 2 students, parents, developers, founders"
-                className="w-full rounded-2xl border border-white/10 bg-[#0d0d0f] px-4 py-3 text-sm text-white outline-none transition placeholder:text-white/20 focus:border-[#FF5533]/60 focus:ring-1 focus:ring-[#FF5533]/20"
-              />
-            </div>
-
-            <div>
-              <label className="mb-2 block text-[11px] font-bold uppercase tracking-widest text-white/40">
-                Goal
-              </label>
-              <input
-                value={goal}
-                onChange={event => setGoal(event.target.value)}
-                placeholder="Optional: views, students, course leads, subscribers"
-                className="w-full rounded-2xl border border-white/10 bg-[#0d0d0f] px-4 py-3 text-sm text-white outline-none transition placeholder:text-white/20 focus:border-[#FF5533]/60 focus:ring-1 focus:ring-[#FF5533]/20"
-              />
-            </div>
-
-            <div>
-              <label className="mb-2 block text-[11px] font-bold uppercase tracking-widest text-white/40">
-                Transcript / Notes
-              </label>
-              <textarea
-                value={notes}
-                onChange={event => setNotes(event.target.value)}
-                placeholder="Optional fallback only. Paste transcript, summary, or lesson notes if the video link is private or cannot be read."
-                rows={7}
-                className="w-full resize-y rounded-2xl border border-white/10 bg-[#0d0d0f] px-4 py-3 text-sm leading-6 text-white outline-none transition placeholder:text-white/20 focus:border-[#FF5533]/60 focus:ring-1 focus:ring-[#FF5533]/20"
-              />
-            </div>
-
-            <div>
-              <label className="mb-2 block text-[11px] font-bold uppercase tracking-widest text-white/40">
-                Output Language
-              </label>
-              <select
-                value={language}
-                onChange={event => setLanguage(event.target.value)}
-                className="w-full rounded-2xl border border-white/10 bg-[#0d0d0f] px-4 py-3 text-sm text-white outline-none"
+            <div className="pt-3 flex flex-col sm:flex-row sm:items-center sm:justify-end gap-3 border-t border-white/5">
+              <button
+                disabled={loading}
+                className="inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] px-8 py-3.5 text-sm font-black text-white shadow-xl shadow-[#FF5533]/25 transition hover:from-[#FF5547] hover:to-[#FF9036] disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer w-full sm:w-auto"
               >
-                <option>English</option>
-                <option>Bengali</option>
-                <option>Banglish</option>
-              </select>
+                {loading ? <Loader2 className="animate-spin" size={17} /> : <Wand2 size={17} />}
+                <span>{loading ? 'Transcribing media and building kit...' : 'Transcribe & Generate Video Kit'}</span>
+              </button>
             </div>
-
-            <button
-              disabled={loading}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] px-6 py-4 text-sm font-black text-white shadow-xl shadow-[#FF5533]/25 transition hover:from-[#FF5547] hover:to-[#FF9036] disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer"
-            >
-              {loading ? <Loader2 className="animate-spin" size={18} /> : <Wand2 size={18} />}
-              {loading ? 'Transcribing media and building kit...' : 'Transcribe & Generate Kit'}
-            </button>
 
             {error && (
-              <div className="rounded-2xl border border-red-500/20 bg-red-500/10 p-4 text-sm leading-6 text-red-100">
-                {error}
+              <div className="rounded-2xl border border-red-500/20 bg-red-500/10 p-4 text-xs text-red-100 flex items-center gap-2">
+                <AlertCircle size={15} className="shrink-0 text-red-400" />
+                <span>{error}</span>
               </div>
             )}
           </form>
 
-          <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
+          <div className="rounded-3xl border border-white/10 bg-[#0d0d0f] p-5 sm:p-7 shadow-2xl space-y-6 w-full">
             <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <p className="text-[10px] font-bold uppercase tracking-widest text-white/35">Result</p>
