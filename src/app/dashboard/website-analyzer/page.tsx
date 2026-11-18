@@ -1011,64 +1011,173 @@ export default function WebsiteAnalyzerPage() {
     return 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/40 dark:text-rose-400 dark:border-rose-900';
   };
 
+  // ---------- UI-only helpers (no business logic) ----------
+  const TOOL_MODES = [
+    {
+      id: 'single' as const,
+      name: 'Site Audit',
+      short: 'Full health check',
+      desc: 'Scan one page for SEO, speed, security & mobile issues with ready-to-paste fixes.',
+      icon: Globe,
+      iconColor: 'text-[#FF5533]',
+      iconBg: 'bg-orange-500/10',
+      ring: 'ring-[#FF5533]/60 border-[#FF5533]/60',
+      gets: ['Overall health score', 'Errors, warnings & 1-click code fixes', 'Keywords & content gaps', 'Core Web Vitals, social preview & AI-search readiness'],
+    },
+    {
+      id: 'compare' as const,
+      name: 'Competitor VS',
+      short: 'You vs a rival',
+      desc: 'Compare your site side-by-side with a competitor and get a plan to outrank them.',
+      icon: Swords,
+      iconColor: 'text-rose-500',
+      iconBg: 'bg-rose-500/10',
+      ring: 'ring-rose-500/60 border-rose-500/60',
+      gets: ['Head-to-head health scores', 'Winner per category (speed, SEO, content, tech)', 'Content gap topics', 'Step-by-step outrank roadmap'],
+    },
+    {
+      id: 'sitemap' as const,
+      name: 'Sitemap Crawl',
+      short: 'Check many pages',
+      desc: 'Crawl your sitemap.xml and audit multiple pages at once for missing tags & slow pages.',
+      icon: Network,
+      iconColor: 'text-sky-500',
+      iconBg: 'bg-sky-500/10',
+      ring: 'ring-sky-500/60 border-sky-500/60',
+      gets: ['Pages discovered from sitemap', 'Per-page score, title & H1 check', 'Load time per page', 'Total issues across the site'],
+    },
+    {
+      id: 'backlinks' as const,
+      name: 'Backlinks',
+      short: 'Authority & links',
+      desc: 'See domain rating, referring domains, anchor text safety and a link-building plan.',
+      icon: Link2,
+      iconColor: 'text-emerald-500',
+      iconBg: 'bg-emerald-500/10',
+      ring: 'ring-emerald-500/60 border-emerald-500/60',
+      gets: ['Domain rating & authority score', 'Referring domains & dofollow ratio', 'Toxic link risk', 'Outreach roadmap with pitch angles'],
+    },
+    {
+      id: 'blog-serp' as const,
+      name: 'Blog Rankings',
+      short: 'Google & AI citations',
+      desc: 'Track blog rankings, clicks, impressions and whether AI engines cite your posts.',
+      icon: TrendingUp,
+      iconColor: 'text-purple-500',
+      iconBg: 'bg-purple-500/10',
+      ring: 'ring-purple-500/60 border-purple-500/60',
+      gets: ['All blog posts in one table', 'Rank, clicks, impressions & CTR', 'AI citation status (ChatGPT, Perplexity…)', 'Export to CSV or send to AI Optimizer'],
+    },
+    {
+      id: 'optimizer' as const,
+      name: 'AI Optimizer',
+      short: 'Improve an article',
+      desc: 'Score an article against a keyword and fix missing terms & questions live with AI.',
+      icon: Sparkles,
+      iconColor: 'text-amber-500',
+      iconBg: 'bg-amber-500/10',
+      ring: 'ring-amber-500/60 border-amber-500/60',
+      gets: ['Live content score while you type', 'Missing NLP terms to add', 'Questions people also ask', '1-click AI auto-optimize'],
+    },
+  ];
+
+  const currentTool = TOOL_MODES.find((t) => t.id === auditMode) || TOOL_MODES[0];
+  const CurrentToolIcon = currentTool.icon;
+
+  const isBusy =
+    scanning || comparing || sitemapScanning || backlinkScanning || blogSerpScanning || optimizerScanning || allBlogsScanning;
+
+  const hasResultForMode =
+    (auditMode === 'single' && !!report) ||
+    (auditMode === 'compare' && !!comparisonResult) ||
+    (auditMode === 'sitemap' && !!sitemapResult) ||
+    (auditMode === 'backlinks' && !!backlinkResult) ||
+    (auditMode === 'blog-serp' && blogSubTab === 'directory' && !!allBlogsResult) ||
+    (auditMode === 'blog-serp' && blogSubTab === 'single' && !!blogSerpResult) ||
+    (auditMode === 'optimizer' && !!optimizerResult);
+
+  const busyMessage = scanning
+    ? 'Auditing your website…'
+    : comparing
+    ? 'Comparing both websites…'
+    : sitemapScanning
+    ? 'Crawling your sitemap pages…'
+    : backlinkScanning
+    ? 'Analyzing backlink profile…'
+    : allBlogsScanning
+    ? 'Finding all blog posts & rankings…'
+    : blogSerpScanning
+    ? 'Checking Google rankings & AI citations…'
+    : optimizerScanning
+    ? 'Analyzing content against top results…'
+    : '';
+
+  const inputCls =
+    'w-full pl-11 pr-4 py-3.5 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#030303] text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-[#FF5533]/15 focus:border-[#FF5533]/60 transition-all disabled:opacity-60';
+  const primaryBtnCls =
+    'w-full sm:w-auto shrink-0 px-6 py-3.5 rounded-xl font-bold text-sm bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] hover:brightness-110 text-white transition-all shadow-md shadow-[#FF5533]/25 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed';
+  const labelCls = 'block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5';
+  const segBtn = (active: boolean) =>
+    `flex-1 sm:flex-none px-4 py-2 rounded-lg text-xs font-bold transition-all ${
+      active
+        ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm'
+        : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+    }`;
+
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#030303] p-4 md:p-8">
-      {/* Header */}
-      <div className="max-w-7xl mx-auto mb-8">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-6 border-b border-slate-200/70 dark:border-white/10/80">
+      <div className="max-w-7xl mx-auto mb-6">
+        {/* ===== Page Header ===== */}
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2 mb-1.5">
-              <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-orange-500/10 text-[#FF5533] dark:text-[#FF7A45] border border-orange-500/30">
-                SEO Intelligence Suite
-              </span>
-              <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
-                Enterprise Diagnostic &amp; Content Engine
-              </span>
+            <div className="flex items-center gap-3">
+              <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-[#FF473A] to-[#FF8526] flex items-center justify-center shadow-md shadow-[#FF5533]/25">
+                <Gauge className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+                  Website Analyzer
+                </h1>
+                <p className="text-sm text-slate-500 dark:text-slate-400">
+                  Pick a tool, enter your website, and get a clear report with fixes.
+                </p>
+              </div>
             </div>
-            <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-              Website SEO &amp; Speed Analyzer
-            </h1>
-            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
-              Deep crawler inspection, SERP performance, backlink authority, and generative AI optimization.
-            </p>
           </div>
 
-          {/* Quick Technical Toolset */}
-          <div className="flex flex-wrap items-center gap-2.5">
-            <div className="flex items-center p-1 bg-white dark:bg-[#0d0d0f] rounded-xl border border-slate-200 dark:border-white/10 shadow-sm">
-              <button
-                onClick={() => setShowRobotsModal(true)}
-                className="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-[#FF5533] dark:hover:text-[#FF7A45] hover:bg-slate-50 dark:hover:bg-slate-800 transition-all flex items-center gap-1.5"
-              >
-                <FileCode className="w-3.5 h-3.5 text-emerald-500" />
-                Robots.txt
-              </button>
-
-              <div className="h-4 w-px bg-slate-200 dark:bg-slate-800 mx-0.5" />
-
-              <button
-                onClick={() => setShowSchemaModal(true)}
-                className="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-[#FF5533] dark:hover:text-[#FF7A45] hover:bg-slate-50 dark:hover:bg-slate-800 transition-all flex items-center gap-1.5"
-              >
-                <Code className="w-3.5 h-3.5 text-[#FF5533]" />
-                Schema
-              </button>
-
-              <div className="h-4 w-px bg-slate-200 dark:bg-slate-800 mx-0.5" />
-
-              <button
-                onClick={() => setShowSecurityModal(true)}
-                className="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-[#FF5533] dark:hover:text-[#FF7A45] hover:bg-slate-50 dark:hover:bg-slate-800 transition-all flex items-center gap-1.5"
-              >
-                <ShieldCheck className="w-3.5 h-3.5 text-amber-500" />
-                Security
-              </button>
-            </div>
-
-            {report && (
+          {/* Quick generators */}
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mr-1 hidden sm:inline">
+              Quick generators
+            </span>
+            <button
+              onClick={() => setShowRobotsModal(true)}
+              title="Generate a robots.txt file"
+              className="px-3 py-2 rounded-xl text-xs font-semibold bg-white dark:bg-[#0d0d0f] border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:border-emerald-500/50 hover:text-emerald-600 transition-all flex items-center gap-1.5 shadow-sm"
+            >
+              <FileCode className="w-3.5 h-3.5 text-emerald-500" />
+              Robots.txt
+            </button>
+            <button
+              onClick={() => setShowSchemaModal(true)}
+              title="Generate Schema.org JSON-LD"
+              className="px-3 py-2 rounded-xl text-xs font-semibold bg-white dark:bg-[#0d0d0f] border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:border-[#FF5533]/50 hover:text-[#FF5533] transition-all flex items-center gap-1.5 shadow-sm"
+            >
+              <Code className="w-3.5 h-3.5 text-[#FF5533]" />
+              Schema
+            </button>
+            <button
+              onClick={() => setShowSecurityModal(true)}
+              title="Generate security headers"
+              className="px-3 py-2 rounded-xl text-xs font-semibold bg-white dark:bg-[#0d0d0f] border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:border-amber-500/50 hover:text-amber-600 transition-all flex items-center gap-1.5 shadow-sm"
+            >
+              <ShieldCheck className="w-3.5 h-3.5 text-amber-500" />
+              Security headers
+            </button>
+            {report && auditMode === 'single' && (
               <button
                 onClick={() => window.print()}
-                className="px-3.5 py-2 rounded-xl text-xs font-bold bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] hover:from-[#FF5547] hover:to-[#FF9036] text-white transition-all shadow-sm flex items-center gap-1.5"
+                className="px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:opacity-90 transition-all shadow-sm flex items-center gap-1.5"
               >
                 <Printer className="w-3.5 h-3.5" />
                 Export PDF
@@ -1077,504 +1186,344 @@ export default function WebsiteAnalyzerPage() {
           </div>
         </div>
 
-        {/* Modern Segmented Mode Navigation Bar */}
-        <div className="mt-6">
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 p-1.5 bg-slate-200/60 dark:bg-[#0d0d0f]/90 rounded-2xl border border-slate-300/60 dark:border-white/10 shadow-sm">
-            
-            {/* Mode 1: Single URL */}
-            <button
-              onClick={() => setAuditMode('single')}
-              className={`flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl font-bold text-xs transition-all ${
-                auditMode === 'single'
-                  ? 'bg-white dark:bg-slate-800 text-[#FF5533] dark:text-[#FF7A45] shadow-sm'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/40 dark:hover:bg-slate-800/40'
-              }`}
-            >
-              <Globe className="w-4 h-4 flex-shrink-0 text-[#FF5533]" />
-              <span>Site Audit</span>
-            </button>
-
-            {/* Mode 2: Competitor Battle */}
-            <button
-              onClick={() => setAuditMode('compare')}
-              className={`flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl font-bold text-xs transition-all ${
-                auditMode === 'compare'
-                  ? 'bg-white dark:bg-slate-800 text-rose-600 dark:text-rose-400 shadow-sm'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/40 dark:hover:bg-slate-800/40'
-              }`}
-            >
-              <Swords className="w-4 h-4 flex-shrink-0 text-rose-500" />
-              <span>Competitor VS</span>
-            </button>
-
-            {/* Mode 3: Sitemap Crawl */}
-            <button
-              onClick={() => setAuditMode('sitemap')}
-              className={`flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl font-bold text-xs transition-all ${
-                auditMode === 'sitemap'
-                  ? 'bg-white dark:bg-slate-800 text-sky-600 dark:text-sky-400 shadow-sm'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/40 dark:hover:bg-slate-800/40'
-              }`}
-            >
-              <Network className="w-4 h-4 flex-shrink-0 text-sky-500" />
-              <span>Sitemap Crawl</span>
-            </button>
-
-            {/* Mode 4: Backlinks */}
-            <button
-              onClick={() => setAuditMode('backlinks')}
-              className={`flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl font-bold text-xs transition-all ${
-                auditMode === 'backlinks'
-                  ? 'bg-white dark:bg-slate-800 text-emerald-600 dark:text-emerald-400 shadow-sm'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/40 dark:hover:bg-slate-800/40'
-              }`}
-            >
-              <Link2 className="w-4 h-4 flex-shrink-0 text-emerald-500" />
-              <span>Backlinks</span>
-            </button>
-
-            {/* Mode 5: Blog SERP & AI Citation */}
-            <button
-              onClick={() => setAuditMode('blog-serp')}
-              className={`flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl font-bold text-xs transition-all ${
-                auditMode === 'blog-serp'
-                  ? 'bg-white dark:bg-slate-800 text-purple-600 dark:text-purple-400 shadow-sm'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/40 dark:hover:bg-slate-800/40'
-              }`}
-            >
-              <TrendingUp className="w-4 h-4 flex-shrink-0 text-purple-500" />
-              <span>Blog SERP &amp; GEO</span>
-            </button>
-
-            {/* Mode 6: Content Optimizer */}
-            <button
-              onClick={() => setAuditMode('optimizer')}
-              className={`flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl font-bold text-xs transition-all ${
-                auditMode === 'optimizer'
-                  ? 'bg-white dark:bg-slate-800 text-amber-600 dark:text-amber-400 shadow-sm'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/40 dark:hover:bg-slate-800/40'
-              }`}
-            >
-              <Sparkles className="w-4 h-4 flex-shrink-0 text-amber-500" />
-              <span>AI Optimizer</span>
-            </button>
+        {/* ===== Step 1: Choose a tool ===== */}
+        <div className="mt-7">
+          <div className="flex items-center gap-2 mb-3">
+            <span className="w-6 h-6 rounded-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs font-black flex items-center justify-center">1</span>
+            <h2 className="text-sm font-bold text-slate-900 dark:text-white">Choose what you want to check</h2>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
+            {TOOL_MODES.map((tool) => {
+              const Icon = tool.icon;
+              const active = auditMode === tool.id;
+              return (
+                <button
+                  key={tool.id}
+                  type="button"
+                  onClick={() => setAuditMode(tool.id)}
+                  aria-pressed={active}
+                  className={`group relative text-left p-4 rounded-2xl border bg-white dark:bg-[#0d0d0f] transition-all ${
+                    active
+                      ? `ring-2 ${tool.ring} shadow-md`
+                      : 'border-slate-200 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20 hover:shadow-sm'
+                  }`}
+                >
+                  {active && (
+                    <span className="absolute top-3 right-3 w-5 h-5 rounded-full bg-slate-900 dark:bg-white flex items-center justify-center">
+                      <Check className="w-3 h-3 text-white dark:text-slate-900" />
+                    </span>
+                  )}
+                  <div className={`w-9 h-9 rounded-xl ${tool.iconBg} flex items-center justify-center mb-3`}>
+                    <Icon className={`w-[18px] h-[18px] ${tool.iconColor}`} />
+                  </div>
+                  <div className="text-sm font-bold text-slate-900 dark:text-white">{tool.name}</div>
+                  <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">{tool.short}</div>
+                </button>
+              );
+            })}
           </div>
         </div>
 
-        {/* Unified Enterprise Input Card */}
-        <div className="mt-5 bg-white dark:bg-[#0d0d0f] p-5 md:p-6 rounded-3xl border border-slate-200 dark:border-white/10 shadow-sm space-y-4">
-          
-          {/* Card Context Header */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-white/10">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-700 dark:text-slate-200">
-                {auditMode === 'single' && <Globe className="w-4 h-4 text-[#FF5533]" />}
-                {auditMode === 'compare' && <Swords className="w-4 h-4 text-rose-500" />}
-                {auditMode === 'sitemap' && <Network className="w-4 h-4 text-sky-500" />}
-                {auditMode === 'backlinks' && <Link2 className="w-4 h-4 text-emerald-500" />}
-                {auditMode === 'blog-serp' && <TrendingUp className="w-4 h-4 text-purple-500" />}
-                {auditMode === 'optimizer' && <Sparkles className="w-4 h-4 text-amber-500" />}
-              </div>
+        {/* ===== Step 2: Enter details ===== */}
+        <div className="mt-6 bg-white dark:bg-[#0d0d0f] rounded-3xl border border-slate-200 dark:border-white/10 shadow-sm overflow-hidden">
+          <div className="px-5 md:px-6 pt-5 pb-4 border-b border-slate-100 dark:border-white/10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex items-start gap-3">
+              <span className="mt-0.5 w-6 h-6 rounded-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs font-black flex items-center justify-center shrink-0">2</span>
               <div>
-                <h3 className="text-sm font-bold text-slate-900 dark:text-white">
-                  {auditMode === 'single' && 'Website Technical & SEO Diagnostic'}
-                  {auditMode === 'compare' && 'Head-to-Head Competitor Benchmark'}
-                  {auditMode === 'sitemap' && 'Multi-Page Sitemap Deep Crawler'}
-                  {auditMode === 'backlinks' && 'Off-Page Backlink Authority & Equity'}
-                  {auditMode === 'blog-serp' && 'Blog SERP Rankings & AI Citation (GEO)'}
-                  {auditMode === 'optimizer' && 'SurferSEO-Style Live Content Optimizer'}
-                </h3>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                  {auditMode === 'single' && 'Scan site health score, Core Web Vitals, Schema markup, and 1-click code fixes.'}
-                  {auditMode === 'compare' && 'Compare your site side-by-side with a competitor to find ranking & content gaps.'}
-                  {auditMode === 'sitemap' && 'Crawl your entire sitemap.xml to find broken links, slow pages, and missing tags.'}
-                  {auditMode === 'backlinks' && 'Analyze Domain Rating (DR), referring domains, anchor text safety, and outreach blueprint.'}
-                  {auditMode === 'blog-serp' && 'Inspect Google SERP ranks, monthly clicks, impressions, and generative AI citations.'}
-                  {auditMode === 'optimizer' && 'Write or paste blog drafts to optimize NLP entity coverage and rank #1 on Google.'}
-                </p>
+                <h2 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                  <CurrentToolIcon className={`w-4 h-4 ${currentTool.iconColor}`} />
+                  {currentTool.name}
+                </h2>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 max-w-xl">{currentTool.desc}</p>
               </div>
             </div>
 
-            {/* Contextual Sub-Tab Selector for Mode 5 */}
+            {/* Blog Rankings: what to scan + GSC */}
             {auditMode === 'blog-serp' && (
-              <div className="flex flex-wrap items-center gap-2">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                 <div className="p-1 bg-slate-100 dark:bg-[#030303] rounded-xl border border-slate-200/60 dark:border-white/10 flex items-center gap-1">
-                  <button
-                    type="button"
-                    onClick={() => setBlogSubTab('directory')}
-                    className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
-                      blogSubTab === 'directory'
-                        ? 'bg-purple-600 text-white shadow-sm'
-                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
-                    }`}
-                  >
-                    All Blogs Directory{allBlogsResult?.blogs?.length ? ` (${allBlogsResult.blogs.length})` : ''}
+                  <button type="button" onClick={() => setBlogSubTab('directory')} className={segBtn(blogSubTab === 'directory')}>
+                    All blogs{allBlogsResult?.blogs?.length ? ` (${allBlogsResult.blogs.length})` : ''}
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => setBlogSubTab('single')}
-                    className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
-                      blogSubTab === 'single'
-                        ? 'bg-purple-600 text-white shadow-sm'
-                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
-                    }`}
-                  >
-                    Single Blog Scan
+                  <button type="button" onClick={() => setBlogSubTab('single')} className={segBtn(blogSubTab === 'single')}>
+                    One blog post
                   </button>
                 </div>
-
                 <button
                   type="button"
                   onClick={() => setShowGscModal(true)}
-                  className="px-3 py-1.5 rounded-xl text-xs font-bold border border-orange-500/30 bg-orange-500/10 hover:bg-orange-500/20 text-[#FF5533] dark:text-[#FF7A45] transition-all flex items-center gap-1.5 shadow-sm"
+                  className="px-3 py-2 rounded-xl text-xs font-bold border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0d0d0f] hover:border-[#FF5533]/50 text-slate-700 dark:text-slate-300 transition-all flex items-center justify-center gap-2"
                 >
                   <span className={`w-2 h-2 rounded-full ${gscConnected ? 'bg-emerald-500' : 'bg-amber-400'}`} />
-                  {gscConnected ? 'GSC Connected' : 'Connect GSC'}
+                  {gscConnected ? 'Search Console connected' : 'Connect Search Console'}
                 </button>
               </div>
             )}
 
-            {/* Contextual Sub-Tab Selector for Mode 6 */}
+            {/* AI Optimizer: input source */}
             {auditMode === 'optimizer' && (
               <div className="p-1 bg-slate-100 dark:bg-[#030303] rounded-xl border border-slate-200/60 dark:border-white/10 flex items-center gap-1">
-                <button
-                  type="button"
-                  onClick={() => setOptimizerInputMode('url')}
-                  className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
-                    optimizerInputMode === 'url'
-                      ? 'bg-amber-500 text-white shadow-sm'
-                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
-                  }`}
-                >
-                  Scrape Live URL
+                <button type="button" onClick={() => setOptimizerInputMode('url')} className={segBtn(optimizerInputMode === 'url')}>
+                  From a URL
                 </button>
-                <button
-                  type="button"
-                  onClick={() => setOptimizerInputMode('raw')}
-                  className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
-                    optimizerInputMode === 'raw'
-                      ? 'bg-amber-500 text-white shadow-sm'
-                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
-                  }`}
-                >
-                  Paste Raw Draft
+                <button type="button" onClick={() => setOptimizerInputMode('raw')} className={segBtn(optimizerInputMode === 'raw')}>
+                  Paste text
                 </button>
               </div>
             )}
           </div>
 
-          {/* MODE 1: SINGLE URL AUDIT */}
-          {auditMode === 'single' && (
-            <form onSubmit={handleScan} className="flex flex-col sm:flex-row gap-3">
-              <div className="relative flex-1">
-                <Globe className="absolute left-3.5 top-3.5 w-4 h-4 text-slate-400" />
-                <input
-                  type="text"
-                  placeholder="Enter domain or webpage URL (e.g. yourwebsite.com or https://site.com/blog)"
-                  value={urlInput}
-                  onChange={(e) => setUrlInput(e.target.value)}
-                  disabled={scanning}
-                  className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#030303] text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#FF5533]/20 focus:border-[#FF5533]/60"
-                />
-              </div>
-              <button
-                type="submit"
-                disabled={scanning || !urlInput.trim()}
-                className="px-6 py-3 rounded-xl font-bold text-xs sm:text-sm bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] hover:from-[#FF5547] hover:to-[#FF9036] text-white transition-all shadow-md shadow-[#FF5533]/25 flex items-center justify-center gap-2 disabled:opacity-50"
-              >
-                {scanning ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    Auditing Site...
-                  </>
-                ) : (
-                  <>
-                    <Search className="w-4 h-4" />
-                    Audit Website
-                  </>
-                )}
-              </button>
-            </form>
-          )}
-
-          {/* MODE 2: COMPETITOR HEAD-TO-HEAD */}
-          {auditMode === 'compare' && (
-            <form onSubmit={handleCompare} className="flex flex-col md:flex-row items-center gap-3">
-              <div className="relative flex-1 w-full">
-                <Globe className="absolute left-3.5 top-3.5 w-4 h-4 text-[#FF5533]" />
-                <input
-                  type="text"
-                  placeholder="Your Website URL (e.g. yourbrand.com)"
-                  value={urlInput}
-                  onChange={(e) => setUrlInput(e.target.value)}
-                  disabled={comparing}
-                  className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#030303] text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#FF5533]/20 focus:border-[#FF5533]/60"
-                />
-              </div>
-
-              <div className="hidden md:flex items-center justify-center w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-xs font-black text-slate-400">
-                VS
-              </div>
-
-              <div className="relative flex-1 w-full">
-                <Swords className="absolute left-3.5 top-3.5 w-4 h-4 text-rose-500" />
-                <input
-                  type="text"
-                  placeholder="Competitor URL (e.g. competitor.com)"
-                  value={competitorUrlInput}
-                  onChange={(e) => setCompetitorUrlInput(e.target.value)}
-                  disabled={comparing}
-                  className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#030303] text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500"
-                />
-              </div>
-
-              <button
-                type="submit"
-                disabled={comparing || !urlInput.trim() || !competitorUrlInput.trim()}
-                className="w-full md:w-auto px-6 py-3 rounded-xl font-bold text-xs sm:text-sm bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] hover:from-[#FF5547] hover:to-[#FF9036] text-white transition-all shadow-md shadow-[#FF5533]/25 flex items-center justify-center gap-2 disabled:opacity-50"
-              >
-                {comparing ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    Simulating Battle...
-                  </>
-                ) : (
-                  <>
-                    <Swords className="w-4 h-4" />
-                    Launch Battle
-                  </>
-                )}
-              </button>
-            </form>
-          )}
-
-          {/* MODE 3: SITEMAP DEEP SCAN */}
-          {auditMode === 'sitemap' && (
-            <form onSubmit={handleSitemapScan} className="flex flex-col sm:flex-row gap-3">
-              <div className="relative flex-1">
-                <Network className="absolute left-3.5 top-3.5 w-4 h-4 text-sky-500" />
-                <input
-                  type="text"
-                  placeholder="Enter domain for full sitemap crawl (e.g. yourwebsite.com)"
-                  value={urlInput}
-                  onChange={(e) => setUrlInput(e.target.value)}
-                  disabled={sitemapScanning}
-                  className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#030303] text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500"
-                />
-              </div>
-              <button
-                type="submit"
-                disabled={sitemapScanning || !urlInput.trim()}
-                className="px-6 py-3 rounded-xl font-bold text-xs sm:text-sm bg-sky-600 hover:bg-sky-700 text-white transition-all shadow-md shadow-sky-600/20 flex items-center justify-center gap-2 disabled:opacity-50"
-              >
-                {sitemapScanning ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    Crawling Sitemap...
-                  </>
-                ) : (
-                  <>
-                    <Network className="w-4 h-4" />
-                    Deep Scan Sitemap
-                  </>
-                )}
-              </button>
-            </form>
-          )}
-
-          {/* MODE 4: BACKLINK EQUITY & OFF-PAGE AUDIT */}
-          {auditMode === 'backlinks' && (
-            <form onSubmit={handleBacklinkAudit} className="flex flex-col sm:flex-row gap-3">
-              <div className="relative flex-1">
-                <Link2 className="absolute left-3.5 top-3.5 w-4 h-4 text-emerald-500" />
-                <input
-                  type="text"
-                  placeholder="Enter target domain or URL for Backlink Analysis (e.g. yourwebsite.com)"
-                  value={urlInput}
-                  onChange={(e) => setUrlInput(e.target.value)}
-                  disabled={backlinkScanning}
-                  className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#030303] text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
-                />
-              </div>
-              <button
-                type="submit"
-                disabled={backlinkScanning || !urlInput.trim()}
-                className="px-6 py-3 rounded-xl font-bold text-xs sm:text-sm bg-emerald-600 hover:bg-emerald-700 text-white transition-all shadow-md shadow-emerald-600/20 flex items-center justify-center gap-2 disabled:opacity-50"
-              >
-                {backlinkScanning ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    Analyzing Backlinks...
-                  </>
-                ) : (
-                  <>
-                    <Link2 className="w-4 h-4" />
-                    Audit Backlinks
-                  </>
-                )}
-              </button>
-            </form>
-          )}
-
-          {/* MODE 5: BLOG SERP & AI CITATION (GEO) AUDIT + ALL-BLOGS DIRECTORY */}
-          {auditMode === 'blog-serp' && (
-            blogSubTab === 'directory' ? (
-              <form onSubmit={handleAllBlogsScan} className="flex flex-col sm:flex-row gap-3">
-                <div className="relative flex-1">
-                  <Globe className="absolute left-3.5 top-3.5 w-4 h-4 text-purple-500" />
-                  <input
-                    type="text"
-                    placeholder="Enter blog domain or sitemap to list all blogs (e.g. site.com or site.com/blog)"
-                    value={urlInput}
-                    onChange={(e) => setUrlInput(e.target.value)}
-                    disabled={allBlogsScanning}
-                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#030303] text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
-                  />
+          <div className="px-5 md:px-6 py-5 space-y-4">
+            {/* MODE 1: SINGLE URL AUDIT */}
+            {auditMode === 'single' && (
+              <form onSubmit={handleScan}>
+                <label htmlFor="wa-url" className={labelCls}>Website or page URL</label>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <div className="relative flex-1">
+                    <Globe className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <input
+                      id="wa-url"
+                      type="text"
+                      placeholder="e.g. yourwebsite.com"
+                      value={urlInput}
+                      onChange={(e) => setUrlInput(e.target.value)}
+                      disabled={scanning}
+                      className={inputCls}
+                    />
+                  </div>
+                  <button type="submit" disabled={scanning || !urlInput.trim()} className={primaryBtnCls}>
+                    {scanning ? (<><Loader2 className="w-4 h-4 animate-spin" />Auditing…</>) : (<><Search className="w-4 h-4" />Audit Website</>)}
+                  </button>
                 </div>
-                <button
-                  type="submit"
-                  disabled={allBlogsScanning || !urlInput.trim()}
-                  className="px-6 py-3 rounded-xl font-bold text-xs sm:text-sm bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] hover:from-[#FF5547] hover:to-[#FF9036] text-white transition-all shadow-md shadow-[#FF5533]/25 flex items-center justify-center gap-2 disabled:opacity-50"
-                >
-                  {allBlogsScanning ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      Scanning All Blogs &amp; SERP...
-                    </>
-                  ) : (
-                    <>
-                      <TrendingUp className="w-4 h-4 text-white" />
-                      Analyze All Blogs
-                    </>
-                  )}
-                </button>
+                <p className="text-[11px] text-slate-400 mt-2">Works with a homepage or any single page, e.g. <span className="font-mono">site.com/blog/post</span></p>
               </form>
-            ) : (
-              <form onSubmit={handleBlogSerpAudit} className="flex flex-col sm:flex-row gap-3">
-                <div className="relative flex-1">
-                  <TrendingUp className="absolute left-3.5 top-3.5 w-4 h-4 text-purple-500" />
-                  <input
-                    type="text"
-                    placeholder="Enter specific blog post URL (e.g. yourwebsite.com/blog/best-seo-tips)"
-                    value={urlInput}
-                    onChange={(e) => setUrlInput(e.target.value)}
-                    disabled={blogSerpScanning}
-                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#030303] text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
-                  />
-                </div>
-                <button
-                  type="submit"
-                  disabled={blogSerpScanning || !urlInput.trim()}
-                  className="px-6 py-3 rounded-xl font-bold text-xs sm:text-sm bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] hover:from-[#FF5547] hover:to-[#FF9036] text-white transition-all shadow-md shadow-[#FF5533]/25 flex items-center justify-center gap-2 disabled:opacity-50"
-                >
-                  {blogSerpScanning ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      Checking SERP &amp; AI Citations...
-                    </>
-                  ) : (
-                    <>
-                      <Sparkles className="w-4 h-4 text-amber-300" />
-                      Analyze Single Blog
-                    </>
-                  )}
-                </button>
-              </form>
-            )
-          )}
+            )}
 
-          {/* MODE 6: LIVE CONTENT OPTIMIZER (SURFERSEO STYLE) */}
-          {auditMode === 'optimizer' && (
-            <form onSubmit={handleContentOptimization} className="flex flex-col md:flex-row gap-3">
-              {optimizerInputMode === 'url' ? (
-                <div className="relative flex-1">
-                  <Globe className="absolute left-3.5 top-3.5 w-4 h-4 text-amber-500" />
-                  <input
-                    type="text"
-                    placeholder="Enter blog article URL to score & optimize (e.g. domain.com/blog/seo-guide)"
-                    value={urlInput}
-                    onChange={(e) => setUrlInput(e.target.value)}
-                    disabled={optimizerScanning}
-                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#030303] text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500"
-                  />
+            {/* MODE 2: COMPETITOR HEAD-TO-HEAD */}
+            {auditMode === 'compare' && (
+              <form onSubmit={handleCompare} className="space-y-3">
+                <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] items-end gap-3">
+                  <div>
+                    <label htmlFor="wa-you" className={labelCls}>Your website</label>
+                    <div className="relative">
+                      <Globe className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#FF5533]" />
+                      <input
+                        id="wa-you"
+                        type="text"
+                        placeholder="e.g. yourbrand.com"
+                        value={urlInput}
+                        onChange={(e) => setUrlInput(e.target.value)}
+                        disabled={comparing}
+                        className={inputCls}
+                      />
+                    </div>
+                  </div>
+                  <div className="hidden md:flex items-center justify-center w-10 h-[50px] text-xs font-black text-slate-400">VS</div>
+                  <div>
+                    <label htmlFor="wa-comp" className={labelCls}>Competitor website</label>
+                    <div className="relative">
+                      <Swords className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-rose-500" />
+                      <input
+                        id="wa-comp"
+                        type="text"
+                        placeholder="e.g. competitor.com"
+                        value={competitorUrlInput}
+                        onChange={(e) => setCompetitorUrlInput(e.target.value)}
+                        disabled={comparing}
+                        className={inputCls}
+                      />
+                    </div>
+                  </div>
                 </div>
+                <div className="flex justify-end">
+                  <button type="submit" disabled={comparing || !urlInput.trim() || !competitorUrlInput.trim()} className={primaryBtnCls}>
+                    {comparing ? (<><Loader2 className="w-4 h-4 animate-spin" />Comparing…</>) : (<><Swords className="w-4 h-4" />Compare Websites</>)}
+                  </button>
+                </div>
+              </form>
+            )}
+
+            {/* MODE 3: SITEMAP DEEP SCAN */}
+            {auditMode === 'sitemap' && (
+              <form onSubmit={handleSitemapScan}>
+                <label htmlFor="wa-sitemap" className={labelCls}>Website domain</label>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <div className="relative flex-1">
+                    <Network className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-sky-500" />
+                    <input
+                      id="wa-sitemap"
+                      type="text"
+                      placeholder="e.g. yourwebsite.com"
+                      value={urlInput}
+                      onChange={(e) => setUrlInput(e.target.value)}
+                      disabled={sitemapScanning}
+                      className={inputCls}
+                    />
+                  </div>
+                  <button type="submit" disabled={sitemapScanning || !urlInput.trim()} className={primaryBtnCls}>
+                    {sitemapScanning ? (<><Loader2 className="w-4 h-4 animate-spin" />Crawling…</>) : (<><Network className="w-4 h-4" />Scan Sitemap</>)}
+                  </button>
+                </div>
+                <p className="text-[11px] text-slate-400 mt-2">We look for <span className="font-mono">/sitemap.xml</span> automatically and audit a sample of its pages.</p>
+              </form>
+            )}
+
+            {/* MODE 4: BACKLINK EQUITY & OFF-PAGE AUDIT */}
+            {auditMode === 'backlinks' && (
+              <form onSubmit={handleBacklinkAudit}>
+                <label htmlFor="wa-backlinks" className={labelCls}>Website domain</label>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <div className="relative flex-1">
+                    <Link2 className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-emerald-500" />
+                    <input
+                      id="wa-backlinks"
+                      type="text"
+                      placeholder="e.g. yourwebsite.com"
+                      value={urlInput}
+                      onChange={(e) => setUrlInput(e.target.value)}
+                      disabled={backlinkScanning}
+                      className={inputCls}
+                    />
+                  </div>
+                  <button type="submit" disabled={backlinkScanning || !urlInput.trim()} className={primaryBtnCls}>
+                    {backlinkScanning ? (<><Loader2 className="w-4 h-4 animate-spin" />Analyzing…</>) : (<><Link2 className="w-4 h-4" />Check Backlinks</>)}
+                  </button>
+                </div>
+              </form>
+            )}
+
+            {/* MODE 5: BLOG SERP & AI CITATION (GEO) AUDIT + ALL-BLOGS DIRECTORY */}
+            {auditMode === 'blog-serp' && (
+              blogSubTab === 'directory' ? (
+                <form onSubmit={handleAllBlogsScan}>
+                  <label htmlFor="wa-blogs" className={labelCls}>Blog domain or blog section</label>
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <div className="relative flex-1">
+                      <Globe className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-purple-500" />
+                      <input
+                        id="wa-blogs"
+                        type="text"
+                        placeholder="e.g. site.com or site.com/blog"
+                        value={urlInput}
+                        onChange={(e) => setUrlInput(e.target.value)}
+                        disabled={allBlogsScanning}
+                        className={inputCls}
+                      />
+                    </div>
+                    <button type="submit" disabled={allBlogsScanning || !urlInput.trim()} className={primaryBtnCls}>
+                      {allBlogsScanning ? (<><Loader2 className="w-4 h-4 animate-spin" />Scanning…</>) : (<><TrendingUp className="w-4 h-4" />Analyze All Blogs</>)}
+                    </button>
+                  </div>
+                  <p className="text-[11px] text-slate-400 mt-2">Tip: connect Search Console for real clicks & impressions instead of estimates.</p>
+                </form>
               ) : (
-                <div className="flex-1">
-                  <textarea
-                    rows={2}
-                    placeholder="Paste your blog draft / raw markdown text here..."
-                    value={liveArticleText}
-                    onChange={(e) => handleLiveTextChange(e.target.value)}
-                    disabled={optimizerScanning}
-                    className="w-full p-3 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#030303] text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 font-mono"
-                  />
+                <form onSubmit={handleBlogSerpAudit}>
+                  <label htmlFor="wa-blog" className={labelCls}>Blog post URL</label>
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <div className="relative flex-1">
+                      <TrendingUp className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-purple-500" />
+                      <input
+                        id="wa-blog"
+                        type="text"
+                        placeholder="e.g. yourwebsite.com/blog/best-seo-tips"
+                        value={urlInput}
+                        onChange={(e) => setUrlInput(e.target.value)}
+                        disabled={blogSerpScanning}
+                        className={inputCls}
+                      />
+                    </div>
+                    <button type="submit" disabled={blogSerpScanning || !urlInput.trim()} className={primaryBtnCls}>
+                      {blogSerpScanning ? (<><Loader2 className="w-4 h-4 animate-spin" />Checking…</>) : (<><Sparkles className="w-4 h-4" />Analyze Blog Post</>)}
+                    </button>
+                  </div>
+                </form>
+              )
+            )}
+
+            {/* MODE 6: LIVE CONTENT OPTIMIZER */}
+            {auditMode === 'optimizer' && (
+              <form onSubmit={handleContentOptimization} className="space-y-3">
+                <div className="grid grid-cols-1 md:grid-cols-[1fr_280px] gap-3">
+                  {optimizerInputMode === 'url' ? (
+                    <div>
+                      <label htmlFor="wa-opt-url" className={labelCls}>Article URL</label>
+                      <div className="relative">
+                        <Globe className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-amber-500" />
+                        <input
+                          id="wa-opt-url"
+                          type="text"
+                          placeholder="e.g. domain.com/blog/seo-guide"
+                          value={urlInput}
+                          onChange={(e) => setUrlInput(e.target.value)}
+                          disabled={optimizerScanning}
+                          className={inputCls}
+                        />
+                      </div>
+                    </div>
+                  ) : (
+                    <div>
+                      <label htmlFor="wa-opt-raw" className={labelCls}>Your article text (Markdown supported)</label>
+                      <textarea
+                        id="wa-opt-raw"
+                        rows={5}
+                        placeholder="Paste your blog draft here…"
+                        value={liveArticleText}
+                        onChange={(e) => handleLiveTextChange(e.target.value)}
+                        disabled={optimizerScanning}
+                        className="w-full p-3.5 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#030303] text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-[#FF5533]/15 focus:border-[#FF5533]/60 font-mono resize-y"
+                      />
+                    </div>
+                  )}
+                  <div>
+                    <label htmlFor="wa-opt-kw" className={labelCls}>
+                      Target keyword <span className="font-normal text-slate-400">(optional)</span>
+                    </label>
+                    <div className="relative">
+                      <Tag className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                      <input
+                        id="wa-opt-kw"
+                        type="text"
+                        placeholder="e.g. AI SEO tools"
+                        value={optimizerKeyword}
+                        onChange={(e) => setOptimizerKeyword(e.target.value)}
+                        disabled={optimizerScanning}
+                        className={inputCls}
+                      />
+                    </div>
+                  </div>
                 </div>
-              )}
+                <div className="flex justify-end">
+                  <button
+                    type="submit"
+                    disabled={optimizerScanning || (optimizerInputMode === 'url' ? !urlInput.trim() : !liveArticleText.trim())}
+                    className={primaryBtnCls}
+                  >
+                    {optimizerScanning ? (<><Loader2 className="w-4 h-4 animate-spin" />Analyzing…</>) : (<><Sparkles className="w-4 h-4" />Optimize Content</>)}
+                  </button>
+                </div>
+              </form>
+            )}
 
-              <div className="w-full md:w-64">
-                <input
-                  type="text"
-                  placeholder="Primary Keyword (e.g. AI SEO Tools)"
-                  value={optimizerKeyword}
-                  onChange={(e) => setOptimizerKeyword(e.target.value)}
-                  disabled={optimizerScanning}
-                  className="w-full px-3.5 py-3 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#030303] text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500"
-                />
+            {/* Error */}
+            {errorMsg && (
+              <div role="alert" className="p-3.5 rounded-xl text-sm bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400 border border-rose-200 dark:border-rose-900 flex items-start gap-2.5">
+                <AlertTriangle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <div className="font-bold text-xs">Something went wrong</div>
+                  <div className="text-xs mt-0.5">{errorMsg}</div>
+                </div>
+                <button type="button" onClick={() => setErrorMsg('')} className="text-rose-400 hover:text-rose-600" aria-label="Dismiss error">
+                  <XCircle className="w-4 h-4" />
+                </button>
               </div>
+            )}
+          </div>
 
-              <button
-                type="submit"
-                disabled={optimizerScanning || (optimizerInputMode === 'url' ? !urlInput.trim() : !liveArticleText.trim())}
-                className="px-6 py-3 rounded-xl font-bold text-xs sm:text-sm bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white transition-all shadow-md shadow-amber-500/20 flex items-center justify-center gap-2 disabled:opacity-50"
-              >
-                {optimizerScanning ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    Analyzing NLP &amp; SERP...
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="w-4 h-4 text-white" />
-                    Optimize Content
-                  </>
-                )}
-              </button>
-            </form>
-          )}
-
-          {/* Scanning Progress Timeline */}
-          {scanning && (
-            <div className="mt-4 pt-3 border-t border-slate-100 dark:border-white/10">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-[11px] font-medium text-slate-500">
-                <span className={`flex items-center gap-1.5 ${scanStep >= 1 ? 'text-[#FF5533] dark:text-[#FF7A45] font-bold' : ''}`}>
-                  {scanStep > 1 ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-                  1. Crawling DOM & Headers
-                </span>
-                <span className={`flex items-center gap-1.5 ${scanStep >= 2 ? 'text-[#FF5533] dark:text-[#FF7A45] font-bold' : ''}`}>
-                  {scanStep > 2 ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : scanStep === 2 ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : '2. Measuring Web Vitals'}
-                </span>
-                <span className={`flex items-center gap-1.5 ${scanStep >= 3 ? 'text-[#FF5533] dark:text-[#FF7A45] font-bold' : ''}`}>
-                  {scanStep > 3 ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : scanStep === 3 ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : '3. Schema & Keywords Gap'}
-                </span>
-                <span className={`flex items-center gap-1.5 ${scanStep >= 4 ? 'text-[#FF5533] dark:text-[#FF7A45] font-bold' : ''}`}>
-                  {scanStep >= 4 ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : '4. Compiling Health Score'}
-                </span>
-              </div>
-            </div>
-          )}
-
-          {errorMsg && (
-            <div className="mt-3 p-3 rounded-xl text-xs bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-900 flex items-center gap-2">
-              <AlertTriangle className="w-4 h-4 flex-shrink-0" />
-              {errorMsg}
-            </div>
-          )}
-
-          {/* Quick Recent Audits History Bar */}
-          {recentAudits.length > 0 && !scanning && !comparing && !sitemapScanning && !backlinkScanning && !blogSerpScanning && !optimizerScanning && !allBlogsScanning && (
-            <div className="mt-4 pt-3.5 border-t border-slate-100 dark:border-white/10/80 flex flex-wrap items-center gap-2">
-              <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider flex items-center gap-1.5 mr-1">
-                <Clock className="w-3.5 h-3.5 text-[#FF5533]" /> Recent Scans:
+          {/* Recent scans */}
+          {recentAudits.length > 0 && !isBusy && (
+            <div className="px-5 md:px-6 py-3.5 bg-slate-50/70 dark:bg-white/[0.02] border-t border-slate-100 dark:border-white/10 flex flex-wrap items-center gap-2">
+              <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 flex items-center gap-1.5 mr-1">
+                <Clock className="w-3.5 h-3.5" /> Recent audits
               </span>
               {recentAudits.map((item) => (
                 <button
@@ -1584,26 +1533,104 @@ export default function WebsiteAnalyzerPage() {
                     setReport(item.result);
                     setAuditMode('single');
                   }}
-                  className="group px-3 py-1 rounded-lg text-xs font-semibold bg-slate-100/80 dark:bg-slate-800/80 hover:bg-orange-500/10 hover:text-[#FF5533] dark:hover:text-[#FF7A45] border border-slate-200/60 dark:border-slate-700/60 transition-all text-slate-700 dark:text-slate-300 flex items-center gap-2 shadow-sm"
+                  title="Open this saved audit"
+                  className="group px-2.5 py-1 rounded-lg text-xs font-semibold bg-white dark:bg-slate-900 hover:border-[#FF5533]/50 border border-slate-200 dark:border-white/10 transition-all text-slate-700 dark:text-slate-300 flex items-center gap-2"
                 >
-                  <Globe className="w-3 h-3 text-slate-400 group-hover:text-[#FF5533] transition-colors" />
                   <span>{item.result.domain}</span>
-                  <span className={`text-[10px] font-black px-1.5 py-0.2 rounded ${
-                    (item.result.audit.healthScore ?? 80) >= 80 
-                      ? 'bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300' 
+                  <span className={`text-[10px] font-black px-1.5 rounded ${
+                    (item.result.audit.healthScore ?? 80) >= 80
+                      ? 'bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300'
                       : 'bg-amber-100 dark:bg-amber-950/80 text-amber-700 dark:text-amber-300'
                   }`}>
-                    {item.result.audit.healthScore ?? 80}%
+                    {item.result.audit.healthScore ?? 80}
                   </span>
                 </button>
               ))}
             </div>
           )}
         </div>
+
+        {/* ===== Loading state ===== */}
+        {isBusy && (
+          <div className="mt-6 bg-white dark:bg-[#0d0d0f] rounded-3xl border border-slate-200 dark:border-white/10 shadow-sm p-6 md:p-8">
+            <div className="flex items-center gap-4">
+              <div className="relative w-12 h-12 shrink-0">
+                <div className="absolute inset-0 rounded-full border-4 border-slate-100 dark:border-white/10" />
+                <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-[#FF5533] animate-spin" />
+              </div>
+              <div>
+                <div className="text-base font-bold text-slate-900 dark:text-white">{busyMessage}</div>
+                <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">This usually takes 10–40 seconds. Please keep this tab open.</div>
+              </div>
+            </div>
+
+            {scanning && (
+              <ol className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                {['Reading page & headers', 'Measuring speed (Web Vitals)', 'Checking schema & keywords', 'Calculating health score'].map((label, i) => {
+                  const step = i + 1;
+                  const done = scanStep > step;
+                  const current = scanStep === step;
+                  return (
+                    <li
+                      key={label}
+                      className={`flex items-center gap-2.5 p-3 rounded-xl border text-xs font-semibold transition-all ${
+                        done
+                          ? 'border-emerald-200 dark:border-emerald-900 bg-emerald-50/60 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400'
+                          : current
+                          ? 'border-[#FF5533]/40 bg-orange-50/60 dark:bg-orange-950/20 text-[#FF5533] dark:text-[#FF7A45]'
+                          : 'border-slate-200 dark:border-white/10 text-slate-400'
+                      }`}
+                    >
+                      <span className="w-5 h-5 rounded-full flex items-center justify-center shrink-0">
+                        {done ? <CheckCircle2 className="w-4 h-4" /> : current ? <Loader2 className="w-4 h-4 animate-spin" /> : <span className="text-[11px] font-black">{step}</span>}
+                      </span>
+                      {label}
+                    </li>
+                  );
+                })}
+              </ol>
+            )}
+
+            {!scanning && (
+              <div className="mt-6 space-y-3 animate-pulse">
+                <div className="h-4 rounded bg-slate-100 dark:bg-white/5 w-3/4" />
+                <div className="h-4 rounded bg-slate-100 dark:bg-white/5 w-1/2" />
+                <div className="h-4 rounded bg-slate-100 dark:bg-white/5 w-2/3" />
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ===== Empty state ===== */}
+        {!isBusy && !hasResultForMode && (
+          <div className="mt-6 rounded-3xl border border-dashed border-slate-300 dark:border-white/10 bg-white/60 dark:bg-white/[0.02] p-6 md:p-8">
+            <div className="flex flex-col md:flex-row md:items-center gap-6">
+              <div className={`w-14 h-14 rounded-2xl ${currentTool.iconBg} flex items-center justify-center shrink-0`}>
+                <CurrentToolIcon className={`w-7 h-7 ${currentTool.iconColor}`} />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                  Your {currentTool.name} report will appear here
+                </h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                  Fill in the form above and press the button. Here&apos;s what you&apos;ll get:
+                </p>
+                <ul className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {currentTool.gets.map((g) => (
+                    <li key={g} className="flex items-start gap-2 text-xs text-slate-700 dark:text-slate-300">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                      {g}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Audit Report View */}
-      {report && (
+      {auditMode === 'single' && report && !scanning && (
         <div className="max-w-7xl mx-auto space-y-6">
 
           {/* Top SEMrush Health & KPI Summary Bar */}
@@ -1753,15 +1780,15 @@ export default function WebsiteAnalyzerPage() {
           </div>
 
           {/* Interactive Navigation Tabs */}
-          <div className="flex items-center gap-2 border-b border-slate-200 dark:border-white/10 pb-1 overflow-x-auto">
+          <div className="sticky top-0 z-20 -mx-1 px-1 py-2 bg-slate-50/90 dark:bg-[#030303]/90 backdrop-blur flex items-center gap-1.5 border-b border-slate-200 dark:border-white/10 overflow-x-auto">
             {[
-              { id: 'overview', label: 'Executive Overview', icon: Layers },
-              { id: 'geo-aio', label: 'GEO & AI Overviews (AEO)', icon: Sparkles, badge: 'AI Search' },
+              { id: 'overview', label: 'Overview', icon: Layers },
               { id: 'issues', label: `Issues & Fixes (${allErrors.length + allWarnings.length + allNotices.length})`, icon: AlertTriangle },
-              { id: 'keywords', label: 'Keywords & Gap (SEMrush)', icon: TrendingUp, badge: 'Popular' },
-              { id: 'vitals', label: 'Core Web Vitals & Tech', icon: Zap },
-              { id: 'social', label: 'Social Card Simulator', icon: Share2 },
-              { id: 'copywriting', label: 'Copywriting & Market', icon: FileText },
+              { id: 'keywords', label: 'Keywords', icon: TrendingUp },
+              { id: 'vitals', label: 'Speed & Tech', icon: Zap },
+              { id: 'geo-aio', label: 'AI Search', icon: Sparkles, badge: 'New' },
+              { id: 'social', label: 'Social Preview', icon: Share2 },
+              { id: 'copywriting', label: 'Copy Tips', icon: FileText },
             ].map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;

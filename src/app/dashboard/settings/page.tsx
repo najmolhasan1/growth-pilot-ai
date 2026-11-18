@@ -16,8 +16,8 @@ const AVATAR_PRESETS = [
 ];
 
 export default function ProfileSettings() {
-  const [name, setName] = useState('NAJMOL HASAN');
-  const [username, setUsername] = useState('najmolhasan');
+  const [name, setName] = useState('');
+  const [username, setUsername] = useState('');
   const [avatarUrl, setAvatarUrl] = useState('');
   const [customAvatarUrl, setCustomAvatarUrl] = useState('');
   const [saving, setSaving] = useState(false);
@@ -33,13 +33,12 @@ export default function ProfileSettings() {
     const supabase = getSupabaseBrowserClient();
     supabase.auth.getSession().then(({ data }) => {
       if (data?.session?.user) {
-        const meta = data.session.user.user_metadata;
-        if (meta?.full_name || meta?.name) {
-          setName(meta.full_name || meta.name);
-        }
-        if (meta?.username) {
-          setUsername(meta.username);
-        }
+        const user = data.session.user;
+        const meta = user.user_metadata;
+        const derivedName = meta?.full_name || meta?.name || (user.email ? user.email.split('@')[0] : 'User');
+        setName(derivedName);
+        const derivedUsername = meta?.username || (user.email ? user.email.split('@')[0] : 'user');
+        setUsername(derivedUsername);
         if (meta?.avatar_url) {
           setAvatarUrl(meta.avatar_url);
           // If the avatar is not in the presets list, it is a custom url

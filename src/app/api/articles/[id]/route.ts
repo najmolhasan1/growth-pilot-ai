@@ -1,17 +1,30 @@
 import { NextResponse } from 'next/server';
 import { getSupabaseServerClient } from '@/lib/supabase';
+import { getRequestUserId } from '@/lib/supabase-auth';
 
-export async function GET(_request: Request, context: { params: Promise<{ id: string }> }) {
+export async function GET(request: Request, context: { params: Promise<{ id: string }> }) {
+  const auth = await getRequestUserId(request);
+  if (!auth.userId) {
+    return NextResponse.json({ success: false, error: auth.error }, { status: auth.status });
+  }
+
   const supabase = getSupabaseServerClient();
   if (!supabase) {
     return NextResponse.json({ success: false, error: 'Supabase is not configured.' }, { status: 503 });
   }
 
   const { id } = await context.params;
-  const { data, error } = await supabase.from('articles').select('*').eq('id', id).single();
+  const isAdmin = auth.user?.user_metadata?.role === 'admin';
 
-  if (error) {
-    return NextResponse.json({ success: false, error: error.message }, { status: 404 });
+  let query = supabase.from('articles').select('*').eq('id', id);
+  if (!isAdmin) {
+    query = query.eq('user_id', auth.userId);
+  }
+
+  const { data, error } = await query.single();
+
+  if (error || !data) {
+    return NextResponse.json({ success: false, error: error?.message || 'Article not found.' }, { status: 404 });
   }
 
   return NextResponse.json({

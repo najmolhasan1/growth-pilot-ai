@@ -6,6 +6,8 @@ import {
   Plus, Clock, CheckCircle2, FileText, LayoutGrid, 
   List, CalendarDays, Brain
 } from 'lucide-react';
+import { getSupabaseBrowserClient, isSupabaseConfigured } from '@/lib/supabase';
+import { getUserStorageKey } from '@/lib/user-storage';
 
 interface ScheduledPost {
   id: string;
@@ -21,12 +23,23 @@ export default function ContentCalendar() {
   const [view, setView] = useState<'grid' | 'list'>('grid');
 
   useEffect(() => {
-    const saved = localStorage.getItem('content_schedule');
-    if (saved) {
-      // Hydrate the schedule persisted in this browser after mount.
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setScheduledPosts(JSON.parse(saved));
+    async function loadSchedule() {
+      let userId: string | null = null;
+      if (isSupabaseConfigured()) {
+        try {
+          const { data } = await getSupabaseBrowserClient().auth.getSession();
+          userId = data.session?.user?.id || null;
+        } catch {
+          // ignore
+        }
+      }
+      const scheduleKey = getUserStorageKey('content_schedule', userId);
+      const saved = localStorage.getItem(scheduleKey);
+      if (saved) {
+        setScheduledPosts(JSON.parse(saved));
+      }
     }
+    loadSchedule();
   }, []);
 
   const daysInMonth = (year: number, month: number) => new Date(year, month + 1, 0).getDate();

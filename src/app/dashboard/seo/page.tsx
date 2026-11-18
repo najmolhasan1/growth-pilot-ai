@@ -19,6 +19,7 @@ import {
   Zap,
 } from 'lucide-react';
 import { getSupabaseBrowserClient, isSupabaseConfigured } from '@/lib/supabase';
+import { getUserStorageKey, migrateLegacyArticlesIfAdmin } from '@/lib/user-storage';
 
 interface TrendSummary {
   title: string;
@@ -54,7 +55,8 @@ function isThisMonth(article: StoredArticleSummary) {
 
 export default function DashboardPage() {
   const router = useRouter();
-  const [userName, setUserName] = useState('Najmol');
+  const [userName, setUserName] = useState('');
+  const [activeUserId, setActiveUserId] = useState<string | null>(null);
   const [isPlus, setIsPlus] = useState(false);
   const [wordLimit, setWordLimit] = useState(5000);
   const [articles, setArticles] = useState<StoredArticleSummary[]>([]);
@@ -71,52 +73,80 @@ export default function DashboardPage() {
       if (stored) setWordLimit(parseInt(stored, 10));
     }
 
-    async function loadUser() {
-      if (!isSupabaseConfigured()) return;
-      try {
-        // refreshSession() fetches fresh user_metadata from server (reflects admin changes instantly)
-        const { data } = await getSupabaseBrowserClient().auth.refreshSession();
-        const user = data.session?.user;
-        if (!cancelled && user) {
-          const metaName = user.user_metadata?.name;
-          const emailName = user.email?.split('@')[0];
-          setUserName(String(metaName || emailName || 'Najmol'));
-          setIsPlus(user.user_metadata?.plan === 'Plus');
-        }
-      } catch {
-        // fallback to cached getUser
+    async function initializeDashboard() {
+      let currentUserId: string | null = null;
+      let token: string | undefined = undefined;
+
+      if (isSupabaseConfigured()) {
         try {
-          const { data } = await getSupabaseBrowserClient().auth.getUser();
-          const metaName = data.user?.user_metadata?.name;
-          const emailName = data.user?.email?.split('@')[0];
-          if (!cancelled && data.user) {
-            setUserName(String(metaName || emailName || 'Najmol'));
-            setIsPlus(data.user.user_metadata?.plan === 'Plus');
+          const { data } = await getSupabaseBrowserClient().auth.refreshSession();
+          const user = data.session?.user;
+          token = data.session?.access_token;
+          if (!cancelled && user) {
+            currentUserId = user.id;
+            setActiveUserId(user.id);
+            const metaName = user.user_metadata?.name || user.user_metadata?.full_name;
+            const emailName = user.email?.split('@')[0];
+            setUserName(String(metaName || emailName || 'User'));
+            setIsPlus(user.user_metadata?.plan === 'Plus');
+
+            const isAdmin = user.user_metadata?.role === 'admin';
+            migrateLegacyArticlesIfAdmin(user.id, isAdmin);
           }
         } catch {
-          if (!cancelled) setUserName('Najmol');
-        }
-      }
-    }
+          try {
+            const { data } = await getSupabaseBrowserClient().auth.getUser();
+            const user = data.user;
+            if (!cancelled && user) {
+              currentUserId = user.id;
+              setActiveUserId(user.id);
+              const metaName = user.user_metadata?.name || user.user_metadata?.full_name;
+              const emailName = user.email?.split('@')[0];
+              setUserName(String(metaName || emailName || 'User'));
+              setIsPlus(user.user_metadata?.plan === 'Plus');
 
-    async function loadArticles() {
+              const isAdmin = user.user_metadata?.role === 'admin';
+              migrateLegacyArticlesIfAdmin(user.id, isAdmin);
+            }
+          } catch {
+            if (!cancelled) setUserName('User');
+          }
+        }
+      } else {
+        if (!cancelled) setUserName('User');
+      }
+
+      const userStorageKey = getUserStorageKey('generated_articles', currentUserId);
+
+      // Load user-scoped articles
       setLoadingArticles(true);
       try {
-        const response = await fetch('/api/articles');
-        const data = await response.json();
-        if (!cancelled && response.ok && data.success && Array.isArray(data.articles)) {
-          setArticles(data.articles as StoredArticleSummary[]);
-          return;
+        if (token) {
+          const response = await fetch('/api/articles', {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          const data = await response.json();
+          if (!cancelled && response.ok && data.success && Array.isArray(data.articles)) {
+            setArticles(data.articles as StoredArticleSummary[]);
+            if (typeof window !== 'undefined') {
+              localStorage.setItem(userStorageKey, JSON.stringify(data.articles));
+            }
+            return;
+          }
         }
       } catch {
-        console.warn('Dashboard article API unavailable; using browser-local articles.');
+        console.warn('Dashboard article API unavailable; using user-scoped local articles.');
       } finally {
         if (!cancelled) setLoadingArticles(false);
       }
 
       if (!cancelled) {
-        const saved = JSON.parse(localStorage.getItem('generated_articles') || '[]') as StoredArticleSummary[];
-        setArticles(saved);
+        if (typeof window !== 'undefined') {
+          const saved = JSON.parse(localStorage.getItem(userStorageKey) || '[]') as StoredArticleSummary[];
+          setArticles(saved);
+        } else {
+          setArticles([]);
+        }
       }
     }
 
@@ -142,8 +172,7 @@ export default function DashboardPage() {
       }
     }
 
-    loadUser();
-    loadArticles();
+    initializeDashboard();
     loadTrends();
 
     return () => {
@@ -177,13 +206,22 @@ export default function DashboardPage() {
     if (!id || !confirm('Are you sure you want to permanently delete this report?')) return;
 
     setArticles(current => current.filter(article => article.id !== id));
-    const localArticles = JSON.parse(localStorage.getItem('generated_articles') || '[]') as StoredArticleSummary[];
-    localStorage.setItem('generated_articles', JSON.stringify(localArticles.filter(article => article.id !== id)));
+    const storageKey = getUserStorageKey('generated_articles', activeUserId);
+    const localArticles = JSON.parse(localStorage.getItem(storageKey) || '[]') as StoredArticleSummary[];
+    localStorage.setItem(storageKey, JSON.stringify(localArticles.filter(article => article.id !== id)));
 
     try {
+      let token: string | undefined = undefined;
+      if (isSupabaseConfigured()) {
+        const { data } = await getSupabaseBrowserClient().auth.getSession();
+        token = data.session?.access_token;
+      }
       await fetch('/api/articles', {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
         body: JSON.stringify({ id }),
       });
     } catch {
@@ -210,7 +248,7 @@ export default function DashboardPage() {
       <div className="space-y-6 sm:space-y-8 p-4 sm:p-6 lg:p-8">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-xl sm:text-2xl font-black text-white">Welcome back, {userName}!</h1>
+            <h1 className="text-xl sm:text-2xl font-black text-white">Welcome back, {userName || 'User'}!</h1>
             <p className="text-xs sm:text-sm text-white/40">Here is your real content activity, latest reports, and live content intelligence.</p>
           </div>
           <Link href="/dashboard/generate" className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] hover:from-[#FF5547] hover:to-[#FF9036] px-5 sm:px-6 py-2.5 sm:py-3 font-bold text-white shadow-lg shadow-[#FF5533]/25 transition-all text-xs sm:text-sm shrink-0">

@@ -17,6 +17,8 @@ import {
   buildDocx,
   buildWordHtmlDocument,
 } from '@/lib/article-export';
+import { getSupabaseBrowserClient, isSupabaseConfigured } from '@/lib/supabase';
+import { getUserStorageKey } from '@/lib/user-storage';
 
 interface SeoAudit {
   title_has_keyword: boolean;
@@ -150,19 +152,37 @@ export default function ResultPage() {
     let cancelled = false;
 
     async function loadArticle() {
+      let token: string | undefined;
+      let userId: string | null = null;
+      if (isSupabaseConfigured()) {
+        try {
+          const { data } = await getSupabaseBrowserClient().auth.getSession();
+          token = data.session?.access_token;
+          userId = data.session?.user?.id || null;
+        } catch {
+          // ignore
+        }
+      }
+
       try {
-        const response = await fetch(`/api/articles/${articleId}`);
-        const data = await response.json();
-        if (!cancelled && response.ok && data.success && data.article) {
-          setResult(data.article);
-          return;
+        if (token) {
+          const response = await fetch(`/api/articles/${articleId}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          const data = await response.json();
+          if (!cancelled && response.ok && data.success && data.article) {
+            setResult(data.article);
+            return;
+          }
         }
       } catch {
         console.warn('Supabase article load failed; trying browser-local copy.');
       }
 
-      const saved = JSON.parse(localStorage.getItem('generated_articles') || '[]') as StoredArticleResult[];
-      const schedule = JSON.parse(localStorage.getItem('content_schedule') || '[]') as StoredArticleResult[];
+      const storageKey = getUserStorageKey('generated_articles', userId);
+      const scheduleKey = getUserStorageKey('content_schedule', userId);
+      const saved = JSON.parse(localStorage.getItem(storageKey) || '[]') as StoredArticleResult[];
+      const schedule = JSON.parse(localStorage.getItem(scheduleKey) || '[]') as StoredArticleResult[];
       const article = saved.find(a => a.id === articleId) || schedule.find(a => a.id === articleId);
 
       if (!cancelled && article && article.fullData) {

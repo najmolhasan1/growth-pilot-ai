@@ -6,6 +6,7 @@ import { Suspense, useEffect, useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, Loader2, Sparkles, Mail, KeyRound, User } from 'lucide-react';
 import { getSupabaseBrowserClient, isSupabaseConfigured } from '@/lib/supabase';
+import { clearLegacyUserData } from '@/lib/user-storage';
 import BrandLogo from '@/components/layout/BrandLogo';
 import PublicNavbar from '@/components/layout/PublicNavbar';
 import PublicFooter from '@/components/layout/PublicFooter';
@@ -81,6 +82,7 @@ function AuthContent() {
   }, [next, router]);
 
   const goNext = () => {
+    clearLegacyUserData();
     router.replace(next);
     router.refresh();
     window.setTimeout(() => {

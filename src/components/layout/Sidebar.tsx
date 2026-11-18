@@ -49,6 +49,7 @@ import { useRouter } from 'next/navigation';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { getSupabaseBrowserClient, isSupabaseConfigured } from '@/lib/supabase';
+import { clearLegacyUserData } from '@/lib/user-storage';
 import ThemeToggle from '@/components/layout/ThemeToggle';
 import { useTheme } from './ThemeProvider';
 
@@ -121,8 +122,8 @@ export default function Sidebar({ isCollapsed, setIsCollapsed }: SidebarProps) {
   const { theme, toggleTheme } = useTheme();
   const [userPlan, setUserPlan] = useState('Free Trial');
   const [trialDaysLeft, setTrialDaysLeft] = useState(7);
-  const [userName, setUserName] = useState('NAJMOL HASAN');
-  const [userNickname, setUserNickname] = useState('najmolhasan');
+  const [userName, setUserName] = useState('User');
+  const [userNickname, setUserNickname] = useState('user');
   const [avatarUrl, setAvatarUrl] = useState('');
   const [isAdmin, setIsAdmin] = useState(false);
 
@@ -293,12 +294,10 @@ export default function Sidebar({ isCollapsed, setIsCollapsed }: SidebarProps) {
 
     function applyUserMeta(user: any, sandboxState: boolean) {
       const meta = user.user_metadata;
-      if (meta?.full_name || meta?.name) {
-        setUserName(meta.full_name || meta.name);
-      }
-      if (meta?.username) {
-        setUserNickname(meta.username);
-      }
+      const derivedName = meta?.full_name || meta?.name || (user.email ? user.email.split('@')[0] : 'User');
+      setUserName(derivedName);
+      const derivedNickname = meta?.username || (user.email ? user.email.split('@')[0] : 'user');
+      setUserNickname(derivedNickname);
       if (meta?.avatar_url) {
         setAvatarUrl(meta.avatar_url);
       }
@@ -328,6 +327,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed }: SidebarProps) {
     if (isSupabaseConfigured()) {
       await getSupabaseBrowserClient().auth.signOut();
     }
+    clearLegacyUserData();
     router.push('/auth?next=/dashboard');
   };
 

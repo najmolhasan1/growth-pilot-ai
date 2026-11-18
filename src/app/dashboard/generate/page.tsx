@@ -11,6 +11,7 @@ import { getWritingMode, OptimizationIntensity, WRITING_MODES, WritingModeId, YO
 import { fetchSystemConfig } from '@/lib/admin-config';
 
 import { getSupabaseBrowserClient, isSupabaseConfigured } from '@/lib/supabase';
+import { getUserStorageKey } from '@/lib/user-storage';
 
 const modeVisuals: Record<WritingModeId, { icon: typeof Target; color: string; border: string }> = {
   'fully-optimized': { icon: Target, color: 'from-blue-500 to-cyan-500', border: 'border-blue-500/40' },
@@ -113,14 +114,31 @@ function GenerateContent() {
         console.warn(e);
       }
 
+      let token: string | undefined;
+      let userId: string | null = null;
+      if (isSupabaseConfigured()) {
+        try {
+          const { data } = await getSupabaseBrowserClient().auth.getSession();
+          token = data.session?.access_token;
+          userId = data.session?.user?.id || null;
+        } catch {
+          // ignore session fetch error
+        }
+      }
+      const userStorageKey = getUserStorageKey('generated_articles', userId);
+
       try {
-        const saved = JSON.parse(localStorage.getItem('generated_articles') || '[]') as any[];
+        const saved = JSON.parse(localStorage.getItem(userStorageKey) || '[]') as any[];
         let cloudArticles: any[] = [];
         try {
-          const response = await fetch('/api/articles');
-          const data = await response.json();
-          if (response.ok && data.success && Array.isArray(data.articles)) {
-            cloudArticles = data.articles;
+          if (token) {
+            const response = await fetch('/api/articles', {
+              headers: { Authorization: `Bearer ${token}` },
+            });
+            const data = await response.json();
+            if (response.ok && data.success && Array.isArray(data.articles)) {
+              cloudArticles = data.articles;
+            }
           }
         } catch {
           // ignore
@@ -191,7 +209,21 @@ function GenerateContent() {
       await new Promise(resolve => setTimeout(resolve, 500));
 
       let articleId = Math.random().toString(36).slice(2, 11);
-      const savedArticles = JSON.parse(localStorage.getItem('generated_articles') || '[]');
+
+      let saveToken: string | undefined;
+      let saveUserId: string | null = null;
+      if (isSupabaseConfigured()) {
+        try {
+          const { data } = await getSupabaseBrowserClient().auth.getSession();
+          saveToken = data.session?.access_token;
+          saveUserId = data.session?.user?.id || null;
+        } catch {
+          // ignore session fetch error
+        }
+      }
+      const saveStorageKey = getUserStorageKey('generated_articles', saveUserId);
+
+      const savedArticles = JSON.parse(localStorage.getItem(saveStorageKey) || '[]');
       const newArticle = {
         id: articleId,
         title: json.data.seo_title,
@@ -206,7 +238,10 @@ function GenerateContent() {
       try {
         const saveResponse = await fetch('/api/articles', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            ...(saveToken ? { Authorization: `Bearer ${saveToken}` } : {}),
+          },
           body: JSON.stringify(newArticle),
         });
         const saved = await saveResponse.json();
@@ -215,10 +250,10 @@ function GenerateContent() {
           newArticle.id = articleId;
         }
       } catch {
-        console.warn('Supabase article save failed; keeping browser-local copy.');
+        console.warn('Supabase article save failed; keeping user-scoped local copy.');
       }
 
-      localStorage.setItem('generated_articles', JSON.stringify([newArticle, ...savedArticles]));
+      localStorage.setItem(saveStorageKey, JSON.stringify([newArticle, ...savedArticles]));
       router.push(`/dashboard/generate/result?id=${articleId}`);
     } catch {
       setError('Network error. Please check your connection.');

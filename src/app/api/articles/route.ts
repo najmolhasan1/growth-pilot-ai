@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getSupabaseServerClient } from '@/lib/supabase';
+import { getRequestUserId } from '@/lib/supabase-auth';
 
 type ArticlePayload = {
   id?: string;
@@ -70,19 +71,41 @@ function toArticleSummary(row: Record<string, unknown>) {
   };
 }
 
-export async function GET() {
+export async function GET(request: Request) {
+  const auth = await getRequestUserId(request);
+  if (!auth.userId) {
+    return NextResponse.json({ success: false, error: auth.error }, { status: auth.status });
+  }
+
   const supabase = getSupabaseServerClient();
   if (!supabase) {
     return NextResponse.json({ success: false, error: 'Supabase is not configured.' }, { status: 503 });
   }
 
-  const { data, error } = await supabase
+  const isAdmin = auth.user?.user_metadata?.role === 'admin';
+
+  let query = supabase
     .from('articles')
     .select('*')
     .order('created_at', { ascending: false })
     .limit(100);
 
+  // If user is admin, allow viewing their own or legacy unassigned articles.
+  // For new or regular users, strictly isolate to their own userId.
+  if (isAdmin) {
+    query = query.or(`user_id.eq.${auth.userId},user_id.is.null`);
+  } else {
+    query = query.eq('user_id', auth.userId);
+  }
+
+  const { data, error } = await query;
+
   if (error) {
+    // If the database table hasn't added user_id column yet, do not leak other users' articles to a new user
+    if (error.code === '42703' || error.message?.toLowerCase().includes('user_id')) {
+      console.warn('Articles table is missing user_id column; returning empty articles for user safety.');
+      return NextResponse.json({ success: true, articles: [] });
+    }
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 
@@ -90,6 +113,11 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  const auth = await getRequestUserId(request);
+  if (!auth.userId) {
+    return NextResponse.json({ success: false, error: auth.error }, { status: auth.status });
+  }
+
   const supabase = getSupabaseServerClient();
   if (!supabase) {
     return NextResponse.json({ success: false, error: 'Supabase is not configured.' }, { status: 503 });
@@ -103,34 +131,49 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: false, error: 'Article content is missing.' }, { status: 400 });
   }
 
-  const { data: inserted, error } = await supabase
+  const insertData: Record<string, unknown> = {
+    user_id: auth.userId,
+    keyword: payload.keyword || article?.keyword || '',
+    mode: article?.mode || null,
+    mode_name: article?.mode_name || null,
+    language: typeof data.generation_settings === 'object' && data.generation_settings && 'language' in data.generation_settings
+      ? String((data.generation_settings as { language?: string }).language || '')
+      : null,
+    seo_title: data.seo_title || payload.title || 'Untitled Article',
+    meta_description: data.meta_description || '',
+    slug: data.slug || payload.slug || '',
+    article_html: data.article_html,
+    word_count: data.word_count || payload.wordCount || 0,
+    keyword_density_percent: data.keyword_density_percent || 0,
+    og_tags: data.og_tags || {},
+    schema: data.schema || {},
+    table_of_contents: data.table_of_contents || [],
+    lsi_keywords: data.lsi_keywords || [],
+    images: data.images || [],
+    internal_link_placeholders: data.internal_link_placeholders || [],
+    external_link_placeholders: data.external_link_placeholders || [],
+    seo_audit: data.seo_audit || {},
+    mode_audit: data.mode_audit || null,
+    generation_settings: data.generation_settings || null,
+  };
+
+  let { data: inserted, error } = await supabase
     .from('articles')
-    .insert({
-      keyword: payload.keyword || article?.keyword || '',
-      mode: article?.mode || null,
-      mode_name: article?.mode_name || null,
-      language: typeof data.generation_settings === 'object' && data.generation_settings && 'language' in data.generation_settings
-        ? String((data.generation_settings as { language?: string }).language || '')
-        : null,
-      seo_title: data.seo_title || payload.title || 'Untitled Article',
-      meta_description: data.meta_description || '',
-      slug: data.slug || payload.slug || '',
-      article_html: data.article_html,
-      word_count: data.word_count || payload.wordCount || 0,
-      keyword_density_percent: data.keyword_density_percent || 0,
-      og_tags: data.og_tags || {},
-      schema: data.schema || {},
-      table_of_contents: data.table_of_contents || [],
-      lsi_keywords: data.lsi_keywords || [],
-      images: data.images || [],
-      internal_link_placeholders: data.internal_link_placeholders || [],
-      external_link_placeholders: data.external_link_placeholders || [],
-      seo_audit: data.seo_audit || {},
-      mode_audit: data.mode_audit || null,
-      generation_settings: data.generation_settings || null,
-    })
+    .insert(insertData)
     .select('*')
     .single();
+
+  // If column user_id doesn't exist yet on unmigrated Supabase instance, fall back to insert without user_id
+  if (error && (error.code === '42703' || error.message?.toLowerCase().includes('user_id'))) {
+    delete insertData.user_id;
+    const retry = await supabase
+      .from('articles')
+      .insert(insertData)
+      .select('*')
+      .single();
+    inserted = retry.data;
+    error = retry.error;
+  }
 
   if (error) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
@@ -140,6 +183,11 @@ export async function POST(request: Request) {
 }
 
 export async function DELETE(request: Request) {
+  const auth = await getRequestUserId(request);
+  if (!auth.userId) {
+    return NextResponse.json({ success: false, error: auth.error }, { status: auth.status });
+  }
+
   const supabase = getSupabaseServerClient();
   if (!supabase) {
     return NextResponse.json({ success: false, error: 'Supabase is not configured.' }, { status: 503 });
@@ -150,7 +198,13 @@ export async function DELETE(request: Request) {
     return NextResponse.json({ success: false, error: 'Article id is required.' }, { status: 400 });
   }
 
-  const { error } = await supabase.from('articles').delete().eq('id', id);
+  const isAdmin = auth.user?.user_metadata?.role === 'admin';
+  let query = supabase.from('articles').delete().eq('id', id);
+  if (!isAdmin) {
+    query = query.eq('user_id', auth.userId);
+  }
+
+  const { error } = await query;
   if (error) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }

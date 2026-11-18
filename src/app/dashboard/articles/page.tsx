@@ -7,6 +7,8 @@ import {
   Trash2, RefreshCw, Plus
 } from 'lucide-react';
 import Link from 'next/link';
+import { getSupabaseBrowserClient, isSupabaseConfigured } from '@/lib/supabase';
+import { getUserStorageKey, migrateLegacyArticlesIfAdmin } from '@/lib/user-storage';
 
 interface Article {
   id: string;
@@ -35,34 +37,68 @@ export default function MyArticles() {
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [activeUserId, setActiveUserId] = useState<string | null>(null);
 
   async function loadArticles() {
     try {
+      let token: string | undefined;
+      let userId: string | null = null;
+
+      if (isSupabaseConfigured()) {
+        try {
+          const { data } = await getSupabaseBrowserClient().auth.getSession();
+          const user = data.session?.user;
+          token = data.session?.access_token;
+          if (user) {
+            userId = user.id;
+            setActiveUserId(user.id);
+            const isAdmin = user.user_metadata?.role === 'admin';
+            migrateLegacyArticlesIfAdmin(user.id, isAdmin);
+          }
+        } catch {
+          // ignore session fetch error
+        }
+      }
+
+      const storageKey = getUserStorageKey('generated_articles', userId);
+      const scheduleKey = getUserStorageKey('content_schedule', userId);
+
       try {
-        const response = await fetch('/api/articles');
-        const data = await response.json();
-        if (response.ok && data.success && Array.isArray(data.articles)) {
-          setArticles(data.articles);
-          return;
+        if (token) {
+          const response = await fetch('/api/articles', {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          const data = await response.json();
+          if (response.ok && data.success && Array.isArray(data.articles)) {
+            setArticles(data.articles);
+            if (typeof window !== 'undefined') {
+              localStorage.setItem(storageKey, JSON.stringify(data.articles));
+            }
+            return;
+          }
         }
       } catch {
         console.warn('Supabase article library unavailable; using browser-local library.');
       }
 
-      const generatedStore = JSON.parse(localStorage.getItem('generated_articles') || '[]') as Article[];
-      const schedule = JSON.parse(localStorage.getItem('content_schedule') || '[]') as ScheduledArticle[];
-      
-      const combined: Article[] = [...generatedStore];
-      schedule.forEach(p => {
-        if ((p.status === 'generated' || p.status === 'published') && !combined.some(a => a.title === p.title)) {
-          combined.push({
-            id: p.id, title: p.title, keyword: p.keyword || 'Auto-Pilot', date: p.date, wordCount: p.wordCount || 0,
-            status: p.status === 'published' ? 'published' : 'draft', slug: p.slug || '#', fullData: p.fullData || null
-          });
-        }
-      });
+      if (typeof window !== 'undefined') {
+        const generatedStore = JSON.parse(localStorage.getItem(storageKey) || '[]') as Article[];
+        const schedule = JSON.parse(localStorage.getItem(scheduleKey) || '[]') as ScheduledArticle[];
+        
+        const combined: Article[] = [...generatedStore];
+        schedule.forEach(p => {
+          if ((p.status === 'generated' || p.status === 'published') && !combined.some(a => a.title === p.title)) {
+            combined.push({
+              id: p.id, title: p.title, keyword: p.keyword || 'Auto-Pilot', date: p.date, wordCount: p.wordCount || 0,
+              status: p.status === 'published' ? 'published' : 'draft', slug: p.slug || '#', fullData: p.fullData || null
+            });
+          }
+        });
 
-      setArticles(combined);
+        setArticles(combined);
+      } else {
+        setArticles([]);
+      }
     } catch (err) {
       console.error('Error loading articles:', err);
     } finally {
@@ -81,16 +117,33 @@ export default function MyArticles() {
     router.push(`/dashboard/generate/result?id=${id}`);
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (confirm('Permanently delete this article report?')) {
       const updated = articles.filter(a => a.id !== id);
       setArticles(updated);
-      localStorage.setItem('generated_articles', JSON.stringify(updated.filter(a => a.fullData)));
-      fetch('/api/articles', {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id }),
-      }).catch(() => console.warn('Supabase article delete failed.'));
+      
+      const storageKey = getUserStorageKey('generated_articles', activeUserId);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(storageKey, JSON.stringify(updated.filter(a => a.fullData)));
+      }
+
+      try {
+        let token: string | undefined;
+        if (isSupabaseConfigured()) {
+          const { data } = await getSupabaseBrowserClient().auth.getSession();
+          token = data.session?.access_token;
+        }
+        await fetch('/api/articles', {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+          body: JSON.stringify({ id }),
+        });
+      } catch {
+        console.warn('Supabase article delete failed.');
+      }
     }
   };
 

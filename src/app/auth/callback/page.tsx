@@ -3,6 +3,7 @@
 import { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { getSupabaseBrowserClient, isSupabaseConfigured } from '@/lib/supabase';
+import { clearLegacyUserData } from '@/lib/user-storage';
 import { Loader2 } from 'lucide-react';
 
 function CallbackContent() {
@@ -42,6 +43,7 @@ function CallbackContent() {
         if (sessionError) throw sessionError;
 
         if (session && isSubscribed) {
+          clearLegacyUserData();
           router.replace(next);
           router.refresh();
           setTimeout(() => {
@@ -51,6 +53,7 @@ function CallbackContent() {
           // Listen for session detection from hash fragments
           const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, currentSession) => {
             if (currentSession && isSubscribed) {
+              clearLegacyUserData();
               subscription.unsubscribe();
               router.replace(next);
               window.location.assign(next);

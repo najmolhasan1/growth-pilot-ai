@@ -240,7 +240,7 @@ export default function DashboardPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [activeCategory, setActiveCategory] = useState<'All' | 'SEO Workspace' | 'Growth Suite'>('All');
-  const [userName, setUserName] = useState('Najmol');
+  const [userName, setUserName] = useState('User');
 
   const suggestionsRef = useRef<HTMLDivElement>(null);
 
@@ -251,18 +251,18 @@ export default function DashboardPage() {
         const { data } = await getSupabaseBrowserClient().auth.refreshSession();
         const user = data.session?.user;
         if (user) {
-          const metaName = user.user_metadata?.name;
+          const metaName = user.user_metadata?.name || user.user_metadata?.full_name;
           const emailName = user.email?.split('@')[0];
-          setUserName(String(metaName || emailName || 'Najmol'));
+          setUserName(String(metaName || emailName || 'User'));
         }
       } catch {
         try {
           const { data } = await getSupabaseBrowserClient().auth.getUser();
-          const metaName = data.user?.user_metadata?.name;
+          const metaName = data.user?.user_metadata?.name || data.user?.user_metadata?.full_name;
           const emailName = data.user?.email?.split('@')[0];
-          setUserName(String(metaName || emailName || 'Najmol'));
+          setUserName(String(metaName || emailName || 'User'));
         } catch {
-          setUserName('Najmol');
+          setUserName('User');
         }
       }
     }
