@@ -31,6 +31,7 @@ import {
   PenTool
 } from 'lucide-react';
 import { getSupabaseBrowserClient, isSupabaseConfigured } from '@/lib/supabase';
+import { WorkspacePage, WorkspaceHeader, WorkspaceBody, ToolSwitcher, Panel, Field, Segmented, EmptyState, Notice, ui, cx } from '@/components/workspace/ui';
 
 type ToolId = 
   | 'viral_caption' 
@@ -51,38 +52,38 @@ interface ToolDef {
 const TOOLS: ToolDef[] = [
   { 
     id: 'viral_caption', 
-    label: 'Viral Captions & Hooks', 
+    label: 'Captions & Hooks', 
     icon: Flame, 
     description: '5 psychological hook types + high-converting captions tailored by platform.',
     badge: 'Popular'
   },
   { 
     id: 'carousel_planner', 
-    label: 'Carousel & Post Planner', 
+    label: 'Carousel', 
     icon: Layers, 
     description: 'Slide-by-slide breakdowns with exact copy and designer visual cues.' 
   },
   { 
     id: 'reels_shorts_script', 
-    label: 'Reels & Shorts Scripts', 
+    label: 'Reels Script', 
     icon: Video, 
     description: 'Timestamped 15-60s short-form scripts with on-screen text overlays & B-roll cues.' 
   },
   { 
     id: 'video_ideas', 
-    label: 'Video Ideas Generator', 
+    label: 'Video Ideas', 
     icon: Lightbulb, 
     description: '8-10 high-retention video concepts, click-worthy titles & talking outlines.' 
   },
   { 
     id: 'social_article', 
-    label: 'Social Articles & Newsletters', 
+    label: 'Article', 
     icon: FileText, 
     description: 'Deep-dive LinkedIn Pulse, Medium, or newsletter editions with zero fluff.' 
   },
   { 
     id: 'repurpose_pack', 
-    label: '1-to-Many Repurposer', 
+    label: 'Repurpose', 
     icon: Repeat, 
     description: 'Turn 1 topic, link, or note into a 5-platform complete content bundle.',
     badge: '10x Speed'
@@ -118,7 +119,7 @@ export default function SocialMediaWorkspacePage() {
   const [audience, setAudience] = useState('');
   const [language, setLanguage] = useState<'English' | 'Bengali'>('English');
   const [sourceContent, setSourceContent] = useState('');
-  const [duration, setDuration] = useState('30-45 seconds');
+  const [duration, setDuration] = useState('30-45s (Standard)');
 
   const [brandProfile, setBrandProfile] = useState<Record<string, string>>({});
   const [isSyncingBrand, setIsSyncingBrand] = useState(false);
@@ -458,479 +459,210 @@ export default function SocialMediaWorkspacePage() {
     URL.revokeObjectURL(url);
   };
 
+  const currentTool = TOOLS.find(t => t.id === activeTool) || TOOLS[0];
+  const textOut = generatedData ? (typeof generatedData === 'string' ? generatedData : JSON.stringify(generatedData, null, 2)) : '';
+
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#030303] p-4 md:p-8">
-      {/* Header */}
-      <div className="max-w-7xl mx-auto mb-8">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-orange-500/10 text-[#FF5533] border border-orange-500/30">
-                AI Social Suite
-              </span>
-              <span className="text-xs text-slate-500 dark:text-slate-400">
-                Anti-AI Slop • Native Bangla & English
-              </span>
-            </div>
-            <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-              Social Media Workspace
-            </h1>
-            <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
-              Produce viral hooks, platform-optimized captions, carousel scripts, and video ideas tailored for high retention and conversions.
-            </p>
-          </div>
+    <WorkspacePage>
+      <WorkspaceHeader
+        title="Social Workspace"
+        crumbs={[{ label: 'Growth', href: '/dashboard' }]}
+        actions={
+          <button type="button" onClick={handleAutofillBrand} className={ui.btnSecondary} title="Fill audience, offer and language from Brand Brain">
+            <Brain size={14} className={isSyncingBrand ? 'animate-spin' : ''} />
+            <span className="hidden sm:inline">Use Brand Brain</span>
+          </button>
+        }
+      />
 
-          <div className="flex items-center gap-3">
-            <button
-              onClick={handleAutofillBrand}
-              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold bg-white dark:bg-[#0d0d0f] border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-200 hover:border-[#FF5533]/50 transition-all shadow-sm"
-              title="Pull audience, tone and offer from Brand Brain"
-            >
-              <Brain className={`w-4 h-4 text-[#FF5533] dark:text-[#FF7A45] ${isSyncingBrand ? 'animate-spin' : ''}`} />
-              Sync Brand Brain
-            </button>
-          </div>
-        </div>
+      <WorkspaceBody>
+        <ToolSwitcher
+          items={TOOLS.map(t => ({ id: t.id, label: t.label, icon: t.icon }))}
+          value={activeTool}
+          onChange={id => {
+            setActiveTool(id);
+            setGeneratedData(null);
+            setError(null);
+          }}
+        />
 
-        {/* Tool Navigation Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2.5 mt-6">
-          {TOOLS.map((tool) => {
-            const Icon = tool.icon;
-            const isActive = activeTool === tool.id;
-            return (
-              <button
-                key={tool.id}
-                onClick={() => {
-                  setActiveTool(tool.id);
-                  setGeneratedData(null);
-                  setError(null);
-                }}
-                className={`relative flex flex-col items-start p-3.5 rounded-2xl border text-left transition-all ${
-                  isActive
-                    ? 'bg-white dark:bg-[#0d0d0f] border-[#FF5533] dark:border-[#FF5533] shadow-md shadow-[#FF5533]/15 ring-2 ring-[#FF5533]/20'
-                    : 'bg-white/60 dark:bg-[#0d0d0f]/60 border-slate-200 dark:border-white/[0.06] hover:bg-white dark:hover:bg-slate-900 text-slate-600 dark:text-slate-400'
-                }`}
-              >
-                {tool.badge && (
-                  <span className="absolute top-2 right-2 text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
-                    {tool.badge}
-                  </span>
-                )}
-                <div className={`p-2 rounded-xl mb-2 ${isActive ? 'bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] text-white shadow-sm shadow-[#FF5533]/25' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'}`}>
-                  <Icon className="w-4 h-4" />
-                </div>
-                <div className="font-semibold text-xs text-slate-900 dark:text-white leading-tight">
-                  {tool.label}
-                </div>
-              </button>
-            );
-          })}
-        </div>
-      </div>
+        <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-12">
+          {/* Input */}
+          <Panel title={currentTool.label} className="lg:col-span-5" bodyClassName="space-y-4">
+            {activeTool !== 'repurpose_pack' ? (
+              <Field label="Topic">
+                <input
+                  type="text"
+                  value={topic}
+                  onChange={e => setTopic(e.target.value)}
+                  placeholder="e.g. 5 SEO mistakes small shops make"
+                  className={ui.input}
+                />
+              </Field>
+            ) : (
+              <Field label="Source content">
+                <textarea
+                  rows={6}
+                  value={sourceContent}
+                  onChange={e => setSourceContent(e.target.value)}
+                  placeholder="Paste a blog post, transcript or notes"
+                  className={ui.textarea}
+                />
+              </Field>
+            )}
 
-      {/* Main Workspace Body */}
-      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6">
-        
-        {/* Left Column: Smart Inputs */}
-        <div className="lg:col-span-5 flex flex-col gap-4">
-          <div className="rounded-3xl border border-slate-200/80 dark:border-white/10 bg-white/95 dark:bg-[#0c0c0e]/95 backdrop-blur-md p-5 sm:p-7 shadow-xl dark:shadow-2xl dark:shadow-black/40 space-y-6">
-            
-            {/* Header: Tool Identity & Brand Sync */}
-            <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-white/[0.08]">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] flex items-center justify-center text-white shadow-md shadow-[#FF5533]/20">
-                  <Sparkles className="w-5 h-5" />
-                </div>
-                <div>
-                  <h2 className="text-sm sm:text-base font-black text-slate-900 dark:text-white leading-tight">
-                    {TOOLS.find(t => t.id === activeTool)?.label}
-                  </h2>
-                  <p className="text-[11px] text-slate-500 dark:text-white/40 mt-0.5 line-clamp-1">
-                    {TOOLS.find(t => t.id === activeTool)?.description}
-                  </p>
-                </div>
-              </div>
-
-              <button
-                type="button"
-                onClick={handleAutofillBrand}
-                className="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-bold bg-[#FF5533]/10 hover:bg-[#FF5533]/20 border border-[#FF5533]/30 text-[#FF5533] dark:text-[#FF7A45] transition-all shadow-sm"
-                title="Auto-fill audience, tone and offer from Brand Brain"
-              >
-                <Brain className={`w-3.5 h-3.5 ${isSyncingBrand ? 'animate-spin' : ''}`} />
-                <span className="hidden sm:inline">Sync Brand</span>
-              </button>
-            </div>
-
-            {/* SECTION 1: CONTENT, TOPIC & VOICE CONTEXT */}
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-black uppercase tracking-wider text-slate-900 dark:text-white/90 flex items-center gap-1.5">
-                  <PenTool className="w-3.5 h-3.5 text-[#FF5533]" />
-                  1. Content & Topic Details
-                </span>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-white/10 text-slate-500 dark:text-white/60">
-                  Required
-                </span>
-              </div>
-
-              {activeTool !== 'repurpose_pack' ? (
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
-                    Topic / Headline / Core Angle <span className="text-[#FF5533]">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={topic}
-                    onChange={(e) => setTopic(e.target.value)}
-                    placeholder="e.g. 5 Costly SEO Mistakes in 2026, or Summer Handbag Launch"
-                    className="w-full text-xs sm:text-sm px-4 py-3 rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50/80 dark:bg-[#030303] text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-[#FF5533]/25 focus:border-[#FF5533] transition"
-                  />
-                </div>
-              ) : (
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
-                    Source Content, Link or Raw Notes <span className="text-[#FF5533]">*</span>
-                  </label>
-                  <textarea
-                    rows={5}
-                    value={sourceContent}
-                    onChange={(e) => setSourceContent(e.target.value)}
-                    placeholder="Paste blog content, video transcript, or raw campaign notes here to transform into 5 multi-channel posts..."
-                    className="w-full text-xs sm:text-sm px-4 py-3 rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50/80 dark:bg-[#030303] text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-[#FF5533]/25 focus:border-[#FF5533] resize-y transition"
-                  />
-                </div>
-              )}
-
-              {/* CONTEXT BOX WITH VOICE TYPING */}
-              {activeTool !== 'repurpose_pack' && (
-                <div className="space-y-2 pt-1">
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
-                      Campaign Context, Offer Details & Talking Points
-                    </label>
-                    <p className="text-[11px] text-slate-500 dark:text-white/40">
-                      Add pricing, specific discount, backstory, pain points, or speak directly via mic.
-                    </p>
-                  </div>
-
-                  {/* Voice Action Bar */}
-                  <div className="flex flex-wrap items-center justify-between gap-2 p-2.5 rounded-2xl bg-slate-100/70 dark:bg-white/[0.04] border border-slate-200 dark:border-white/10">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      {!isRecording && !isTranscribing && (
-                        <button
-                          type="button"
-                          onClick={startVoiceRecording}
-                          className="group inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FF5533]/15 hover:bg-[#FF5533]/25 border border-[#FF5533]/40 text-[#FF5533] dark:text-[#FF8A00] text-xs font-bold transition shadow-sm"
-                        >
-                          <Mic size={14} className="group-hover:scale-110 transition-transform" />
-                          <span>Voice Type (Bangla / Banglish / English)</span>
-                        </button>
-                      )}
-
-                      {isRecording && (
-                        <div className="inline-flex items-center gap-2 flex-wrap">
-                          <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-rose-500/15 border border-rose-500/40 text-rose-500 dark:text-rose-300 text-xs font-semibold animate-pulse">
-                            <span className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping" />
-                            <span>Recording: {formatTimer(recordSeconds)}</span>
-                          </div>
-
-                          <button
-                            type="button"
-                            onClick={stopVoiceRecording}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:brightness-110 text-white text-xs font-black shadow-md transition"
-                          >
-                            <Square size={11} className="fill-white" />
-                            <span>Done & Transcribe</span>
-                          </button>
-
-                          <button
-                            type="button"
-                            onClick={cancelVoiceRecording}
-                            title="Cancel recording"
-                            className="inline-flex items-center p-2 rounded-xl bg-slate-200/50 dark:bg-white/5 hover:bg-slate-300 dark:hover:bg-white/10 text-slate-500 dark:text-white/40 hover:text-slate-900 dark:hover:text-white transition text-xs"
-                          >
-                            <Trash2 size={13} />
-                          </button>
-                        </div>
-                      )}
-
-                      {isTranscribing && (
-                        <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-indigo-500/15 border border-indigo-500/30 text-indigo-600 dark:text-indigo-300 text-xs font-medium">
-                          <Loader2 size={14} className="animate-spin text-indigo-500 dark:text-indigo-400" />
-                          <span>AI transcribing voice in Bangla/Banglish/English...</span>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="flex items-center gap-2 text-[11px] text-slate-500 dark:text-white/40">
-                      <Volume2 size={13} className="hidden sm:inline opacity-60" />
-                      <span className="hidden sm:inline">Bangla & mixed Banglish supported</span>
-                      {context && (
-                        <button
-                          type="button"
-                          onClick={() => setContext('')}
-                          className="text-[10px] text-slate-400 hover:text-slate-700 dark:text-white/40 dark:hover:text-white underline underline-offset-2 ml-1 transition"
-                        >
-                          Clear
-                        </button>
-                      )}
-                    </div>
-                  </div>
-
-                  <textarea
-                    rows={4}
-                    value={context}
-                    onChange={(e) => setContext(e.target.value)}
-                    placeholder="Provide additional context: What makes this special? Who is it for? Any promotion, discount code, personal story, or key angles? (Or tap the mic to speak in Bangla / Banglish)..."
-                    className="w-full text-xs sm:text-sm px-4 py-3 rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50/80 dark:bg-[#030303] text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-[#FF5533]/25 focus:border-[#FF5533] resize-y transition"
-                  />
-
-                  {voiceSuccessMsg && (
-                    <div className="flex items-center gap-2 text-xs text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 p-2.5 rounded-xl">
-                      <CheckCircle2 size={15} className="shrink-0 text-emerald-500" />
-                      <span>{voiceSuccessMsg}</span>
-                    </div>
-                  )}
-
-                  {voiceErrorMsg && (
-                    <div className="flex items-center gap-2 text-xs text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/20 p-2.5 rounded-xl">
-                      <AlertCircle size={15} className="shrink-0" />
-                      <span>{voiceErrorMsg}</span>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-
-            {/* SECTION 2: CHANNEL & VOICE POSITIONING */}
-            <div className="space-y-4 pt-3 border-t border-slate-100 dark:border-white/[0.08]">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-black uppercase tracking-wider text-slate-900 dark:text-white/90 flex items-center gap-1.5">
-                  <Target className="w-3.5 h-3.5 text-[#FF5533]" />
-                  2. Channel, Tone & Positioning
-                </span>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
-                    Publishing Platform
-                  </label>
-                  <select
-                    value={platform}
-                    onChange={(e) => setPlatform(e.target.value)}
-                    className="w-full text-xs sm:text-sm px-3.5 py-2.5 rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50/80 dark:bg-[#030303] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#FF5533]/25 focus:border-[#FF5533] transition"
-                  >
-                    {PLATFORMS.map((p) => (
-                      <option key={p} value={p}>{p}</option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
-                    Voice Tone
-                  </label>
-                  <select
-                    value={tone}
-                    onChange={(e) => setTone(e.target.value)}
-                    className="w-full text-xs sm:text-sm px-3.5 py-2.5 rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50/80 dark:bg-[#030303] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#FF5533]/25 focus:border-[#FF5533] transition"
-                  >
-                    {TONES.map((t) => (
-                      <option key={t} value={t}>{t}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              {/* Target Audience & Goal */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
-                    Target Audience / Persona
-                  </label>
-                  <input
-                    type="text"
-                    value={audience}
-                    onChange={(e) => setAudience(e.target.value)}
-                    placeholder="e.g. Freelancers, Tech students, SME founders"
-                    className="w-full text-xs sm:text-sm px-3.5 py-2.5 rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50/80 dark:bg-[#030303] text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-[#FF5533]/25 focus:border-[#FF5533] transition"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
-                    Call-to-Action / Goal
-                  </label>
-                  <input
-                    type="text"
-                    value={goal}
-                    onChange={(e) => setGoal(e.target.value)}
-                    placeholder="e.g. Comment 'GUIDE', DMs, Website Clicks"
-                    className="w-full text-xs sm:text-sm px-3.5 py-2.5 rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50/80 dark:bg-[#030303] text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-[#FF5533]/25 focus:border-[#FF5533] transition"
-                  />
-                </div>
-              </div>
-
-              {/* Video duration if reels */}
-              {activeTool === 'reels_shorts_script' && (
-                <div className="space-y-1.5 pt-1">
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
-                    Video Target Duration
-                  </label>
-                  <div className="grid grid-cols-3 gap-2">
-                    {['15-30s (Rapid)', '30-45s (Standard)', '60s (Deep)'].map((d) => (
-                      <button
-                        key={d}
-                        type="button"
-                        onClick={() => setDuration(d)}
-                        className={`py-2 px-2 text-xs font-bold rounded-xl border transition-all text-center ${
-                          duration === d
-                            ? 'bg-[#FF5533]/15 border-[#FF5533] text-[#FF5533] dark:text-[#FF7A45] shadow-sm'
-                            : 'border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5'
-                        }`}
-                      >
-                        {d}
+            {activeTool !== 'repurpose_pack' && (
+              <div>
+                <div className="mb-1.5 flex items-center justify-between">
+                  <span className="text-xs font-medium text-muted-foreground">Details</span>
+                  <div className="flex items-center gap-1">
+                    {!isRecording && !isTranscribing && (
+                      <button type="button" onClick={startVoiceRecording} className={ui.btnGhost} title="Speak in Bangla, Banglish or English">
+                        <Mic size={13} /> Voice
                       </button>
-                    ))}
+                    )}
+                    {isRecording && (
+                      <>
+                        <span className="inline-flex items-center gap-1.5 px-2 text-xs font-medium tabular-nums text-red-500">
+                          <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-red-500" />
+                          {formatTimer(recordSeconds)}
+                        </span>
+                        <button type="button" onClick={stopVoiceRecording} className={ui.btnGhost}>
+                          <Square size={11} className="fill-current" /> Done
+                        </button>
+                        <button type="button" onClick={cancelVoiceRecording} className={ui.btnGhost} title="Cancel">
+                          <Trash2 size={13} />
+                        </button>
+                      </>
+                    )}
+                    {isTranscribing && (
+                      <span className="inline-flex items-center gap-1.5 px-2 text-xs text-muted-foreground">
+                        <Loader2 size={13} className="animate-spin" /> Transcribing
+                      </span>
+                    )}
+                    {context && !isRecording && (
+                      <button type="button" onClick={() => setContext('')} className={ui.btnGhost}>
+                        Clear
+                      </button>
+                    )}
                   </div>
                 </div>
-              )}
-            </div>
-
-            {/* SECTION 3: LANGUAGE PREFERENCE */}
-            <div className="space-y-3 pt-3 border-t border-slate-100 dark:border-white/[0.08]">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-black uppercase tracking-wider text-slate-900 dark:text-white/90 flex items-center gap-1.5">
-                  <Globe className="w-3.5 h-3.5 text-[#FF5533]" />
-                  3. Output Language
-                </span>
-              </div>
-
-              <div className="grid grid-cols-2 gap-2.5">
-                <button
-                  type="button"
-                  onClick={() => setLanguage('English')}
-                  className={`py-2.5 px-3.5 text-xs font-bold rounded-2xl border transition-all flex items-center justify-center gap-2 ${
-                    language === 'English'
-                      ? 'bg-[#FF5533]/15 border-[#FF5533] text-[#FF5533] dark:text-[#FF7A45] shadow-sm'
-                      : 'border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5'
-                  }`}
-                >
-                  <span>English (Global Copy)</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setLanguage('Bengali')}
-                  className={`py-2.5 px-3.5 text-xs font-bold rounded-2xl border transition-all flex items-center justify-center gap-2 ${
-                    language === 'Bengali'
-                      ? 'bg-[#FF5533]/15 border-[#FF5533] text-[#FF5533] dark:text-[#FF7A45] shadow-sm'
-                      : 'border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5'
-                  }`}
-                >
-                  <span>বাংলা (Natural Banglish)</span>
-                </button>
-              </div>
-            </div>
-
-            {/* ERROR DISPLAY */}
-            {error && (
-              <div className="flex items-center gap-2 p-3.5 rounded-2xl text-xs bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-900">
-                <AlertCircle size={15} className="shrink-0" />
-                <span>{error}</span>
+                <textarea
+                  rows={4}
+                  value={context}
+                  onChange={e => setContext(e.target.value)}
+                  placeholder="Offer, price, story, pain points"
+                  className={ui.textarea}
+                />
+                {voiceSuccessMsg && <div className="mt-2"><Notice tone="success">{voiceSuccessMsg}</Notice></div>}
+                {voiceErrorMsg && <div className="mt-2"><Notice>{voiceErrorMsg}</Notice></div>}
               </div>
             )}
 
-            {/* SUBMIT CTA */}
-            <button
-              type="button"
-              disabled={isGenerating}
-              onClick={handleGenerate}
-              className="w-full py-4 px-5 rounded-2xl font-black text-xs sm:text-sm bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] hover:brightness-110 active:scale-[0.99] text-white transition-all shadow-xl shadow-[#FF5533]/25 flex items-center justify-center gap-2.5 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isGenerating ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>Generating Human-Grade Social Copy...</span>
-                </>
-              ) : (
-                <>
-                  <Sparkles className="w-4 h-4" />
-                  <span>Generate {TOOLS.find(t => t.id === activeTool)?.label}</span>
-                </>
-              )}
-            </button>
-
-          </div>
-        </div>
-
-        {/* Right Column: Dynamic Formatted Output */}
-        <div className="lg:col-span-7 flex flex-col gap-4">
-          <div className="bg-white dark:bg-[#0d0d0f] rounded-2xl border border-slate-200 dark:border-white/10 p-5 shadow-sm min-h-[540px] flex flex-col">
-            
-            {/* Output Header */}
-            <div className="flex items-center justify-between pb-3 mb-4 border-b border-slate-100 dark:border-white/[0.06]">
-              <div className="flex items-center gap-2">
-                <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-                <span className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
-                  Live Social Canvas
-                </span>
-              </div>
-
-              {generatedData && (
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => copyToClipboard(typeof generatedData === 'string' ? generatedData : JSON.stringify(generatedData, null, 2), 'all')}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition-all"
-                  >
-                    {copiedKey === 'all' ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
-                    Copy All
-                  </button>
-                  <button
-                    onClick={downloadAsMarkdown}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition-all"
-                  >
-                    <Download className="w-3.5 h-3.5" />
-                    MD
-                  </button>
-                  <button
-                    onClick={handleSaveAsset}
-                    disabled={isSaved}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-orange-500/10 text-[#FF5533] dark:text-[#FF7A45] hover:bg-orange-500/20 transition-all"
-                  >
-                    <BookmarkCheck className="w-3.5 h-3.5" />
-                    {isSaved ? 'Saved to Library' : 'Save Asset'}
-                  </button>
-                </div>
-              )}
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <Field label="Platform">
+                <select value={platform} onChange={e => setPlatform(e.target.value)} className={ui.select}>
+                  {PLATFORMS.map(p => (
+                    <option key={p} value={p}>{p}</option>
+                  ))}
+                </select>
+              </Field>
+              <Field label="Tone">
+                <select value={tone} onChange={e => setTone(e.target.value)} className={ui.select}>
+                  {TONES.map(t => (
+                    <option key={t} value={t}>{t}</option>
+                  ))}
+                </select>
+              </Field>
+              <Field label="Audience">
+                <input
+                  type="text"
+                  value={audience}
+                  onChange={e => setAudience(e.target.value)}
+                  placeholder="e.g. SME founders"
+                  className={ui.input}
+                />
+              </Field>
+              <Field label="Goal / CTA">
+                <input
+                  type="text"
+                  value={goal}
+                  onChange={e => setGoal(e.target.value)}
+                  placeholder="e.g. Comment GUIDE"
+                  className={ui.input}
+                />
+              </Field>
             </div>
 
-            {/* Content Area */}
-            <div className="flex-1">
+            {activeTool === 'reels_shorts_script' && (
+              <div>
+                <span className={ui.label}>Duration</span>
+                <Segmented
+                  className="w-full"
+                  options={[
+                    { id: '15-30s (Rapid)', label: '15–30s' },
+                    { id: '30-45s (Standard)', label: '30–45s' },
+                    { id: '60s (Deep)', label: '60s' },
+                  ]}
+                  value={duration}
+                  onChange={setDuration}
+                />
+              </div>
+            )}
+
+            <div>
+              <span className={ui.label}>Language</span>
+              <Segmented
+                className="w-full"
+                options={[
+                  { id: 'English', label: 'English' },
+                  { id: 'Bengali', label: 'বাংলা' },
+                ]}
+                value={language}
+                onChange={v => setLanguage(v as 'English' | 'Bengali')}
+              />
+            </div>
+
+            {error && <Notice>{error}</Notice>}
+
+            <button type="button" disabled={isGenerating} onClick={handleGenerate} className={cx(ui.btnPrimary, 'h-11 w-full')}>
+              {isGenerating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+              {isGenerating ? 'Generating…' : 'Generate'}
+            </button>
+          </Panel>
+
+          {/* Output */}
+          <Panel
+            title="Output"
+            className="lg:col-span-7"
+            bodyClassName="min-h-[480px]"
+            actions={
+              generatedData && (
+                <>
+                  <button onClick={() => copyToClipboard(textOut, 'all')} className={ui.btnGhost}>
+                    {copiedKey === 'all' ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+                    {copiedKey === 'all' ? 'Copied' : 'Copy'}
+                  </button>
+                  <button onClick={downloadAsMarkdown} className={ui.btnGhost}>
+                    <Download className="h-3.5 w-3.5" /> .md
+                  </button>
+                  <button onClick={handleSaveAsset} disabled={isSaved} className={ui.btnSecondary}>
+                    <BookmarkCheck className="h-3.5 w-3.5" />
+                    {isSaved ? 'Saved' : 'Save'}
+                  </button>
+                </>
+              )
+            }
+          >
+            <div>
               {!generatedData && !isGenerating && (
-                <div className="h-full flex flex-col items-center justify-center text-center p-8 text-slate-400 dark:text-slate-500">
-                  <div className="w-16 h-16 rounded-2xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center text-[#FF5533] dark:text-[#FF7A45] mb-4">
-                    <Share2 className="w-8 h-8" />
-                  </div>
-                  <h3 className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">
-                    Ready to create usable social content
-                  </h3>
-                  <p className="text-xs max-w-sm text-slate-500 dark:text-slate-400">
-                    Fill in your topic or paste raw notes on the left, pick your platform, and generate human-grade social media copy without generic AI fluff.
-                  </p>
-                </div>
+                <EmptyState icon={Share2} title="Nothing generated yet" text="Fill in the topic and press Generate." />
               )}
 
               {isGenerating && (
-                <div className="h-full flex flex-col items-center justify-center text-center p-12">
-                  <Loader2 className="w-10 h-10 text-[#FF5533] animate-spin mb-4" />
-                  <h4 className="text-sm font-bold text-slate-800 dark:text-slate-200">
-                    Crafting Human-Rhythm Social Copy...
-                  </h4>
-                  <p className="text-xs text-slate-400 mt-1 max-w-xs">
-                    Applying anti-slop filters, optimizing hooks for {platform}, and aligning with audience psychology.
-                  </p>
+                <div className="flex flex-col items-center justify-center py-24 text-center">
+                  <Loader2 className="mb-3 h-6 w-6 animate-spin text-[#FF5533]" />
+                  <p className="text-sm text-muted-foreground">Writing for {platform}…</p>
                 </div>
               )}
 
@@ -944,16 +676,16 @@ export default function SocialMediaWorkspacePage() {
                         <div>
                           <div className="flex items-center justify-between mb-2.5">
                             <span className="text-xs font-bold text-[#FF5533] dark:text-[#FF7A45] uppercase tracking-wider flex items-center gap-1.5">
-                              <Flame className="w-3.5 h-3.5" /> 5 Psychological Hook Variations
+                              <Flame className="w-3.5 h-3.5" /> Hooks
                             </span>
-                            <span className="text-[11px] text-slate-400">Click to copy hook</span>
+                            <span className="text-[11px] text-slate-400">Click to copy</span>
                           </div>
                           <div className="grid grid-cols-1 gap-2">
                             {generatedData.hookVariations.map((h: any, idx: number) => (
                               <div
                                 key={idx}
                                 onClick={() => copyToClipboard(h.hook, `hook-${idx}`)}
-                                className="group p-3 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50/50 dark:bg-[#030303]/50 hover:bg-white dark:hover:bg-[#0d0d0f] hover:border-[#FF5533]/50 cursor-pointer transition-all"
+                                className="group p-3 rounded-xl border border-border bg-background hover:bg-white dark:hover:bg-[#0d0d0f] hover:border-[#FF5533]/50 cursor-pointer transition-all"
                               >
                                 <div className="flex items-center justify-between mb-1">
                                   <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-orange-500/10 text-[#FF5533]">
@@ -963,7 +695,7 @@ export default function SocialMediaWorkspacePage() {
                                     {copiedKey === `hook-${idx}` ? 'Copied!' : 'Copy'}
                                   </span>
                                 </div>
-                                <p className="text-xs font-medium text-slate-800 dark:text-slate-200">
+                                <p className="text-xs font-medium text-foreground">
                                   "{h.hook}"
                                 </p>
                               </div>
@@ -974,10 +706,10 @@ export default function SocialMediaWorkspacePage() {
 
                       {/* Primary Caption */}
                       {generatedData.primaryCaption && (
-                        <div className="p-4 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50/30 dark:bg-[#030303]/30">
+                        <div className="p-4 rounded-xl border border-border bg-background">
                           <div className="flex items-center justify-between mb-2">
-                            <span className="text-xs font-bold text-slate-900 dark:text-white">
-                              Primary High-Converting Caption
+                            <span className="text-xs font-bold text-foreground">
+                              Caption
                             </span>
                             <button
                               onClick={() => copyToClipboard(generatedData.primaryCaption, 'primary-cap')}
@@ -987,7 +719,7 @@ export default function SocialMediaWorkspacePage() {
                               Copy Caption
                             </button>
                           </div>
-                          <div className="text-xs text-slate-700 dark:text-slate-300 whitespace-pre-line leading-relaxed font-normal bg-white dark:bg-[#0d0d0f] p-3.5 rounded-lg border border-slate-200 dark:border-white/10">
+                          <div className="text-xs text-foreground whitespace-pre-line leading-relaxed font-normal bg-card p-3.5 rounded-lg border border-border">
                             {generatedData.primaryCaption}
                           </div>
                         </div>
@@ -996,20 +728,20 @@ export default function SocialMediaWorkspacePage() {
                       {/* Alternative Captions */}
                       {generatedData.alternativeCaptions && (
                         <div>
-                          <span className="text-xs font-bold text-slate-900 dark:text-white block mb-2">
+                          <span className="text-xs font-bold text-foreground block mb-2">
                             Alternative Angles
                           </span>
                           <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5">
                             {generatedData.alternativeCaptions.map((alt: any, idx: number) => (
                               <div
                                 key={idx}
-                                className="p-3 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0d0d0f] flex flex-col justify-between"
+                                className="p-3 rounded-xl border border-border bg-card flex flex-col justify-between"
                               >
                                 <div>
                                   <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wide">
                                     {alt.label}
                                   </span>
-                                  <p className="text-xs text-slate-700 dark:text-slate-300 mt-1 line-clamp-4">
+                                  <p className="text-xs text-foreground mt-1 line-clamp-4">
                                     {alt.caption}
                                   </p>
                                 </div>
@@ -1033,7 +765,7 @@ export default function SocialMediaWorkspacePage() {
                             <span
                               key={idx}
                               onClick={() => copyToClipboard(tag, `tag-${idx}`)}
-                              className="text-[11px] px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 cursor-pointer hover:bg-orange-500/10 hover:text-[#FF5533] transition-colors"
+                              className="text-[11px] px-2 py-0.5 rounded-md bg-muted text-muted-foreground cursor-pointer hover:bg-orange-500/10 hover:text-[#FF5533] transition-colors"
                             >
                               {tag.startsWith('#') ? tag : `#${tag}`}
                             </span>
@@ -1056,11 +788,11 @@ export default function SocialMediaWorkspacePage() {
                         {generatedData.slides?.map((slide: any, idx: number) => (
                           <div
                             key={idx}
-                            className="p-4 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0d0d0f] shadow-sm flex flex-col justify-between"
+                            className="p-4 rounded-xl border border-border bg-card shadow-sm flex flex-col justify-between"
                           >
                             <div>
                               <div className="flex items-center justify-between mb-2">
-                                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-muted text-foreground">
                                   Slide {slide.slideNumber || idx + 1}: {slide.slideType}
                                 </span>
                                 <button
@@ -1070,16 +802,16 @@ export default function SocialMediaWorkspacePage() {
                                   {copiedKey === `slide-${idx}` ? 'Copied' : 'Copy'}
                                 </button>
                               </div>
-                              <h5 className="text-xs font-bold text-slate-900 dark:text-white mb-1.5">
+                              <h5 className="text-xs font-bold text-foreground mb-1.5">
                                 {slide.headline}
                               </h5>
-                              <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed mb-3">
+                              <p className="text-xs text-muted-foreground leading-relaxed mb-3">
                                 {slide.body}
                               </p>
                             </div>
 
-                            <div className="p-2 rounded-lg bg-slate-50 dark:bg-[#030303] border border-slate-100 dark:border-white/[0.06] text-[11px] text-slate-500 dark:text-slate-400">
-                              <span className="font-semibold text-slate-700 dark:text-slate-300">Visual Cue: </span>
+                            <div className="p-2 rounded-lg bg-muted border border-border text-[11px] text-slate-500 dark:text-slate-400">
+                              <span className="font-semibold text-foreground">Visual Cue: </span>
                               {slide.visualDirection}
                             </div>
                           </div>
@@ -1087,10 +819,10 @@ export default function SocialMediaWorkspacePage() {
                       </div>
 
                       {generatedData.postCaption && (
-                        <div className="mt-4 p-3.5 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50/50 dark:bg-[#030303]">
+                        <div className="mt-4 p-3.5 rounded-xl border border-border bg-background">
                           <div className="flex items-center justify-between mb-1.5">
-                            <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
-                              Carousel Accompanying Caption
+                            <span className="text-xs font-bold text-foreground">
+                              Caption
                             </span>
                             <button
                               onClick={() => copyToClipboard(generatedData.postCaption, 'car-cap')}
@@ -1099,7 +831,7 @@ export default function SocialMediaWorkspacePage() {
                               Copy
                             </button>
                           </div>
-                          <p className="text-xs text-slate-600 dark:text-slate-300 whitespace-pre-line">
+                          <p className="text-xs text-muted-foreground whitespace-pre-line">
                             {generatedData.postCaption}
                           </p>
                         </div>
@@ -1110,9 +842,9 @@ export default function SocialMediaWorkspacePage() {
                   {/* Tool 3: Reels & Shorts Script */}
                   {activeTool === 'reels_shorts_script' && (
                     <div className="space-y-4">
-                      <div className="flex items-center justify-between p-3.5 rounded-xl bg-slate-50 dark:bg-[#030303] border border-slate-200 dark:border-white/10">
+                      <div className="flex items-center justify-between p-3.5 rounded-xl bg-muted border border-border">
                         <div>
-                          <h4 className="text-xs font-bold text-slate-900 dark:text-white">
+                          <h4 className="text-xs font-bold text-foreground">
                             {generatedData.videoTitle}
                           </h4>
                           <span className="text-[11px] text-slate-500">
@@ -1131,7 +863,7 @@ export default function SocialMediaWorkspacePage() {
                         {generatedData.scriptSections?.map((sec: any, idx: number) => (
                           <div
                             key={idx}
-                            className="p-3.5 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0d0d0f]"
+                            className="p-3.5 rounded-xl border border-border bg-card"
                           >
                             <div className="flex items-center justify-between mb-2">
                               <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-orange-500/10 text-[#FF5533] border border-orange-500/30">
@@ -1144,12 +876,12 @@ export default function SocialMediaWorkspacePage() {
                               )}
                             </div>
 
-                            <p className="text-xs font-semibold text-slate-900 dark:text-white mb-2 leading-relaxed">
-                              🗣️ "{sec.speakerText}"
+                            <p className="text-xs font-semibold text-foreground mb-2 leading-relaxed">
+                              "{sec.speakerText}"
                             </p>
 
-                            <div className="text-[11px] text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-[#030303] p-2 rounded-lg">
-                              <span className="font-semibold text-slate-700 dark:text-slate-300">Visual Cue: </span>
+                            <div className="text-[11px] text-slate-500 dark:text-slate-400 bg-muted p-2 rounded-lg">
+                              <span className="font-semibold text-foreground">Visual Cue: </span>
                               {sec.visualCue}
                             </div>
                           </div>
@@ -1157,8 +889,8 @@ export default function SocialMediaWorkspacePage() {
                       </div>
 
                       {generatedData.audioMusicDirection && (
-                        <div className="p-3 rounded-xl bg-slate-50 dark:bg-[#030303] border border-slate-200 dark:border-white/10 text-xs text-slate-600 dark:text-slate-400">
-                          <span className="font-semibold text-slate-800 dark:text-slate-200">🎵 Audio Direction: </span>
+                        <div className="p-3 rounded-xl bg-muted border border-border text-xs text-slate-600 dark:text-slate-400">
+                          <span className="font-semibold text-foreground">Audio: </span>
                           {generatedData.audioMusicDirection}
                         </div>
                       )}
@@ -1179,10 +911,10 @@ export default function SocialMediaWorkspacePage() {
                         {generatedData.ideas?.map((idea: any, idx: number) => (
                           <div
                             key={idx}
-                            className="p-4 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0d0d0f]"
+                            className="p-4 rounded-xl border border-border bg-card"
                           >
                             <div className="flex items-center justify-between mb-2">
-                              <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                              <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-muted text-foreground">
                                 Concept #{idx + 1} • {idea.format || 'Short Video'}
                               </span>
                               <button
@@ -1193,7 +925,7 @@ export default function SocialMediaWorkspacePage() {
                               </button>
                             </div>
 
-                            <h4 className="text-xs font-bold text-slate-900 dark:text-white mb-1">
+                            <h4 className="text-xs font-bold text-foreground mb-1">
                               {idea.title}
                             </h4>
                             <p className="text-xs text-[#FF5533] dark:text-[#FF7A45] font-medium mb-2.5">
@@ -1202,7 +934,7 @@ export default function SocialMediaWorkspacePage() {
 
                             <div className="space-y-1 mb-2.5">
                               {idea.talkingPoints?.map((pt: string, pIdx: number) => (
-                                <div key={pIdx} className="text-xs text-slate-600 dark:text-slate-300 flex items-start gap-1.5">
+                                <div key={pIdx} className="text-xs text-muted-foreground flex items-start gap-1.5">
                                   <span className="text-[#FF5533] font-bold">•</span>
                                   <span>{pt}</span>
                                 </div>
@@ -1210,8 +942,8 @@ export default function SocialMediaWorkspacePage() {
                             </div>
 
                             {idea.retentionCTA && (
-                              <div className="text-[11px] font-medium text-slate-500 bg-slate-50 dark:bg-[#030303] p-2 rounded-lg">
-                                <span className="font-semibold text-slate-700 dark:text-slate-300">CTA Trigger: </span>
+                              <div className="text-[11px] font-medium text-slate-500 bg-muted p-2 rounded-lg">
+                                <span className="font-semibold text-foreground">CTA Trigger: </span>
                                 {idea.retentionCTA}
                               </div>
                             )}
@@ -1224,7 +956,7 @@ export default function SocialMediaWorkspacePage() {
                   {/* Tool 5: Social Article */}
                   {activeTool === 'social_article' && (
                     <div className="space-y-4">
-                      <div className="p-4 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0d0d0f]">
+                      <div className="p-4 rounded-xl border border-border bg-card">
                         <div className="flex items-center justify-between mb-2">
                           <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-orange-500/10 text-[#FF5533]">
                             {generatedData.readTime || '3 min read'}
@@ -1236,24 +968,24 @@ export default function SocialMediaWorkspacePage() {
                             Copy Full Article
                           </button>
                         </div>
-                        <h3 className="text-sm font-extrabold text-slate-900 dark:text-white mb-1">
+                        <h3 className="text-sm font-extrabold text-foreground mb-1">
                           {generatedData.articleTitle}
                         </h3>
                         <p className="text-xs text-slate-500 italic mb-4">
                           {generatedData.subtitle}
                         </p>
 
-                        <div className="text-xs text-slate-700 dark:text-slate-300 whitespace-pre-line leading-relaxed border-t border-slate-100 dark:border-white/10 pt-3">
+                        <div className="text-xs text-foreground whitespace-pre-line leading-relaxed border-t border-slate-100 dark:border-white/10 pt-3">
                           {generatedData.contentMarkdown}
                         </div>
                       </div>
 
                       {generatedData.keyTakeaways && (
-                        <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-[#030303] border border-slate-200 dark:border-white/10">
-                          <span className="text-xs font-bold text-slate-900 dark:text-white block mb-2">
+                        <div className="p-3.5 rounded-xl bg-muted border border-border">
+                          <span className="text-xs font-bold text-foreground block mb-2">
                             Key Takeaways:
                           </span>
-                          <ul className="space-y-1 text-xs text-slate-600 dark:text-slate-300">
+                          <ul className="space-y-1 text-xs text-muted-foreground">
                             {generatedData.keyTakeaways.map((t: string, idx: number) => (
                               <li key={idx} className="flex items-start gap-2">
                                 <span className="text-emerald-500 font-bold">✓</span>
@@ -1271,7 +1003,7 @@ export default function SocialMediaWorkspacePage() {
                     <div className="space-y-4">
                       {/* Story Post */}
                       {generatedData.storyPost && (
-                        <div className="p-4 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0d0d0f]">
+                        <div className="p-4 rounded-xl border border-border bg-card">
                           <div className="flex items-center justify-between mb-2">
                             <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300">
                               Channel 1: Story Narrative ({generatedData.storyPost.platform})
@@ -1283,10 +1015,10 @@ export default function SocialMediaWorkspacePage() {
                               Copy
                             </button>
                           </div>
-                          <h5 className="text-xs font-bold text-slate-900 dark:text-white mb-1.5">
+                          <h5 className="text-xs font-bold text-foreground mb-1.5">
                             {generatedData.storyPost.headline}
                           </h5>
-                          <p className="text-xs text-slate-600 dark:text-slate-300 whitespace-pre-line leading-relaxed">
+                          <p className="text-xs text-muted-foreground whitespace-pre-line leading-relaxed">
                             {generatedData.storyPost.content}
                           </p>
                         </div>
@@ -1294,7 +1026,7 @@ export default function SocialMediaWorkspacePage() {
 
                       {/* Video Script */}
                       {generatedData.shortVideoScript && (
-                        <div className="p-4 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0d0d0f]">
+                        <div className="p-4 rounded-xl border border-border bg-card">
                           <div className="flex items-center justify-between mb-2">
                             <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300">
                               Channel 2: Short-Form Video ({generatedData.shortVideoScript.platform})
@@ -1309,10 +1041,10 @@ export default function SocialMediaWorkspacePage() {
                           <p className="text-xs font-bold text-[#FF5533] dark:text-[#FF7A45] mb-1">
                             Hook: "{generatedData.shortVideoScript.hook}"
                           </p>
-                          <p className="text-xs text-slate-600 dark:text-slate-300 mb-2">
+                          <p className="text-xs text-muted-foreground mb-2">
                             {generatedData.shortVideoScript.body}
                           </p>
-                          <span className="text-[11px] text-slate-500 bg-slate-50 dark:bg-[#030303] px-2 py-1 rounded">
+                          <span className="text-[11px] text-slate-500 bg-muted px-2 py-1 rounded">
                             CTA: {generatedData.shortVideoScript.cta}
                           </span>
                         </div>
@@ -1320,7 +1052,7 @@ export default function SocialMediaWorkspacePage() {
 
                       {/* Authority Post */}
                       {generatedData.authorityPost && (
-                        <div className="p-4 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0d0d0f]">
+                        <div className="p-4 rounded-xl border border-border bg-card">
                           <div className="flex items-center justify-between mb-2">
                             <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-sky-50 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300">
                               Channel 3: Authority Post ({generatedData.authorityPost.platform})
@@ -1332,7 +1064,7 @@ export default function SocialMediaWorkspacePage() {
                               Copy
                             </button>
                           </div>
-                          <p className="text-xs text-slate-600 dark:text-slate-300 whitespace-pre-line leading-relaxed">
+                          <p className="text-xs text-muted-foreground whitespace-pre-line leading-relaxed">
                             {generatedData.authorityPost.content}
                           </p>
                         </div>
@@ -1340,9 +1072,9 @@ export default function SocialMediaWorkspacePage() {
 
                       {/* Tweet Thread */}
                       {generatedData.tweetThread?.tweets && (
-                        <div className="p-4 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0d0d0f]">
+                        <div className="p-4 rounded-xl border border-border bg-card">
                           <div className="flex items-center justify-between mb-2">
-                            <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-muted text-foreground">
                               Channel 4: Thread ({generatedData.tweetThread.platform})
                             </span>
                             <button
@@ -1354,7 +1086,7 @@ export default function SocialMediaWorkspacePage() {
                           </div>
                           <div className="space-y-2">
                             {generatedData.tweetThread.tweets.map((tw: string, idx: number) => (
-                              <div key={idx} className="p-2.5 rounded-lg bg-slate-50 dark:bg-[#030303] text-xs text-slate-700 dark:text-slate-300 border border-slate-100 dark:border-white/[0.06]">
+                              <div key={idx} className="p-2.5 rounded-lg bg-muted text-xs text-foreground border border-border">
                                 <span className="font-bold text-slate-400 mr-1.5">{idx + 1}/</span>
                                 {tw}
                               </div>
@@ -1367,10 +1099,9 @@ export default function SocialMediaWorkspacePage() {
                 </div>
               )}
             </div>
-
-          </div>
+          </Panel>
         </div>
-      </div>
-    </div>
+      </WorkspaceBody>
+    </WorkspacePage>
   );
 }

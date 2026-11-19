@@ -340,44 +340,44 @@ export function EmailExecutionStudio({
 
   return (
     <div className="space-y-6">
-      {/* 1. TOP EXECUTIVE COMMAND BAR */}
-      <div className="rounded-2xl border border-white/10 bg-slate-900/90 p-5 backdrop-blur shadow-xl">
+      {/* 1. TOP COMMAND BAR */}
+      <div className="rounded-2xl border border-white/10 bg-[#08080a] p-5 shadow-xl">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-orange-500/15 border border-orange-500/30 flex items-center justify-center text-[#FF7A45]">
-              <Mail size={20} />
+            <div className="w-10 h-10 rounded-xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center text-[#FF7A45]">
+              <Mail size={18} />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-base font-bold text-white">Email Campaign Execution Studio</h3>
-                <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider ${
+                <h3 className="text-base font-bold text-white">Email Campaign Studio</h3>
+                <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
                   parsedList.length > 0
-                    ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
-                    : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                    ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/20'
+                    : 'bg-white/5 text-white/50 border border-white/10'
                 }`}>
                   {parsedList.length > 0 ? `${parsedList.length} Contacts Queued` : 'Draft Ready'}
                 </span>
               </div>
-              <p className="text-xs text-slate-400 mt-0.5">
+              <p className="text-xs text-white/50 mt-0.5">
                 {settings.fromEmail ? (
-                  <span className="text-emerald-400 font-semibold flex items-center gap-1">
+                  <span className="text-emerald-400 font-medium flex items-center gap-1.5">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
                     Sender: {settings.fromName || 'Brand'} &lt;{settings.fromEmail}&gt; ({settings.provider.toUpperCase()})
                   </span>
                 ) : (
-                  <span className="text-amber-400 font-medium">
-                    ⚠️ No email sender connected yet. Configure your SMTP or ESP below.
+                  <span className="text-amber-400/90 font-medium">
+                    No email sender connected yet. Configure your SMTP or ESP below.
                   </span>
                 )}
               </p>
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2.5">
+          <div className="flex flex-wrap items-center gap-2">
             <button
               type="button"
               onClick={() => setShowSettings(true)}
-              className="px-3.5 py-2 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-xs font-bold text-slate-200 hover:text-white transition-all flex items-center gap-2 shadow-sm cursor-pointer"
+              className="px-3.5 py-2 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-xs font-semibold text-white/80 hover:text-white transition-all flex items-center gap-2 cursor-pointer"
             >
               <Settings size={14} className="text-[#FF7A45]" />
               {settings.fromEmail ? 'ESP Settings' : 'Connect Sender'}
@@ -386,19 +386,19 @@ export function EmailExecutionStudio({
             <button
               type="button"
               onClick={() => setShowTestModal(true)}
-              className="px-3.5 py-2 rounded-xl border border-orange-500/30 bg-orange-950/40 hover:bg-orange-900/40 text-xs font-bold text-[#FF8A00] transition-all flex items-center gap-2 shadow-sm cursor-pointer"
+              className="px-3.5 py-2 rounded-xl border border-white/10 bg-white/[0.03] hover:bg-white/[0.08] text-xs font-semibold text-white/90 hover:text-white transition-all flex items-center gap-2 cursor-pointer"
             >
               <Send size={14} className="text-[#FF7A45]" />
-              Send Test Email
+              Send Test
             </button>
 
             <button
               type="button"
               onClick={() => setShowRunModal(true)}
-              className="px-5 py-2 rounded-xl bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] hover:from-[#FF5547] hover:to-[#FF9036] text-xs font-black text-white shadow-lg shadow-[#FF5533]/25 transition-all flex items-center gap-2 cursor-pointer"
+              className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#FF473A] to-[#FF8526] hover:opacity-95 text-xs font-bold text-white shadow-md transition-all flex items-center gap-2 cursor-pointer"
             >
               <Play size={14} />
-              RUN CAMPAIGN
+              Run Campaign
             </button>
           </div>
         </div>
@@ -410,7 +410,7 @@ export function EmailExecutionStudio({
             onClick={() => setActiveTab('compose')}
             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
               activeTab === 'compose'
-                ? 'bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] text-white shadow-md shadow-[#FF5533]/20'
+                ? 'bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] text-white'
                 : 'text-slate-400 hover:text-white hover:bg-white/5'
             }`}
           >
@@ -422,7 +422,7 @@ export function EmailExecutionStudio({
             onClick={() => setActiveTab('audience')}
             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
               activeTab === 'audience'
-                ? 'bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] text-white shadow-md shadow-[#FF5533]/20'
+                ? 'bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] text-white'
                 : 'text-slate-400 hover:text-white hover:bg-white/5'
             }`}
           >
@@ -439,7 +439,7 @@ export function EmailExecutionStudio({
               onClick={() => setActiveTab('strategy')}
               className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
                 activeTab === 'strategy'
-                  ? 'bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] text-white shadow-md shadow-[#FF5533]/20'
+                  ? 'bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] text-white'
                   : 'text-slate-400 hover:text-white hover:bg-white/5'
               }`}
             >
@@ -452,7 +452,7 @@ export function EmailExecutionStudio({
             onClick={() => setActiveTab('logs')}
             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
               activeTab === 'logs'
-                ? 'bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] text-white shadow-md shadow-[#FF5533]/20'
+                ? 'bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] text-white'
                 : 'text-slate-400 hover:text-white hover:bg-white/5'
             }`}
           >
@@ -828,7 +828,7 @@ export function EmailExecutionStudio({
               <button
                 type="button"
                 onClick={() => setShowRunModal(true)}
-                className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] hover:from-[#FF5547] hover:to-[#FF9036] text-xs font-bold text-white shadow-lg flex items-center gap-2 cursor-pointer"
+                className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] hover:bg-[#ff6a4d] text-xs font-bold text-white shadow-lg flex items-center gap-2 cursor-pointer"
               >
                 <Play size={14} /> Launch Live Broadcast
               </button>
@@ -1194,7 +1194,7 @@ export function EmailExecutionStudio({
                   type="button"
                   disabled={runningCampaign || parsedList.length === 0}
                   onClick={runLiveCampaign}
-                  className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] hover:from-[#FF5547] hover:to-[#FF9036] text-xs font-black text-white shadow-lg flex items-center gap-2 cursor-pointer disabled:opacity-50"
+                  className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] hover:bg-[#ff6a4d] text-xs font-black text-white shadow-lg flex items-center gap-2 cursor-pointer disabled:opacity-50"
                 >
                   {runningCampaign ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
                   Confirm &amp; Dispatch to All ({parsedList.length})
@@ -1440,33 +1440,44 @@ export function SmsExecutionStudio({ primaryOutput }: { primaryOutput: string })
   return (
     <div className="space-y-6">
       {/* Banner */}
-      <div className="rounded-2xl border border-emerald-500/20 bg-gradient-to-r from-emerald-950/60 to-teal-950/40 p-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-          <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 mb-2">
-            <Smartphone size={12} /> SMS Campaign Dispatcher
+      <div className="rounded-2xl border border-white/10 bg-[#08080a] p-5 shadow-xl flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+            <Smartphone size={18} />
           </div>
-          <h3 className="text-lg font-black text-white">Live SMS Broadcast Engine</h3>
-          <p className="text-xs text-white/50">
-            Real GSM character counter, smartphone handset preview, BulkSMSBD / Twilio integration, and live SMS blast execution.
-          </p>
+          <div>
+            <div className="flex items-center gap-2">
+              <h3 className="text-base font-bold text-white">SMS Campaign Studio</h3>
+              <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                settings.gatewayApiKey || settings.twilioSid
+                  ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/20'
+                  : 'bg-white/5 text-white/50 border border-white/10'
+              }`}>
+                {settings.gatewayApiKey || settings.twilioSid ? 'Gateway Connected' : 'Draft Mode'}
+              </span>
+            </div>
+            <p className="text-xs text-white/50 mt-0.5">
+              Live GSM character counter, phone handset preview, and multi-provider SMS dispatch.
+            </p>
+          </div>
         </div>
 
         <div className="flex items-center gap-2">
           <button
             type="button"
             onClick={() => setShowSettings(true)}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-xs font-black text-white transition-all cursor-pointer"
+            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-xs font-semibold text-white/80 hover:text-white transition-all cursor-pointer"
           >
             <Settings size={14} className="text-emerald-400" />
-            {settings.gatewayApiKey || settings.twilioSid ? 'Gateway Connected' : 'Connect SMS Gateway'}
+            {settings.gatewayApiKey || settings.twilioSid ? 'Gateway Settings' : 'Connect Gateway'}
           </button>
 
           <button
             type="button"
             onClick={() => setShowRunModal(true)}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-xs font-black text-white shadow-lg shadow-emerald-600/30 transition-all cursor-pointer"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:opacity-95 text-xs font-bold text-white shadow-md transition-all cursor-pointer"
           >
-            <Play size={14} /> RUN LIVE SMS CAMPAIGN
+            <Play size={14} /> Run Campaign
           </button>
         </div>
       </div>
@@ -1974,22 +1985,29 @@ export function ProductCopyStudio({
   return (
     <div className="space-y-6">
       {/* Action Header Banner */}
-      <div className="rounded-2xl border border-amber-500/20 bg-gradient-to-r from-amber-950/60 to-orange-950/40 p-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-          <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-500/20 text-amber-300 border border-amber-500/30 mb-2">
-            <ShoppingBag size={12} /> Ecommerce Action Suite
+      <div className="rounded-2xl border border-white/10 bg-[#08080a] p-5 shadow-xl flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
+            <ShoppingBag size={18} />
           </div>
-          <h3 className="text-lg font-black text-white">Store-Ready Product Assets</h3>
-          <p className="text-xs text-white/50">
-            Export directly as a Shopify CSV import, push to WooCommerce, or copy structured HTML with FAQ schema.
-          </p>
+          <div>
+            <div className="flex items-center gap-2">
+              <h3 className="text-base font-bold text-white">Product Copy Studio</h3>
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-500/15 text-amber-300 border border-amber-500/20">
+                E-Commerce Ready
+              </span>
+            </div>
+            <p className="text-xs text-white/50 mt-0.5">
+              Export directly to Shopify CSV, sync to WooCommerce drafts, or copy formatted HTML.
+            </p>
+          </div>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
             onClick={downloadShopifyCsv}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-xs font-black text-white shadow-lg shadow-amber-600/30 transition-all cursor-pointer"
+            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-gradient-to-r from-amber-600 to-orange-600 hover:opacity-95 text-xs font-bold text-white shadow-md transition-all cursor-pointer"
           >
             <FileSpreadsheet size={14} /> Download Shopify CSV
           </button>
@@ -1998,10 +2016,10 @@ export function ProductCopyStudio({
             type="button"
             onClick={pushToWordPress}
             disabled={wpSyncing}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-xs font-black text-white transition-all cursor-pointer disabled:opacity-50"
+            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-xs font-semibold text-white/90 hover:text-white transition-all cursor-pointer disabled:opacity-50"
           >
             {wpSyncing ? <Loader2 size={14} className="animate-spin" /> : <Globe size={14} className="text-amber-400" />}
-            Push to WooCommerce (Draft)
+            <span>{wpSyncing ? 'Publishing...' : 'Push to WooCommerce'}</span>
           </button>
         </div>
       </div>
@@ -2128,22 +2146,29 @@ export function SocialCampaignStudio({ primaryOutput }: { primaryOutput: string 
   return (
     <div className="space-y-6">
       {/* Banner */}
-      <div className="rounded-2xl border border-fuchsia-500/20 bg-gradient-to-r from-fuchsia-950/60 to-pink-950/40 p-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-          <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-fuchsia-500/20 text-fuchsia-300 border border-fuchsia-500/30 mb-2">
-            <Share2 size={12} /> Multi-Platform Social Studio
+      <div className="rounded-2xl border border-white/10 bg-[#08080a] p-5 shadow-xl flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-pink-500/10 border border-pink-500/20 flex items-center justify-center text-pink-400">
+            <Share2 size={18} />
           </div>
-          <h3 className="text-lg font-black text-white">Platform-Specific Formatter &amp; Publisher</h3>
-          <p className="text-xs text-white/50">
-            Native formatting for LinkedIn, X Thread, Facebook, and Instagram with 1-click Web Intent &amp; Webhook automation.
-          </p>
+          <div>
+            <div className="flex items-center gap-2">
+              <h3 className="text-base font-bold text-white">Social Campaign Studio</h3>
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-pink-500/15 text-pink-300 border border-pink-500/20">
+                Multi-Platform
+              </span>
+            </div>
+            <p className="text-xs text-white/50 mt-0.5">
+              Native formatting for LinkedIn, X (Twitter), Facebook, and Instagram with 1-click sharing and webhooks.
+            </p>
+          </div>
         </div>
 
         <div className="flex items-center gap-2">
           <button
             type="button"
             onClick={shareWebIntent}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-fuchsia-600 to-pink-600 hover:from-fuchsia-500 hover:to-pink-500 text-xs font-black text-white shadow-lg shadow-fuchsia-600/30 transition-all cursor-pointer"
+            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-gradient-to-r from-pink-600 to-rose-600 hover:opacity-95 text-xs font-bold text-white shadow-md transition-all cursor-pointer"
           >
             <ExternalLink size={14} /> Open in {activePlatform === 'twitter' ? 'X / Twitter' : activePlatform === 'linkedin' ? 'LinkedIn' : 'Platform'}
           </button>
