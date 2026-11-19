@@ -30,7 +30,6 @@ import {
 type ToolCard = {
   name: string;
   description: string;
-  useCase: string;
   href: string;
   category: 'SEO Workspace' | 'Growth Suite';
   icon: any;
@@ -44,7 +43,6 @@ const allTools: ToolCard[] = [
   {
     name: 'Generate Content',
     description: 'Write SEO-optimized articles with keywords, meta tags, and structured headers.',
-    useCase: 'Publishing high-quality long-form blogs to WordPress or exports.',
     href: '/dashboard/generate',
     category: 'SEO Workspace',
     icon: Zap,
@@ -55,7 +53,6 @@ const allTools: ToolCard[] = [
   {
     name: 'Trend Tracker',
     description: 'Monitor daily search trends and evergreen keyword intelligence.',
-    useCase: 'Tracking rising queries and planning monthly content topics.',
     href: '/dashboard/trends',
     category: 'SEO Workspace',
     icon: TrendingUp,
@@ -66,7 +63,6 @@ const allTools: ToolCard[] = [
   {
     name: 'Keyword Research',
     description: 'Find search intent, semantic groups, and competitiveness metrics.',
-    useCase: 'Structuring content pillars and picking target keywords.',
     href: '/dashboard/keywords',
     category: 'SEO Workspace',
     icon: Search,
@@ -77,7 +73,6 @@ const allTools: ToolCard[] = [
   {
     name: 'Content Calendar',
     description: 'Plan, outline, and schedule upcoming content workflows.',
-    useCase: 'Keeping publication deadlines organized for your team.',
     href: '/dashboard/calendar',
     category: 'SEO Workspace',
     icon: ClipboardList,
@@ -87,7 +82,6 @@ const allTools: ToolCard[] = [
   {
     name: 'WordPress Sync',
     description: 'Connect self-hosted WordPress sites and publish directly.',
-    useCase: 'Instantly shipping generated articles without manual copy-paste.',
     href: '/dashboard/wordpress',
     category: 'SEO Workspace',
     icon: Globe,
@@ -97,7 +91,6 @@ const allTools: ToolCard[] = [
   {
     name: 'My Articles',
     description: 'Manage and review your generated article reports.',
-    useCase: 'Tracking word count, keyword densities, and active exports.',
     href: '/dashboard/articles',
     category: 'SEO Workspace',
     icon: FileText,
@@ -107,7 +100,6 @@ const allTools: ToolCard[] = [
   {
     name: 'Website Analyzer',
     description: 'Perform deep SEO audits, verify HTML metadata structure, headings hierarchy, and get AI CRO suggestions.',
-    useCase: 'Diagnosing optimization gaps and copy opportunities on live websites.',
     href: '/dashboard/website-analyzer',
     category: 'SEO Workspace',
     icon: Globe,
@@ -120,7 +112,6 @@ const allTools: ToolCard[] = [
   {
     name: 'Brand Brain',
     description: 'Save business positioning, target audience profile, and tone of voice.',
-    useCase: 'Standardizing inputs so every output stays strictly on-brand.',
     href: '/dashboard/brand',
     category: 'Growth Suite',
     icon: Brain,
@@ -131,7 +122,6 @@ const allTools: ToolCard[] = [
   {
     name: 'Strategy Audit',
     description: 'Formulate messaging matrices, offer structures, and priority funnels.',
-    useCase: 'Assessing current business gaps and positioning your offer.',
     href: '/dashboard/marketing/strategy_audit',
     category: 'Growth Suite',
     icon: Target,
@@ -142,7 +132,6 @@ const allTools: ToolCard[] = [
   {
     name: 'Launch Pack',
     description: 'Generate high-converting landing copies, emails, and campaign assets in one click.',
-    useCase: 'Launching new products, webinar registrations, or digital assets.',
     href: '/dashboard/marketing/launch_pack',
     category: 'Growth Suite',
     icon: Rocket,
@@ -153,7 +142,6 @@ const allTools: ToolCard[] = [
   {
     name: 'Campaign Planner',
     description: 'Create multi-channel launch calendars (LinkedIn, Facebook, Email).',
-    useCase: 'Organizing 7/14/30 day campaign sequences with hooks and CTAs.',
     href: '/dashboard/marketing/campaign_planner',
     category: 'Growth Suite',
     icon: ClipboardList,
@@ -163,7 +151,6 @@ const allTools: ToolCard[] = [
   {
     name: 'Video Content Kit',
     description: 'Analyze transcripts and extract titles, short hook structures, and highlights.',
-    useCase: 'Converting YouTube/audio clips into short-form viral social formats.',
     href: '/dashboard/video-kit',
     category: 'Growth Suite',
     icon: Video,
@@ -174,7 +161,6 @@ const allTools: ToolCard[] = [
   {
     name: 'Product Photography',
     description: 'Structure photography briefs and generate high-fidelity product images.',
-    useCase: 'Shopify listings, Instagram lifestyle posts, or web banner assets.',
     href: '/dashboard/marketing/product_photography',
     category: 'Growth Suite',
     icon: Camera,
@@ -185,7 +171,6 @@ const allTools: ToolCard[] = [
   {
     name: 'Social Campaign',
     description: 'Generate angles and copy variations tailored for specific social handles.',
-    useCase: 'Building engagement and community trust on LinkedIn, Facebook, and X.',
     href: '/dashboard/marketing/social_campaign',
     category: 'Growth Suite',
     icon: Share2,
@@ -195,7 +180,6 @@ const allTools: ToolCard[] = [
   {
     name: 'Product Copy',
     description: 'Write conversion-focused copy highlighting features and handling objections.',
-    useCase: 'Shopify descriptions, Amazon copy, and service benefits tables.',
     href: '/dashboard/marketing/product_copy',
     category: 'Growth Suite',
     icon: FileText,
@@ -205,7 +189,6 @@ const allTools: ToolCard[] = [
   {
     name: 'Email Campaign',
     description: 'Structure promo and welcome email sequence flows.',
-    useCase: 'Newsletters, lead magnet deliveries, and subscriber updates.',
     href: '/dashboard/marketing/email_campaign',
     category: 'Growth Suite',
     icon: Mail,
@@ -215,7 +198,6 @@ const allTools: ToolCard[] = [
   {
     name: 'SMS Campaign',
     description: 'Generate compact, high-action SMS notifications.',
-    useCase: 'Order updates, discount codes, or event bookings reminders.',
     href: '/dashboard/marketing/sms_campaign',
     category: 'Growth Suite',
     icon: MessageSquare,
@@ -225,7 +207,6 @@ const allTools: ToolCard[] = [
   {
     name: 'Landing Page Copy',
     description: 'Structure hero headings, primary copy, and CTAs for optimal conversion.',
-    useCase: 'Lead generation, course sales, or waitlist signups.',
     href: '/dashboard/marketing/landing_page',
     category: 'Growth Suite',
     icon: Target,
@@ -509,21 +490,10 @@ export default function DashboardPage() {
                     </p>
                   </div>
 
-                  {/* Bottom section: Workflow Use-Case Chip & Launch CTA */}
+                  {/* Bottom section: Launch CTA */}
                   <div className="mt-6">
-                    {/* Workflow Hook Chip */}
-                    <div className="rounded-2xl border border-white/[0.05] bg-black/30 p-3.5 backdrop-blur-xs transition-colors duration-300 group-hover:border-white/[0.12] group-hover:bg-black/45">
-                      <div className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest text-white/40">
-                        <Sparkles size={11} className="text-[#FF5533]" />
-                        <span>Best Used For</span>
-                      </div>
-                      <p className="mt-1 text-[11px] leading-relaxed text-white/60 transition-colors duration-200 group-hover:text-white/80 line-clamp-2">
-                        {tool.useCase}
-                      </p>
-                    </div>
-
                     {/* Interactive Launch Button Row */}
-                    <div className="mt-4 flex items-center justify-between pt-1">
+                    <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <span className="text-xs font-black uppercase tracking-wider text-white/70 transition-colors duration-200 group-hover:text-white">
                           Launch Studio
