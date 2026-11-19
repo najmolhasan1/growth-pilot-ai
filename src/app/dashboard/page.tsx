@@ -310,9 +310,9 @@ export default function DashboardPage() {
             </div>
             
             <h1 className="text-2xl font-black leading-tight sm:text-4xl lg:text-5xl tracking-tight text-white">
-              Find growth tools that{' '}
+              Pick the right tools for your{' '}
               <span className="bg-gradient-to-r from-[#FF4D42] via-[#FF6A3D] to-[#FF8A00] bg-clip-text text-transparent">
-                speak to you
+                next project
               </span>
             </h1>
             
