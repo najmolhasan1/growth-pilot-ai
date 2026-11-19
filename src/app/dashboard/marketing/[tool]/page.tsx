@@ -44,6 +44,7 @@ import {
   SlidersHorizontal,
 } from 'lucide-react';
 import { copyTextSafely } from '@/lib/clipboard';
+import { WorkspaceHeader, ToolSwitcher, ui } from '@/components/workspace/ui';
 import { getSupabaseBrowserClient, isSupabaseConfigured } from '@/lib/supabase';
 import { fetchSystemConfig } from '@/lib/admin-config';
 import {
@@ -72,6 +73,8 @@ import {
 
 const STORAGE_KEY = 'marketing_brand_profile';
 const ASSET_STORAGE_KEY = 'marketing_saved_assets';
+
+const TOOL_ORDER = ['strategy_audit', 'launch_pack', 'campaign_planner', 'social_campaign', 'product_copy', 'email_campaign', 'sms_campaign', 'landing_page', 'product_photography'];
 
 function ToolWorkspaceContent() {
   const router = useRouter();
@@ -663,7 +666,7 @@ function ToolWorkspaceContent() {
 
   if (!activeTool) {
     return (
-      <div className="min-h-screen bg-[#030303] p-8 text-white/40 flex items-center justify-center">
+      <div className="min-h-screen bg-background p-8 flex items-center justify-center">
         <Loader2 className="animate-spin text-[#FF5533]" size={28} />
       </div>
     );
@@ -672,121 +675,81 @@ function ToolWorkspaceContent() {
   const modelPresets = CAMPAIGN_PRESETS.filter(p => p.businessModel === businessModel);
 
   return (
-    <div className="min-h-screen bg-[#030303] text-white p-4 sm:p-6 lg:p-10">
-      <div className="mx-auto max-w-7xl">
-        {/* Breadcrumb Navigation */}
-        <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-          <Link
-            href="/dashboard/marketing"
-            className="inline-flex items-center gap-2 text-xs font-black text-white/50 hover:text-white transition-colors cursor-pointer"
-          >
-            <ArrowLeft size={15} /> Back to Marketing Hub
-          </Link>
-          <div className="flex items-center gap-2 text-xs font-bold text-white/30">
-            <span>Growth Suite</span>
-            <span>/</span>
-            <span className="text-[#FF7A45] font-black">{activeTool.label}</span>
-          </div>
-        </div>
+    <div className="min-h-screen bg-background text-foreground">
+      <WorkspaceHeader
+        title={activeTool.label}
+        crumbs={[{ label: 'Growth', href: '/dashboard/marketing' }]}
+        actions={
+          <>
+            <button type="button" onClick={syncBrandBrain} className={ui.btnGhost} title="Fill inputs from Brand Brain">
+              <Zap size={14} />
+              <span className="hidden sm:inline">Sync brand</span>
+            </button>
+            <Link href="/dashboard/brand" className={ui.btnSecondary}>
+              <Brain size={14} />
+              <span className="hidden sm:inline max-w-[160px] truncate">
+                {hasBrandBrain ? brandProfile.businessName || 'Brand Brain' : 'Set up Brand Brain'}
+              </span>
+              {hasBrandBrain && <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />}
+            </Link>
+          </>
+        }
+      />
+      <div className="mx-auto max-w-7xl space-y-6 p-4 sm:p-6 lg:p-8">
+        <ToolSwitcher
+          items={[...tools]
+            .sort((a, b) => TOOL_ORDER.indexOf(a.id) - TOOL_ORDER.indexOf(b.id))
+            .map(t => ({ id: t.id, label: t.label, icon: t.icon, href: `/dashboard/marketing/${t.id}` }))}
+          value={activeTool.id}
+        />
 
-        {/* Hero Header Card */}
-        <div className="mb-8 rounded-3xl border border-white/[0.08] bg-[#0d0d0f] p-6 sm:p-7 relative overflow-hidden shadow-2xl">
-          <div className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-orange-500/10 blur-3xl" />
-
-          <div className="relative z-10 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-            <div>
-              <div className="mb-2.5 inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-[#FF5533]">
-                <span>{activeTool.category} Engine</span>
-                <span className="w-1 h-1 rounded-full bg-orange-400" />
-                <span>40-Yr CMO Framework</span>
-              </div>
-              <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white flex items-center gap-3">
-                {activeTool.label}
-              </h1>
-              <p className="mt-1.5 max-w-2xl text-xs text-white/55 leading-relaxed">
-                {activeTool.description} Tailored for real cash flow, high-converting Meta Ads, Messenger closing scripts, and frictionless conversions.
-              </p>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-2.5">
-              <button
-                type="button"
-                onClick={syncBrandBrain}
-                className="inline-flex items-center gap-2 rounded-xl border border-orange-500/30 bg-orange-500/10 px-3.5 py-2.5 text-xs font-black text-[#FF7A45] hover:bg-orange-500/20 transition cursor-pointer"
-                title="Sync business context from your Brand Brain"
-              >
-                <Zap size={14} />
-                <span>Sync Brand Brain</span>
-              </button>
-
-              <Link
-                href="/dashboard/brand"
-                className={`inline-flex items-center gap-2 rounded-xl px-3.5 py-2.5 text-xs font-black transition border ${
-                  hasBrandBrain
-                    ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500/20'
-                    : 'border-white/10 bg-white/[0.04] text-white/70 hover:text-white'
-                }`}
-              >
-                <Brain size={14} />
-                <span>{hasBrandBrain ? 'Edit Brand Brain' : 'Setup Brand Brain'}</span>
-              </Link>
-            </div>
-          </div>
-        </div>
-
-        {/* STACKED LAYOUT: Input Card (TOP) & Output Card (BOTTOM) */}
-        <div className="flex flex-col gap-8 w-full">
+        {/* Modern 2-Column Responsive Workspace */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           {/* ======================================================== */}
-          {/* STEP 1: INPUT CARD (TOP)                                */}
+          {/* LEFT PANEL: Parameters & Configuration                  */}
           {/* ======================================================== */}
-          <div className="w-full space-y-4">
-            <form onSubmit={generate} className="rounded-3xl border border-white/10 bg-[#0d0d0f] p-5 sm:p-7 shadow-2xl space-y-6">
-              {/* Top Bar of Input Card: Section Title + Voice Typing + Language */}
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-4 border-b border-white/5">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-xl bg-orange-500/10 border border-orange-500/20 text-[#FF5533] flex items-center justify-center text-xs font-black">
-                    01
-                  </div>
-                  <div>
-                    <h2 className="text-base font-black text-white">Campaign Parameters & Configuration</h2>
-                    <p className="text-[11px] text-white/40">Select your business model and input your campaign details below.</p>
-                  </div>
+          <div className="lg:col-span-5 xl:col-span-5 space-y-4">
+            <form onSubmit={generate} className="rounded-2xl border border-border bg-card p-5 space-y-5">
+              {/* Top Bar of Input Card: Configuration + Voice Typing + Language */}
+              <div className="flex items-center justify-between gap-3 pb-3 border-b border-border">
+                <div className="flex items-center gap-2">
+                                    <h2 className="text-sm font-semibold text-foreground">Inputs</h2>
                 </div>
 
-                <div className="flex items-center gap-2 shrink-0">
+                <div className="flex items-center gap-2">
                   {/* Voice Typing Button */}
                   {!isRecording ? (
                     <button
                       type="button"
                       onClick={startVoiceRecording}
                       disabled={isTranscribing}
-                      className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-orange-500/30 bg-orange-500/10 hover:bg-orange-500/20 text-[#FF7A45] text-xs font-bold transition cursor-pointer"
-                      title="Speak in Bangla, Banglish or English to auto-type"
+                      className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-white/10 bg-white/[0.03] hover:bg-white/[0.08] text-white/70 hover:text-white text-xs font-medium transition cursor-pointer"
+                      title="Speak in Bangla or English to auto-type"
                     >
-                      {isTranscribing ? <Loader2 size={13} className="animate-spin" /> : <Mic size={13} />}
-                      <span>{isTranscribing ? 'Transcribing...' : 'Voice Type (বাংলা/EN)'}</span>
+                      {isTranscribing ? <Loader2 size={12} className="animate-spin text-[#FF7A45]" /> : <Mic size={12} className="text-[#FF7A45]" />}
+                      <span>{isTranscribing ? 'Transcribing...' : 'Voice Type'}</span>
                     </button>
                   ) : (
                     <div className="flex items-center gap-1.5">
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-rose-500/20 border border-rose-500/40 text-rose-300 text-xs font-mono font-bold animate-pulse">
-                        <span className="w-2 h-2 rounded-full bg-rose-500" />
+                      <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-rose-500/20 text-rose-300 text-xs font-mono font-bold animate-pulse">
+                        <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
                         {Math.floor(recordSeconds / 60).toString().padStart(2, '0')}:{(recordSeconds % 60).toString().padStart(2, '0')}
                       </span>
                       <button
                         type="button"
                         onClick={stopVoiceRecording}
-                        className="p-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white transition cursor-pointer"
+                        className="p-1 rounded-md bg-emerald-500 hover:bg-emerald-600 text-white transition cursor-pointer"
                         title="Done"
                       >
-                        <Check size={13} />
+                        <Check size={12} />
                       </button>
                       <button
                         type="button"
                         onClick={cancelVoiceRecording}
-                        className="p-1.5 rounded-lg bg-rose-500/20 hover:bg-rose-500 text-rose-300 hover:text-white transition cursor-pointer"
+                        className="p-1 rounded-md bg-rose-500/20 hover:bg-rose-500 text-rose-300 hover:text-white transition cursor-pointer"
                         title="Cancel"
                       >
-                        <Trash2 size={13} />
+                        <Trash2 size={12} />
                       </button>
                     </div>
                   )}
@@ -794,9 +757,9 @@ function ToolWorkspaceContent() {
                   <select
                     value={language}
                     onChange={event => setLanguage(event.target.value)}
-                    className="rounded-xl border border-white/10 bg-[#030303] px-3 py-2 text-xs font-bold text-white outline-none cursor-pointer focus:border-[#FF5533]/50"
+                    className="rounded-lg border border-white/10 bg-white/[0.03] px-2.5 py-1.5 text-xs font-medium text-white outline-none cursor-pointer focus:border-[#FF5533]/50"
                   >
-                    <option value="Bengali">Bangla (DHAKA)</option>
+                    <option value="Bengali">Bangla</option>
                     <option value="Banglish">Banglish</option>
                     <option value="English">English</option>
                   </select>
@@ -805,123 +768,76 @@ function ToolWorkspaceContent() {
 
               {/* Status messages for voice typing */}
               {voiceSuccessMsg && (
-                <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/25 text-emerald-300 text-xs flex items-center gap-2">
-                  <CheckCircle2 size={14} className="shrink-0" />
+                <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/25 text-emerald-300 text-xs flex items-center gap-2">
+                  <CheckCircle2 size={13} className="shrink-0" />
                   <span>{voiceSuccessMsg}</span>
                 </div>
               )}
               {voiceErrorMsg && (
-                <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/25 text-rose-300 text-xs flex items-center gap-2">
-                  <AlertCircle size={14} className="shrink-0" />
+                <div className="p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/25 text-rose-300 text-xs flex items-center gap-2">
+                  <AlertCircle size={13} className="shrink-0" />
                   <span>{voiceErrorMsg}</span>
                 </div>
               )}
 
-              {/* Business Model Horizontal Responsive Segmented Control */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-white/40">Target Business Archetype</span>
-                  <span className="text-[10px] text-orange-400 font-bold uppercase tracking-wider">{businessModel} mode active</span>
-                </div>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 p-1.5 rounded-2xl bg-[#030303] border border-white/5">
-                  <button
-                    type="button"
-                    onClick={() => setBusinessModel('fcommerce')}
-                    className={`py-2.5 px-3 rounded-xl text-xs font-black transition text-left sm:text-center flex items-center justify-between sm:justify-center gap-2 cursor-pointer ${
-                      businessModel === 'fcommerce'
-                        ? 'bg-gradient-to-r from-[#FF473A] to-[#FF8526] text-white shadow-md'
-                        : 'text-white/60 hover:text-white hover:bg-white/[0.03]'
-                    }`}
-                  >
-                    <span>🇧🇩 F-Commerce (COD)</span>
-                    {businessModel === 'fcommerce' && <Check size={12} className="stroke-[3]" />}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setBusinessModel('ecommerce')}
-                    className={`py-2.5 px-3 rounded-xl text-xs font-black transition text-left sm:text-center flex items-center justify-between sm:justify-center gap-2 cursor-pointer ${
-                      businessModel === 'ecommerce'
-                        ? 'bg-gradient-to-r from-[#FF473A] to-[#FF8526] text-white shadow-md'
-                        : 'text-white/60 hover:text-white hover:bg-white/[0.03]'
-                    }`}
-                  >
-                    <span>🛍️ D2C Ecommerce</span>
-                    {businessModel === 'ecommerce' && <Check size={12} className="stroke-[3]" />}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setBusinessModel('b2b')}
-                    className={`py-2.5 px-3 rounded-xl text-xs font-black transition text-left sm:text-center flex items-center justify-between sm:justify-center gap-2 cursor-pointer ${
-                      businessModel === 'b2b'
-                        ? 'bg-gradient-to-r from-[#FF473A] to-[#FF8526] text-white shadow-md'
-                        : 'text-white/60 hover:text-white hover:bg-white/[0.03]'
-                    }`}
-                  >
-                    <span>💼 B2B / Agency</span>
-                    {businessModel === 'b2b' && <Check size={12} className="stroke-[3]" />}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setBusinessModel('saas')}
-                    className={`py-2.5 px-3 rounded-xl text-xs font-black transition text-left sm:text-center flex items-center justify-between sm:justify-center gap-2 cursor-pointer ${
-                      businessModel === 'saas'
-                        ? 'bg-gradient-to-r from-[#FF473A] to-[#FF8526] text-white shadow-md'
-                        : 'text-white/60 hover:text-white hover:bg-white/[0.03]'
-                    }`}
-                  >
-                    <span>🚀 SaaS Product</span>
-                    {businessModel === 'saas' && <Check size={12} className="stroke-[3]" />}
-                  </button>
+              {/* Business Model Clean Segmented Control */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-muted-foreground block">
+                  Business Model
+                </label>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-1 p-1 rounded-xl bg-white/[0.02] border border-white/5">
+                  {[
+                    { id: 'fcommerce', label: 'F-Commerce' },
+                    { id: 'ecommerce', label: 'D2C E-Com' },
+                    { id: 'b2b', label: 'B2B / Agency' },
+                    { id: 'saas', label: 'SaaS' },
+                  ].map(item => (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={() => setBusinessModel(item.id as any)}
+                      className={`py-1.5 px-2 rounded-lg text-xs font-bold transition text-center cursor-pointer ${
+                        businessModel === item.id
+                          ? 'bg-[#FF5533] text-white shadow-sm'
+                          : 'text-white/60 hover:text-white hover:bg-white/5'
+                      }`}
+                    >
+                      {item.label}
+                    </button>
+                  ))}
                 </div>
               </div>
 
-              {/* Clean Quick Presets Toggle (Horizontal Grid when expanded) */}
-              <div className="rounded-2xl border border-white/5 bg-[#030303] overflow-hidden">
-                <button
-                  type="button"
-                  onClick={() => setShowPresets(!showPresets)}
-                  className="w-full px-4 py-3 flex items-center justify-between text-xs font-bold text-white/70 hover:text-white transition cursor-pointer"
-                >
-                  <div className="flex items-center gap-2">
-                    <Sparkles size={14} className="text-[#FF7A45]" />
-                    <span>Quick Battle-Tested Campaign Presets</span>
-                    <span className="px-2 py-0.5 rounded-md bg-orange-500/20 text-[#FF7A45] text-[10px] font-black">
-                      {modelPresets.length} Ready
+              {/* Clean Quick Presets (Autofill templates) */}
+              {modelPresets.length > 0 && (
+                <div className="rounded-xl border border-white/5 bg-white/[0.02] p-3 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] font-bold text-white/60 flex items-center gap-1.5">
+                      <Sparkles size={12} className="text-[#FF7A45]" />
+                      <span>Templates</span>
                     </span>
                   </div>
-                  <div className="flex items-center gap-1.5 text-[11px] text-white/40">
-                    <span>{showPresets ? 'Collapse' : '1-Click Auto Fill'}</span>
-                    {showPresets ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-                  </div>
-                </button>
-
-                {showPresets && (
-                  <div className="p-3 pt-0 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 border-t border-white/5">
+                  <div className="flex flex-wrap gap-1.5">
                     {modelPresets.map(preset => (
                       <button
                         key={preset.id}
                         type="button"
                         onClick={() => applyPreset(preset)}
-                        className="text-left p-3 rounded-xl bg-white/[0.02] hover:bg-orange-500/10 hover:border-orange-500/30 border border-white/5 transition flex flex-col justify-between gap-1 text-xs text-white/80 cursor-pointer group"
+                        className="px-2.5 py-1 rounded-lg bg-white/[0.03] hover:bg-white/[0.08] hover:border-[#FF5533]/30 border border-white/5 text-[11px] font-medium text-white/70 hover:text-white transition cursor-pointer truncate max-w-[220px]"
+                        title={preset.description}
                       >
-                        <span className="font-bold line-clamp-1 group-hover:text-white">{preset.label}</span>
-                        <div className="flex items-center justify-between text-[10px] text-white/40">
-                          <span className="line-clamp-1">{preset.description}</span>
-                          <span className="font-black uppercase px-1.5 py-0.2 rounded bg-white/5 text-white/50 shrink-0 ml-1">
-                            {preset.badge}
-                          </span>
-                        </div>
+                        {preset.label}
                       </button>
                     ))}
                   </div>
-                )}
-              </div>
+                </div>
+              )}
 
-              {/* Responsive Dynamic Input Fields (2 Columns on Tablet/Desktop, Full width for textareas) */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Dynamic Input Fields */}
+              <div className="space-y-3.5">
                 {activeTool.fields.map(field => (
-                  <div key={field.key} className={field.textarea ? 'col-span-1 md:col-span-2' : 'col-span-1'}>
-                    <label className="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-white/50">
+                  <div key={field.key} className="space-y-1">
+                    <label className="block text-xs font-medium text-muted-foreground">
                       {field.label}
                     </label>
                     {field.textarea ? (
@@ -930,96 +846,91 @@ function ToolWorkspaceContent() {
                         onChange={event => updateInput(field.key, event.target.value)}
                         placeholder={field.placeholder}
                         rows={3}
-                        className="w-full resize-y rounded-2xl border border-white/10 bg-[#030303] px-4 py-3 text-xs sm:text-sm leading-6 text-white outline-none transition placeholder:text-white/20 focus:border-[#FF5533]/60 focus:ring-1 focus:ring-[#FF5533]/20"
+                        className={ui.textarea}
                       />
                     ) : (
                       <input
                         value={inputs[field.key] || ''}
                         onChange={event => updateInput(field.key, event.target.value)}
                         placeholder={field.placeholder}
-                        className="w-full rounded-2xl border border-white/10 bg-[#030303] px-4 py-2.5 text-xs sm:text-sm text-white outline-none transition placeholder:text-white/20 focus:border-[#FF5533]/60 focus:ring-1 focus:ring-[#FF5533]/20"
+                        className={ui.input}
                       />
                     )}
                   </div>
                 ))}
               </div>
 
-              {/* Form Bottom Row: Brand Brain Status + Action Button */}
-              <div className="pt-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-t border-white/5">
-                <div className="flex items-center gap-2 text-xs text-white/50">
+              {/* Action Button & Brand Brain Indicator */}
+              <div className="pt-3 space-y-3 border-t border-border">
+                <div className="flex items-center justify-between text-xs text-white/50">
                   {hasBrandBrain ? (
-                    <span className="flex items-center gap-1.5 text-emerald-400 font-bold">
-                      <CheckCircle2 size={14} /> Brand Brain active ({brandProfile.businessName || 'Configured'})
+                    <span className="flex items-center gap-1.5 text-emerald-400 font-semibold text-[11px]">
+                      <CheckCircle2 size={13} /> Brand Brain active
                     </span>
                   ) : (
-                    <span className="text-amber-300/80">
-                      💡 Tip: Setup Brand Brain to automatically power all campaign outputs.
+                    <span />
+                  )}
+                  {saveStatus === 'saved' && (
+                    <span className="text-emerald-400 text-[11px] font-medium flex items-center gap-1">
+                      <Check size={11} /> Saved
                     </span>
                   )}
                 </div>
 
                 <button
                   disabled={loading}
-                  className="inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] px-8 py-3.5 text-sm font-black text-white shadow-xl shadow-[#FF5533]/25 transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer w-full sm:w-auto"
+                  className={`${ui.btnPrimary} h-11 w-full`}
                 >
-                  {loading ? <Loader2 className="animate-spin" size={17} /> : <Wand2 size={17} />}
-                  <span>{loading ? 'Assembling 40-Yr CMO Engine...' : 'Generate Expert Growth Engine'}</span>
+                  {loading ? <Loader2 className="animate-spin" size={15} /> : <Wand2 size={15} />}
+                  <span>{loading ? 'Generating…' : 'Generate'}</span>
                 </button>
               </div>
             </form>
 
-            {/* Collapsible History Section (Under Input Form) */}
-            <div className="rounded-3xl border border-white/10 bg-[#0d0d0f] overflow-hidden shadow-lg">
+            {/* Collapsible History Section */}
+            <div className="rounded-2xl border border-border bg-card overflow-hidden">
               <button
                 type="button"
                 onClick={() => setShowHistory(!showHistory)}
-                className="w-full p-4 flex items-center justify-between text-xs font-black text-white/70 hover:text-white transition cursor-pointer"
+                className="w-full p-3.5 flex items-center justify-between text-xs font-bold text-white/70 hover:text-white transition cursor-pointer"
               >
                 <div className="flex items-center gap-2">
-                  <Clock size={14} className="text-white/40" />
-                  <span>Previous Drafts for {activeTool.label}</span>
-                  <span className="px-2 py-0.5 rounded-full bg-white/5 text-[10px] text-white/50 border border-white/5">
+                  <Clock size={13} className="text-white/40" />
+                  <span>History</span>
+                  <span className="px-1.5 py-0.5 rounded-full bg-white/5 text-[10px] text-white/50 border border-white/5">
                     {toolSavedAssets.length}
                   </span>
                 </div>
-                {showHistory ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                {showHistory ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
               </button>
 
               {showHistory && (
-                <div className="p-4 pt-0 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 border-t border-white/5 max-h-80 overflow-y-auto">
+                <div className="p-3 pt-0 space-y-2 border-t border-white/5 max-h-64 overflow-y-auto">
                   {toolSavedAssets.length === 0 ? (
-                    <p className="col-span-full text-xs text-white/30 text-center py-4">No drafts saved yet for this tool.</p>
+                    <p className="text-xs text-white/30 text-center py-4">No drafts saved yet for this tool.</p>
                   ) : (
                     toolSavedAssets.map(asset => (
-                      <div key={asset.id} className="p-3 rounded-2xl bg-[#030303] border border-white/5 flex flex-col justify-between gap-2">
+                      <div key={asset.id} className="p-2.5 rounded-xl bg-white/[0.02] border border-white/5 flex items-center justify-between gap-2 text-xs">
                         <button
                           type="button"
                           onClick={() => loadAsset(asset)}
-                          className="text-left group"
+                          className="text-left flex-1 min-w-0 group"
                         >
-                          <h4 className="line-clamp-1 text-xs font-bold text-white group-hover:text-[#FF7A45] transition-colors">{asset.title}</h4>
+                          <h4 className="line-clamp-1 font-bold text-white group-hover:text-[#FF7A45] transition-colors">{asset.title}</h4>
                           <span className="text-[10px] text-white/30">{new Date(asset.createdAt).toLocaleDateString()}</span>
                         </button>
-                        <div className="flex items-center gap-2 pt-1 border-t border-white/5">
+                        <div className="flex items-center gap-1 shrink-0">
                           <button
                             type="button"
                             onClick={() => loadAsset(asset)}
-                            className="flex-1 py-1 rounded-lg bg-white/5 text-[10px] font-bold text-white/60 hover:text-white hover:bg-white/10"
+                            className="px-2 py-1 rounded-md bg-white/5 text-[10px] font-bold text-white/60 hover:text-white hover:bg-white/10"
                           >
                             Load
                           </button>
                           <button
                             type="button"
-                            onClick={() => downloadAsset(asset, 'md')}
-                            className="p-1 rounded-lg bg-orange-500/10 text-[#FF5533] hover:bg-orange-500/20"
-                            title="Download MD"
-                          >
-                            <Download size={12} />
-                          </button>
-                          <button
-                            type="button"
                             onClick={() => deleteAsset(asset.id)}
-                            className="p-1 rounded-lg bg-red-500/10 text-red-300 hover:bg-red-500/20"
+                            className="p-1 rounded-md text-white/30 hover:text-red-400 hover:bg-red-500/10"
                             title="Delete"
                           >
                             <Trash2 size={12} />
@@ -1034,32 +945,23 @@ function ToolWorkspaceContent() {
           </div>
 
           {/* ======================================================== */}
-          {/* STEP 2: OUTPUT CARD (BOTTOM)                            */}
+          {/* RIGHT PANEL: Output Studio & Execution Canvas            */}
           {/* ======================================================== */}
-          <div ref={outputRef} id="execution-output" className="rounded-3xl border border-white/10 bg-[#0d0d0f] p-5 sm:p-7 shadow-2xl space-y-6 w-full">
-            {/* Studio Header Bar with Global Actions */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-white/5 pb-4">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-orange-500/10 border border-orange-500/20 text-[#FF5533] flex items-center justify-center text-xs font-black">
-                  02
-                </div>
-                <div>
-                  <h2 className="text-base font-black text-white flex items-center gap-2">
-                    <Megaphone size={16} className="text-[#FF5533]" />
-                    <span>CMO Execution Studio</span>
-                  </h2>
-                  <p className="text-[11px] text-white/40">Review your generated copy assets, closing scripts, and roadmaps.</p>
-                </div>
+          <div ref={outputRef} id="execution-output" className="lg:col-span-7 xl:col-span-7 rounded-2xl border border-border bg-card p-5 sm:p-6 space-y-5 min-h-[550px]">
+            {/* Studio Header Bar */}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-border pb-4">
+              <div>
+                <h2 className="text-sm font-semibold text-foreground">Output</h2>
               </div>
 
               {fullOutput && (
                 <div className="flex flex-wrap items-center gap-2">
                   <button
                     onClick={() => copyBlock('all', fullOutput)}
-                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-white/10 bg-white/[0.04] text-xs font-black text-white/80 hover:bg-white/[0.08] hover:text-white transition cursor-pointer"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-white/10 bg-white/[0.04] text-xs font-bold text-white/80 hover:bg-white/[0.08] hover:text-white transition cursor-pointer"
                   >
-                    {copied === 'all' ? <Check size={13} className="text-emerald-400" /> : <Copy size={13} />}
-                    <span>{copied === 'all' ? 'Copied Entire Output' : 'Copy Entire Output'}</span>
+                    {copied === 'all' ? <Check size={12} className="text-emerald-400" /> : <Copy size={12} />}
+                    <span>{copied === 'all' ? 'Copied' : 'Copy All'}</span>
                   </button>
 
                   {currentAsset && (
@@ -1069,7 +971,7 @@ function ToolWorkspaceContent() {
                           key={format}
                           type="button"
                           onClick={() => downloadAsset(currentAsset, format)}
-                          className="px-2.5 py-2 rounded-xl border border-white/5 bg-white/[0.03] text-[10px] font-black uppercase text-white/50 hover:text-white hover:bg-white/10 transition cursor-pointer"
+                          className="px-2.5 py-1.5 rounded-lg border border-white/5 bg-white/[0.03] text-[10px] font-bold uppercase text-white/50 hover:text-white hover:bg-white/10 transition cursor-pointer"
                         >
                           {format}
                         </button>
@@ -1081,7 +983,7 @@ function ToolWorkspaceContent() {
             </div>
 
             {error && (
-              <div className="p-3.5 rounded-2xl border border-red-500/20 bg-red-500/10 text-xs text-red-100 flex items-center gap-2.5">
+              <div className="p-3.5 rounded-xl border border-red-500/20 bg-red-500/10 text-xs text-red-200 flex items-center gap-2.5">
                 <AlertCircle size={15} className="shrink-0 text-red-400" />
                 <span>{error}</span>
               </div>
@@ -1089,30 +991,32 @@ function ToolWorkspaceContent() {
 
             {/* Empty State */}
             {!loading && !fullOutput && (
-              <div className="flex min-h-[380px] flex-col items-center justify-center rounded-3xl border border-dashed border-white/10 bg-[#030303]/60 p-8 text-center">
-                <div className="w-14 h-14 rounded-2xl bg-orange-500/10 border border-orange-500/25 flex items-center justify-center text-[#FF5533] mb-4">
-                  <Sparkles size={28} />
+              <div className="flex min-h-[420px] flex-col items-center justify-center p-8 text-center">
+                <div className="w-11 h-11 rounded-xl border border-border bg-muted flex items-center justify-center text-muted-foreground mb-4">
+                  <Sparkles size={20} />
                 </div>
-                <h3 className="text-lg font-black text-white">Execution Studio Waiting</h3>
-                <p className="mt-2 max-w-md text-xs leading-6 text-white/45">
-                  Configure your parameters in the input card above and hit <span className="text-white font-bold">Generate Expert Growth Engine</span>. Your ready-to-run copy assets will appear here.
+                <h3 className="text-sm font-semibold text-foreground">Nothing generated yet</h3>
+                <p className="mt-1 max-w-xs text-xs leading-relaxed text-muted-foreground">
+                  Fill in the inputs or start from a template.
                 </p>
-                <div className="mt-6 flex flex-wrap justify-center gap-2 text-[11px] text-white/40">
-                  <span className="px-3 py-1 rounded-full bg-white/[0.03] border border-white/5">🔥 Meta & Video Ads</span>
-                  <span className="px-3 py-1 rounded-full bg-white/[0.03] border border-white/5">💬 Messenger & WhatsApp Closing</span>
-                  <span className="px-3 py-1 rounded-full bg-white/[0.03] border border-white/5">🛡️ Rider Inspection Guarantees</span>
-                </div>
+                {modelPresets.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => applyPreset(modelPresets[0])}
+                    className={`${ui.btnSecondary} mt-5`}
+                  >
+                    <Sparkles size={13} />
+                    <span>Load "{modelPresets[0].label}"</span>
+                  </button>
+                )}
               </div>
             )}
 
             {/* Loading State */}
             {loading && (
-              <div className="flex min-h-[380px] flex-col items-center justify-center rounded-3xl border border-white/10 bg-[#030303]/60 p-8 text-center">
-                <Loader2 className="mb-4 animate-spin text-[#FF5533]" size={34} />
-                <h3 className="text-lg font-black text-white">Generating Strategic Campaign Engine...</h3>
-                <p className="mt-2 max-w-md text-xs leading-6 text-white/45">
-                  Synthesizing psychological hooks, objection battlecards, chat closing scripts, and launch phase milestones for {businessModel.toUpperCase()}.
-                </p>
+              <div className="flex min-h-[420px] flex-col items-center justify-center p-8 text-center">
+                <Loader2 className="mb-3 animate-spin text-[#FF7A45]" size={28} />
+                <p className="text-sm text-muted-foreground">Generating…</p>
               </div>
             )}
 
@@ -1120,27 +1024,27 @@ function ToolWorkspaceContent() {
             {fullOutput && !loading && (
               <div className="space-y-6">
                 {/* STUDIO NAVIGATION TABS (Apple/Linear Segmented Style) */}
-                <div className="flex flex-wrap items-center gap-1.5 p-1 rounded-2xl bg-[#030303] border border-white/5">
+                <div className="flex flex-wrap items-center gap-1 p-1 rounded-xl bg-background border border-border">
                   <button
                     type="button"
                     onClick={() => setOutputTab('canvas')}
-                    className={`px-3.5 py-2 rounded-xl text-xs font-black transition cursor-pointer flex items-center gap-2 ${
+                    className={`h-8 px-3 rounded-lg text-xs font-medium transition cursor-pointer flex items-center gap-2 ${
                       outputTab === 'canvas'
-                        ? 'bg-gradient-to-r from-[#FF473A] to-[#FF8526] text-white shadow-md'
+                        ? 'bg-[#FF5533] text-white'
                         : 'text-white/60 hover:text-white hover:bg-white/[0.03]'
                     }`}
                   >
                     <Layers size={13} />
-                    <span>Master Studio</span>
+                    <span>Campaign Assets</span>
                   </button>
 
                   {result.adCreatives && result.adCreatives.length > 0 && (
                     <button
                       type="button"
                       onClick={() => setOutputTab('creatives')}
-                      className={`px-3.5 py-2 rounded-xl text-xs font-black transition cursor-pointer flex items-center gap-2 ${
+                      className={`h-8 px-3 rounded-lg text-xs font-medium transition cursor-pointer flex items-center gap-2 ${
                         outputTab === 'creatives'
-                          ? 'bg-gradient-to-r from-[#FF473A] to-[#FF8526] text-white shadow-md'
+                          ? 'bg-[#FF5533] text-white'
                           : 'text-white/60 hover:text-white hover:bg-white/[0.03]'
                       }`}
                     >
@@ -1153,9 +1057,9 @@ function ToolWorkspaceContent() {
                     <button
                       type="button"
                       onClick={() => setOutputTab('closing')}
-                      className={`px-3.5 py-2 rounded-xl text-xs font-black transition cursor-pointer flex items-center gap-2 ${
+                      className={`h-8 px-3 rounded-lg text-xs font-medium transition cursor-pointer flex items-center gap-2 ${
                         outputTab === 'closing'
-                          ? 'bg-gradient-to-r from-[#FF473A] to-[#FF8526] text-white shadow-md'
+                          ? 'bg-[#FF5533] text-white'
                           : 'text-white/60 hover:text-white hover:bg-white/[0.03]'
                       }`}
                     >
@@ -1168,14 +1072,14 @@ function ToolWorkspaceContent() {
                     <button
                       type="button"
                       onClick={() => setOutputTab('phases')}
-                      className={`px-3.5 py-2 rounded-xl text-xs font-black transition cursor-pointer flex items-center gap-2 ${
+                      className={`h-8 px-3 rounded-lg text-xs font-medium transition cursor-pointer flex items-center gap-2 ${
                         outputTab === 'phases'
-                          ? 'bg-gradient-to-r from-[#FF473A] to-[#FF8526] text-white shadow-md'
+                          ? 'bg-[#FF5533] text-white'
                           : 'text-white/60 hover:text-white hover:bg-white/[0.03]'
                       }`}
                     >
                       <Zap size={13} className="text-amber-400" />
-                      <span>4-Phase Roadmap ({result.campaignPhases.length})</span>
+                      <span>Launch Roadmap ({result.campaignPhases.length})</span>
                     </button>
                   )}
 
@@ -1183,14 +1087,14 @@ function ToolWorkspaceContent() {
                     <button
                       type="button"
                       onClick={() => setOutputTab('economics')}
-                      className={`px-3.5 py-2 rounded-xl text-xs font-black transition cursor-pointer flex items-center gap-2 ${
+                      className={`h-8 px-3 rounded-lg text-xs font-medium transition cursor-pointer flex items-center gap-2 ${
                         outputTab === 'economics'
-                          ? 'bg-gradient-to-r from-[#FF473A] to-[#FF8526] text-white shadow-md'
+                          ? 'bg-[#FF5533] text-white'
                           : 'text-white/60 hover:text-white hover:bg-white/[0.03]'
                       }`}
                     >
                       <ShieldCheck size={13} className="text-teal-400" />
-                      <span>Economics & Guarantee</span>
+                      <span>Pricing & Guarantee</span>
                     </button>
                   )}
                 </div>
@@ -1287,14 +1191,14 @@ function ToolWorkspaceContent() {
                       <>
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                           <ResultCard
-                            title="CMO Executive Summary"
+                            title="Executive Summary"
                             body={result.executiveSummary}
                             icon={<Brain size={15} />}
                             onCopy={() => copyBlock('summary', result.executiveSummary)}
                             isCopied={copied === 'summary'}
                           />
                           <ResultCard
-                            title="Strategic Funnel Framework"
+                            title="Funnel Strategy"
                             items={result.strategy}
                             icon={<Target size={15} />}
                             onCopy={() => copyBlock('strategy', result.strategy.join('\n'))}
@@ -1303,7 +1207,7 @@ function ToolWorkspaceContent() {
                         </div>
 
                         <ResultCard
-                          title="Master Strategic Output"
+                          title="Generated Content & Copy"
                           body={result.primaryOutput}
                           icon={<FileText size={15} />}
                           large
@@ -1427,7 +1331,7 @@ function ToolWorkspaceContent() {
                         >
                           <div>
                             {/* Ad Card Top Bar */}
-                            <div className="flex items-center justify-between gap-2 mb-4 pb-3 border-b border-white/5">
+                            <div className="flex items-center justify-between gap-2 mb-4 pb-3 border-b border-border">
                               <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-orange-500/20 text-[#FF7A45] border border-orange-500/30">
                                 Angle {idx + 1}: {creative.angleName}
                               </span>
@@ -1581,7 +1485,7 @@ function ToolWorkspaceContent() {
                   <div className="space-y-5">
                     <div className="p-3.5 rounded-2xl border border-amber-500/20 bg-amber-500/10 text-xs text-amber-200 flex items-center gap-2">
                       <Zap size={15} className="text-amber-400 shrink-0" />
-                      <span>Step-by-step 4-phase launch calendar from curiosity hype to the final 48-hour deadline push.</span>
+                      <span>Step-by-step launch schedule from pre-launch buzz to final deadline push.</span>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -1644,7 +1548,7 @@ function ToolWorkspaceContent() {
                             <div className="flex items-center gap-2">
                               <ShieldCheck size={18} className="text-teal-400" />
                               <h3 className="text-xs font-black uppercase tracking-wider text-teal-300">
-                                Ironclad Risk-Reversal Guarantee
+                                Risk-Reversal Guarantee
                               </h3>
                             </div>
                             <button
@@ -1670,7 +1574,7 @@ function ToolWorkspaceContent() {
                             <div className="flex items-center gap-2">
                               <TrendingUp size={18} className="text-orange-400" />
                               <h3 className="text-xs font-black uppercase tracking-wider text-orange-300">
-                                Unit Economics & Margin Architecture
+                                Unit Economics & Margin Strategy
                               </h3>
                             </div>
                             <button
@@ -1679,7 +1583,7 @@ function ToolWorkspaceContent() {
                               className="px-2.5 py-1 rounded-lg bg-orange-500/20 hover:bg-orange-500/30 text-orange-300 text-xs font-bold transition flex items-center gap-1 cursor-pointer"
                             >
                               {copied === 'economics' ? <Check size={11} /> : <Copy size={11} />}
-                              <span>{copied === 'economics' ? 'Copied' : 'Copy Framework'}</span>
+                              <span>{copied === 'economics' ? 'Copied' : 'Copy Strategy'}</span>
                             </button>
                           </div>
                           <div className="whitespace-pre-wrap text-xs sm:text-sm text-white/90 leading-6 font-medium">
@@ -1717,9 +1621,9 @@ function ResultCard({
   isCopied?: boolean;
 }) {
   return (
-    <section className="rounded-2xl border border-white/10 bg-[#030303] p-5 shadow-lg space-y-3">
-      <div className="flex items-center justify-between pb-2 border-b border-white/5">
-        <h3 className="text-[11px] font-black uppercase tracking-widest text-[#FF7A45] flex items-center gap-2">
+    <section className="rounded-xl border border-border bg-background p-5 space-y-3">
+      <div className="flex items-center justify-between">
+        <h3 className="text-sm font-semibold text-foreground flex items-center gap-2 [&>svg]:text-muted-foreground">
           {icon}
           <span>{title}</span>
         </h3>
@@ -1730,7 +1634,7 @@ function ResultCard({
             className="text-[10px] font-bold text-white/40 hover:text-white flex items-center gap-1 transition cursor-pointer"
           >
             {isCopied ? <Check size={11} className="text-emerald-400" /> : <Copy size={11} />}
-            <span>{isCopied ? 'Copied' : 'Copy Section'}</span>
+            <span>{isCopied ? 'Copied' : 'Copy'}</span>
           </button>
         )}
       </div>
@@ -1757,7 +1661,7 @@ function ResultCard({
 
 export default function ToolWorkspacePage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-[#030303] p-8 text-white/40 flex items-center justify-center">Loading marketing workspace...</div>}>
+    <Suspense fallback={<div className="min-h-screen bg-background flex items-center justify-center"><Loader2 className="animate-spin text-[#FF5533]" size={24} /></div>}>
       <ToolWorkspaceContent />
     </Suspense>
   );

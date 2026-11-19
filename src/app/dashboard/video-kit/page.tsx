@@ -1,7 +1,8 @@
 'use client';
 
 import { FormEvent, useState } from 'react';
-import { Check, Copy, Download, Loader2, Video, Wand2, AlertCircle } from 'lucide-react';
+import { Check, Copy, Download, Loader2, Video, Wand2 } from 'lucide-react';
+import { WorkspacePage, WorkspaceHeader, WorkspaceBody, Panel, Field, EmptyState, Notice, ui } from '@/components/workspace/ui';
 import { copyTextSafely } from '@/lib/clipboard';
 
 type VideoKitResult = {
@@ -111,216 +112,131 @@ export default function VideoKitPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#030303] p-4 sm:p-6 lg:p-10">
-      <div className="mx-auto max-w-7xl">
-        <div className="mb-8 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-[#FF5533]">
-              <Video size={12} /> Separate Video Workflow
-            </div>
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-white">
-              Video <span className="bg-gradient-to-r from-[#FF4D42] via-[#FF6A3D] to-[#FF8A00] bg-clip-text text-transparent">Content Kit</span>
-            </h1>
-            <p className="mt-3 max-w-2xl text-xs sm:text-sm leading-6 text-white/50">
-              Paste a YouTube link, public Google Drive video/audio file, or direct MP4/MP3 link. The app transcribes the media first, then uses that transcript as the brain for every title, timestamp, short-form idea, tag, and description.
-            </p>
-          </div>
-        </div>
-
-        <div className="flex flex-col gap-8 w-full">
-          <form onSubmit={generate} className="space-y-6 rounded-3xl border border-white/10 bg-[#0d0d0f] p-5 sm:p-7 shadow-2xl">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-4 border-b border-white/5">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-orange-500/10 border border-orange-500/20 text-[#FF5533] flex items-center justify-center text-xs font-black">
-                  01
-                </div>
-                <div>
-                  <h2 className="text-base font-black text-white">Media Source & Parameters</h2>
-                  <p className="text-[11px] text-white/40">Upload media or paste link to transcribe and extract viral packaging.</p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-white/40">Language:</span>
-                <select
-                  value={language}
-                  onChange={event => setLanguage(event.target.value)}
-                  className="rounded-xl border border-white/10 bg-[#030303] px-3 py-1.5 text-xs font-bold text-white outline-none cursor-pointer focus:border-[#FF5533]/50"
-                >
+    <WorkspacePage>
+      <WorkspaceHeader title="Video Content Kit" crumbs={[{ label: 'Growth', href: '/dashboard' }]} />
+      <WorkspaceBody>
+        <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-12">
+          <form onSubmit={generate} className="lg:col-span-5">
+            <Panel
+              title="Source"
+              actions={
+                <select value={language} onChange={event => setLanguage(event.target.value)} className={`${ui.select} h-8 w-auto text-xs`}>
                   <option>English</option>
                   <option>Bengali</option>
                   <option>Banglish</option>
                 </select>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-white/40">
-                  Upload Audio / Video File
-                </label>
+              }
+              bodyClassName="space-y-4"
+            >
+              <Field label="Audio or video file (max 90MB)">
                 <input
                   type="file"
                   accept="audio/*,video/*,.mp3,.wav,.m4a,.aac,.ogg,.mp4,.mov,.webm,.m4v"
                   onChange={event => setMediaFile(event.target.files?.[0] || null)}
-                  className="w-full rounded-2xl border border-white/10 bg-[#030303] px-4 py-2.5 text-xs text-white file:mr-4 file:rounded-xl file:border-0 file:bg-orange-500/15 file:px-3 file:py-1.5 file:text-xs file:font-black file:text-[#FF7A45]"
+                  className="w-full rounded-xl border border-dashed border-border bg-background px-3 py-2.5 text-xs text-muted-foreground file:mr-3 file:h-8 file:cursor-pointer file:rounded-lg file:border-0 file:bg-muted file:px-3 file:text-xs file:font-medium file:text-foreground"
                 />
-                <p className="mt-1.5 text-[11px] leading-4 text-white/35">
-                  Direct upload (under 90MB) bypasses YouTube bot protection.
-                </p>
-                {mediaFile && (
-                  <div className="mt-2.5 flex items-center justify-between gap-3 rounded-xl border border-orange-500/20 bg-orange-500/10 px-3 py-2 text-xs text-[#FF7A45]">
-                    <span className="truncate">{mediaFile.name} ({(mediaFile.size / 1024 / 1024).toFixed(1)} MB)</span>
-                    <button type="button" onClick={() => setMediaFile(null)} className="font-black text-[#FF5533] hover:text-white">
-                      Remove
-                    </button>
-                  </div>
-                )}
-              </div>
+              </Field>
+              {mediaFile && (
+                <div className="flex items-center justify-between gap-3 rounded-xl border border-border bg-muted px-3 py-2 text-xs text-foreground">
+                  <span className="truncate">
+                    {mediaFile.name} · {(mediaFile.size / 1024 / 1024).toFixed(1)} MB
+                  </span>
+                  <button type="button" onClick={() => setMediaFile(null)} className="text-muted-foreground hover:text-foreground">
+                    Remove
+                  </button>
+                </div>
+              )}
 
-              <div>
-                <label className="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-white/40">
-                  Or Video / Audio Link
-                </label>
+              <Field label="Or a link">
                 <input
                   value={sourceLink}
                   onChange={event => setSourceLink(event.target.value)}
-                  placeholder="YouTube, public Drive file, or direct MP4/MP3 link"
-                  className="w-full rounded-2xl border border-white/10 bg-[#030303] px-4 py-2.5 text-xs text-white outline-none transition placeholder:text-white/20 focus:border-[#FF5533]/60 focus:ring-1 focus:ring-[#FF5533]/20"
+                  placeholder="YouTube, Drive or direct MP4/MP3 URL"
+                  className={ui.input}
                 />
-                <p className="mt-1.5 text-[11px] leading-4 text-white/35">
-                  Supports YouTube public videos, Drive links, and direct media URLs.
-                </p>
+              </Field>
+
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <Field label="Audience">
+                  <input value={audience} onChange={event => setAudience(event.target.value)} placeholder="e.g. Founders" className={ui.input} />
+                </Field>
+                <Field label="Goal">
+                  <input value={goal} onChange={event => setGoal(event.target.value)} placeholder="e.g. Leads" className={ui.input} />
+                </Field>
               </div>
 
-              <div>
-                <label className="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-white/40">
-                  Audience (Optional)
-                </label>
-                <input
-                  value={audience}
-                  onChange={event => setAudience(event.target.value)}
-                  placeholder="E.g. small business owners, students, developers, founders"
-                  className="w-full rounded-2xl border border-white/10 bg-[#030303] px-4 py-2.5 text-xs text-white outline-none transition placeholder:text-white/20 focus:border-[#FF5533]/60 focus:ring-1 focus:ring-[#FF5533]/20"
-                />
-              </div>
-
-              <div>
-                <label className="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-white/40">
-                  Conversion Goal (Optional)
-                </label>
-                <input
-                  value={goal}
-                  onChange={event => setGoal(event.target.value)}
-                  placeholder="E.g. course sales, leads, subscribers, website visits"
-                  className="w-full rounded-2xl border border-white/10 bg-[#030303] px-4 py-2.5 text-xs text-white outline-none transition placeholder:text-white/20 focus:border-[#FF5533]/60 focus:ring-1 focus:ring-[#FF5533]/20"
-                />
-              </div>
-
-              <div className="md:col-span-2">
-                <label className="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-white/40">
-                  Transcript / Source Notes (Optional Fallback)
-                </label>
+              <Field label="Transcript or notes (optional)">
                 <textarea
                   value={notes}
                   onChange={event => setNotes(event.target.value)}
-                  placeholder="Paste transcript, summary, or lesson notes if link is unreadable."
-                  rows={4}
-                  className="w-full resize-y rounded-2xl border border-white/10 bg-[#030303] px-4 py-3 text-xs leading-6 text-white outline-none transition placeholder:text-white/20 focus:border-[#FF5533]/60 focus:ring-1 focus:ring-[#FF5533]/20"
+                  placeholder="Paste a transcript if the media can't be reached"
+                  rows={3}
+                  className={ui.textarea}
                 />
-              </div>
-            </div>
+              </Field>
 
-            <div className="pt-3 flex flex-col sm:flex-row sm:items-center sm:justify-end gap-3 border-t border-white/5">
-              <button
-                disabled={loading}
-                className="inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] px-8 py-3.5 text-sm font-black text-white shadow-xl shadow-[#FF5533]/25 transition hover:from-[#FF5547] hover:to-[#FF9036] disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer w-full sm:w-auto"
-              >
-                {loading ? <Loader2 className="animate-spin" size={17} /> : <Wand2 size={17} />}
-                <span>{loading ? 'Transcribing media and building kit...' : 'Transcribe & Generate Video Kit'}</span>
+              {error && <Notice>{error}</Notice>}
+
+              <button disabled={loading} className={`${ui.btnPrimary} h-11 w-full`}>
+                {loading ? <Loader2 className="animate-spin" size={16} /> : <Wand2 size={16} />}
+                {loading ? 'Transcribing…' : 'Generate kit'}
               </button>
-            </div>
-
-            {error && (
-              <div className="rounded-2xl border border-red-500/20 bg-red-500/10 p-4 text-xs text-red-100 flex items-center gap-2">
-                <AlertCircle size={15} className="shrink-0 text-red-400" />
-                <span>{error}</span>
-              </div>
-            )}
+            </Panel>
           </form>
 
-          <div className="rounded-3xl border border-white/10 bg-[#0d0d0f] p-5 sm:p-7 shadow-2xl space-y-6 w-full">
-            <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-white/35">Result</p>
-                <h2 className="mt-1 text-2xl font-black text-white">Transcript-Based Kit</h2>
-              </div>
-              {result && (
-                <div className="flex flex-wrap gap-2">
-                  <button onClick={copyOutput} className="inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-xs font-black text-white/70 transition hover:bg-white/[0.08]">
-                    {copied ? <Check size={15} /> : <Copy size={15} />} {copied ? 'Copied' : 'Copy'}
+          <Panel
+            title="Output"
+            className="lg:col-span-7"
+            bodyClassName="min-h-[480px]"
+            actions={
+              result && (
+                <>
+                  <button onClick={copyOutput} className={ui.btnGhost}>
+                    {copied ? <Check size={13} /> : <Copy size={13} />} {copied ? 'Copied' : 'Copy'}
                   </button>
-                  <button onClick={() => downloadOutput('txt')} className="inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-xs font-black text-white/70 transition hover:bg-white/[0.08]">
-                    <Download size={15} /> TXT
-                  </button>
-                  <button onClick={() => downloadOutput('md')} className="inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-xs font-black text-white/70 transition hover:bg-white/[0.08]">
-                    <Download size={15} /> MD
-                  </button>
+                  {(['txt', 'md'] as const).map(f => (
+                    <button key={f} onClick={() => downloadOutput(f)} className={ui.btnGhost}>
+                      <Download size={13} /> {f}
+                    </button>
+                  ))}
                   {result.captions?.srt && (
-                    <button onClick={() => downloadOutput('srt')} className="inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-xs font-black text-white/70 transition hover:bg-white/[0.08]">
-                      <Download size={15} /> SRT
+                    <button onClick={() => downloadOutput('srt')} className={ui.btnGhost}>
+                      <Download size={13} /> srt
                     </button>
                   )}
                   {result.captions?.vtt && (
-                    <button onClick={() => downloadOutput('vtt')} className="inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-xs font-black text-white/70 transition hover:bg-white/[0.08]">
-                      <Download size={15} /> VTT
+                    <button onClick={() => downloadOutput('vtt')} className={ui.btnGhost}>
+                      <Download size={13} /> vtt
                     </button>
                   )}
-                </div>
-              )}
-            </div>
-
-            {!result && !loading && (
-              <div className="flex min-h-[500px] flex-col items-center justify-center rounded-3xl border border-dashed border-white/10 bg-[#0d0d0f]/60 p-8 text-center">
-                <Video size={36} className="mb-4 text-[#FF5533]" />
-                <h3 className="text-xl font-black text-white">Video first, transcript based</h3>
-                <p className="mt-2 max-w-md text-sm leading-6 text-white/40">
-                  No more generic video output. The app reads the video/audio first and builds the kit from the actual transcript.
-                </p>
-              </div>
-            )}
+                </>
+              )
+            }
+          >
+            {!result && !loading && <EmptyState icon={Video} title="No kit yet" text="Add a file or link, then generate." />}
 
             {loading && (
-              <div className="flex min-h-[500px] flex-col items-center justify-center rounded-3xl border border-white/10 bg-[#0d0d0f]/60 p-8 text-center">
-                <Loader2 className="mb-4 animate-spin text-[#FF5533]" size={36} />
-                <h3 className="text-xl font-black text-white">Reading the video first...</h3>
-                <p className="mt-2 max-w-md text-sm leading-6 text-white/40">
-                  Transcribing the uploaded file or source link first, then generating titles, timestamps, reels ideas, description, tags, and 3-5 minute video ideas.
-                </p>
+              <div className="flex flex-col items-center justify-center py-24 text-center">
+                <Loader2 className="mb-3 h-6 w-6 animate-spin text-[#FF5533]" />
+                <p className="text-sm text-muted-foreground">Transcribing and analyzing…</p>
               </div>
             )}
 
             {result && !loading && (
-              <div className="space-y-5">
-                <section className="rounded-2xl border border-orange-500/20 bg-orange-500/10 p-5">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-[#FF7A45]">Transcript Source</p>
-                  <h3 className="mt-2 text-lg font-black text-white">{result.sourceTitle}</h3>
-                  <p className="mt-1 text-xs text-[#FF8A00]">{result.transcriptSource}</p>
-                  <p className="mt-4 max-h-40 overflow-y-auto whitespace-pre-wrap text-xs leading-5 text-white/45">
+              <div className="space-y-4">
+                <section className="rounded-xl border border-border bg-background p-4">
+                  <p className="text-sm font-semibold text-foreground">{result.sourceTitle}</p>
+                  <p className="mt-0.5 text-xs text-muted-foreground">{result.transcriptSource}</p>
+                  <p className="mt-3 max-h-36 overflow-y-auto whitespace-pre-wrap rounded-lg bg-muted p-3 text-xs leading-5 text-muted-foreground">
                     {result.transcriptPreview}
                   </p>
                 </section>
-
-                <section className="rounded-2xl border border-white/10 bg-[#0d0d0f] p-5">
-                  <div className="whitespace-pre-wrap text-sm leading-7 text-white/80">
-                    {result.output}
-                  </div>
-                </section>
+                <div className="whitespace-pre-wrap text-sm leading-7 text-foreground">{result.output}</div>
               </div>
             )}
-          </div>
+          </Panel>
         </div>
-      </div>
-    </div>
+      </WorkspaceBody>
+    </WorkspacePage>
   );
 }

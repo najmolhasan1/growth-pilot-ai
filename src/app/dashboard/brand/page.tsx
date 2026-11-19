@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
+import { WorkspaceHeader, Panel, Notice, ui } from '@/components/workspace/ui';
 import { 
   ArrowRight, 
   Brain, 
@@ -508,211 +509,99 @@ export default function BrandBrainPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#030303] text-white p-4 sm:p-6 lg:p-10">
-      <div className="mx-auto max-w-6xl space-y-8">
-        
-        {/* Header Bar */}
-        <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-[#FF5533]">
-              <Brain size={12} /> Real Business Context Engine
-            </div>
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-white">
-              Brand <span className="bg-gradient-to-r from-[#FF4D42] via-[#FF6A3D] to-[#FF8A00] bg-clip-text text-transparent">Brain & Strategy Hub</span>
-            </h1>
-            <p className="mt-3 max-w-2xl text-xs sm:text-sm leading-6 text-white/50">
-              One central memory for your business. Describe what you sell in your own words, and AI will extract all brand parameters, build your Ideal Customer Profile (ICP), and formulate your Go-To-Market (GTM) plan.
-            </p>
-          </div>
-
-          <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-5 py-4 self-start lg:self-auto backdrop-blur-sm">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-white/35">Brain Completeness</p>
-            <div className="mt-2 flex items-center gap-3">
-              <div className="h-2 w-36 overflow-hidden rounded-full bg-white/10">
-                <div 
-                  className="h-full rounded-full bg-gradient-to-r from-[#FF4D42] to-[#FF8A00] transition-all duration-500" 
-                  style={{ width: `${completion}%` }} 
-                />
-              </div>
-              <span className="text-sm font-black text-white">{completion}%</span>
-            </div>
-            <p className="mt-3 flex items-center gap-2 text-[11px] font-bold text-white/40">
+    <div className="min-h-screen bg-background text-foreground">
+      <WorkspaceHeader
+        title="Brand Brain"
+        crumbs={[{ label: 'Growth', href: '/dashboard' }]}
+        actions={
+          <div className="flex items-center gap-3 text-xs text-muted-foreground">
+            <span className="hidden items-center gap-1.5 sm:flex">
               <Cloud size={13} />
-              {syncStatus === 'cloud' ? 'Synced to Cloud' : syncStatus === 'syncing' ? 'Syncing...' : syncStatus === 'error' ? 'Saved locally (cloud sync retry)' : 'Saved locally'}
-            </p>
+              {syncStatus === 'cloud' ? 'Synced' : syncStatus === 'syncing' ? 'Syncing…' : 'Saved locally'}
+            </span>
+            <span className="flex items-center gap-2">
+              <span className="h-1.5 w-20 overflow-hidden rounded-full bg-muted">
+                <span className="block h-full rounded-full bg-[#FF5533] transition-all" style={{ width: `${completion}%` }} />
+              </span>
+              <span className="font-medium tabular-nums text-foreground">{completion}%</span>
+            </span>
           </div>
-        </div>
-
-        {/* 🌟 SMART AI BUSINESS INGESTION HUB ("TELL ABOUT YOUR BUSINESS") */}
-        <div className="relative overflow-hidden rounded-3xl border border-[#FF5533]/30 bg-gradient-to-br from-[#0e0a0d] via-[#140e14] to-[#0a0a0f] p-5 sm:p-7 shadow-2xl shadow-[#FF5533]/5">
-          <div className="absolute top-0 right-0 w-80 h-80 bg-[#FF5533]/10 rounded-full blur-3xl pointer-events-none" />
-          
-          <div className="relative z-10 space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-xl bg-gradient-to-r from-[#FF4D42] to-[#FF8A00] flex items-center justify-center text-white shadow-md">
-                  <Wand2 size={16} />
-                </div>
-                <div>
-                  <h2 className="text-base sm:text-lg font-black text-white">
-                    Tell AI About Your Business
-                  </h2>
-                  <p className="text-xs text-white/45">
-                    Write in plain English, Bangla, or Banglish. AI will structure everything, create your ICP, and formulate your GTM strategy.
-                  </p>
-                </div>
-              </div>
-
-              {/* Sample Chips */}
-              <div className="flex items-center gap-1.5 flex-wrap">
-                <span className="text-[10px] uppercase font-bold text-white/30 hidden md:inline">Quick Samples:</span>
-                {samplePrompts.map((s, idx) => (
-                  <button
-                    key={idx}
-                    type="button"
-                    onClick={() => setRawInput(s.text)}
-                    className="text-[11px] px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-white/60 hover:text-white transition"
-                  >
-                    {s.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Voice Typing Action Bar */}
-            <div className="flex flex-wrap items-center justify-between gap-2.5 p-2.5 rounded-2xl bg-white/[0.04] border border-white/10">
-              <div className="flex items-center gap-2 flex-wrap">
-                {!isRecording && !isTranscribing && (
-                  <button
-                    type="button"
-                    onClick={startVoiceRecording}
-                    className="group inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-[#FF5533]/15 hover:bg-[#FF5533]/25 border border-[#FF5533]/40 text-[#FF8A00] hover:text-white text-xs font-bold transition shadow-sm"
-                  >
-                    <Mic size={15} className="text-[#FF5533] group-hover:scale-110 transition-transform" />
-                    <span>Voice Type (Bangla / Banglish / English)</span>
-                  </button>
-                )}
-
-                {isRecording && (
-                  <div className="inline-flex items-center gap-2 flex-wrap">
-                    <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-rose-500/15 border border-rose-500/40 text-rose-300 text-xs font-semibold animate-pulse">
-                      <span className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping" />
-                      <span>Recording: {formatTimer(recordSeconds)}</span>
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={stopVoiceRecording}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:brightness-110 text-white text-xs font-black shadow-md transition"
-                    >
-                      <Square size={12} className="fill-white" />
-                      <span>Done & Transcribe</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={cancelVoiceRecording}
-                      title="Cancel recording"
-                      className="inline-flex items-center p-2 rounded-xl bg-white/5 hover:bg-white/10 text-white/40 hover:text-white transition text-xs"
-                    >
-                      <Trash2 size={13} />
-                    </button>
-                  </div>
-                )}
-
-                {isTranscribing && (
-                  <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-indigo-500/15 border border-indigo-500/30 text-indigo-300 text-xs font-medium">
-                    <Loader2 size={14} className="animate-spin text-indigo-400" />
-                    <span>AI is transcribing your voice in Bangla/Banglish/English...</span>
-                  </div>
-                )}
-              </div>
-
-              <div className="flex items-center gap-2 text-[11px] text-white/45">
-                <Volume2 size={13} className="text-white/35 hidden sm:inline" />
-                <span className="hidden sm:inline">Bangla dialects, Banglish & business terms supported</span>
-                {rawInput && (
-                  <button
-                    type="button"
-                    onClick={() => setRawInput('')}
-                    className="text-[10px] text-white/40 hover:text-white underline underline-offset-2 ml-2 transition"
-                  >
-                    Clear Text
-                  </button>
-                )}
-              </div>
-            </div>
-
+        }
+      />
+      <div className="mx-auto max-w-6xl space-y-6 p-4 sm:p-6 lg:p-8">
+        <Panel
+          title="Describe your business"
+          actions={
+            <>
+              {samplePrompts.map((s, idx) => (
+                <button key={idx} type="button" onClick={() => setRawInput(s.text)} className={ui.btnGhost}>
+                  {s.label}
+                </button>
+              ))}
+            </>
+          }
+          bodyClassName="space-y-3"
+        >
+          <div className="relative">
             <textarea
               value={rawInput}
               onChange={e => setRawInput(e.target.value)}
-              rows={4}
-              placeholder="Example: We run an online organic skincare shop in Dhaka. We sell natural hair oils and aloe serums priced between 600 - 1800 BDT. Target audience is working women and students who care about natural ingredients. Our biggest challenge is competing against cheap chemical brands and building authentic trust..."
-              className="w-full resize-y rounded-2xl border border-white/10 bg-[#070709] px-4 py-3.5 text-sm leading-relaxed text-white outline-none transition placeholder:text-white/20 focus:border-[#FF5533] focus:ring-2 focus:ring-[#FF5533]/20"
+              rows={5}
+              placeholder="What you sell, price range, who buys it, and your biggest challenge. English, Bangla or Banglish."
+              className={`${ui.textarea} pb-12`}
             />
-
-            {voiceSuccessMsg && (
-              <div className="flex items-center gap-2 text-xs text-emerald-300 bg-emerald-500/10 border border-emerald-500/20 p-2.5 rounded-xl">
-                <CheckCircle2 size={15} className="shrink-0 text-emerald-400" />
-                <span>{voiceSuccessMsg}</span>
-              </div>
-            )}
-
-            {voiceErrorMsg && (
-              <div className="flex items-center gap-2 text-xs text-rose-400 bg-rose-500/10 border border-rose-500/20 p-2.5 rounded-xl">
-                <AlertCircle size={15} className="shrink-0" />
-                <span>{voiceErrorMsg}</span>
-              </div>
-            )}
-
-            {aiErrorMsg && (
-              <div className="flex items-center gap-2 text-xs text-rose-400 bg-rose-500/10 border border-rose-500/20 p-3 rounded-xl">
-                <AlertCircle size={15} className="shrink-0" />
-                <span>{aiErrorMsg}</span>
-              </div>
-            )}
-
-            {aiSuccessMsg && (
-              <div className="flex items-center gap-2 text-xs text-emerald-300 bg-emerald-500/10 border border-emerald-500/20 p-3 rounded-xl">
-                <CheckCircle2 size={16} className="shrink-0 text-emerald-400" />
-                <span>AI has structured your business! Your Core Profile, ICP, and GTM strategy have been generated and saved below. Review and edit any field as needed.</span>
-              </div>
-            )}
-
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
-              <p className="text-[11px] text-white/40 flex items-center gap-1.5">
-                <Sparkles size={13} className="text-[#FF5533]" />
-                Auto-generates 16 Core Fields + Ideal Customer Profile + GTM Playbook.
-              </p>
-
-              <button
-                type="button"
-                onClick={handleAiAutoFill}
-                disabled={isAnalyzing}
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#FF4D42] via-[#FF6A3D] to-[#FF8A00] px-5 py-3 text-xs sm:text-sm font-black text-white shadow-lg shadow-[#FF5533]/25 transition hover:brightness-110 disabled:opacity-50"
-              >
-                {isAnalyzing ? (
-                  <>
-                    <Loader2 size={16} className="animate-spin" />
-                    <span>Analyzing & Structuring...</span>
-                  </>
-                ) : (
-                  <>
-                    <Wand2 size={16} />
-                    <span>Generate Brand Brain with AI</span>
-                  </>
-                )}
-              </button>
+            <div className="absolute bottom-2.5 left-2.5 flex items-center gap-1">
+              {!isRecording && !isTranscribing && (
+                <button type="button" onClick={startVoiceRecording} className={ui.btnGhost} title="Speak in Bangla, Banglish or English">
+                  <Mic size={13} /> Voice
+                </button>
+              )}
+              {isRecording && (
+                <>
+                  <span className="inline-flex items-center gap-1.5 px-2 text-xs font-medium tabular-nums text-red-500">
+                    <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-red-500" />
+                    {formatTimer(recordSeconds)}
+                  </span>
+                  <button type="button" onClick={stopVoiceRecording} className={ui.btnGhost}>
+                    <Square size={11} className="fill-current" /> Done
+                  </button>
+                  <button type="button" onClick={cancelVoiceRecording} className={ui.btnGhost} title="Cancel">
+                    <Trash2 size={13} />
+                  </button>
+                </>
+              )}
+              {isTranscribing && (
+                <span className="inline-flex items-center gap-1.5 px-2 text-xs text-muted-foreground">
+                  <Loader2 size={13} className="animate-spin" /> Transcribing
+                </span>
+              )}
+              {rawInput && !isRecording && (
+                <button type="button" onClick={() => setRawInput('')} className={ui.btnGhost}>
+                  Clear
+                </button>
+              )}
             </div>
           </div>
-        </div>
+
+          {voiceSuccessMsg && <Notice tone="success">{voiceSuccessMsg}</Notice>}
+          {voiceErrorMsg && <Notice>{voiceErrorMsg}</Notice>}
+          {aiErrorMsg && <Notice>{aiErrorMsg}</Notice>}
+          {aiSuccessMsg && <Notice tone="success">Profile, ICP and GTM strategy generated. Review them below.</Notice>}
+
+          <div className="flex justify-end">
+            <button type="button" onClick={handleAiAutoFill} disabled={isAnalyzing} className={ui.btnPrimary}>
+              {isAnalyzing ? <Loader2 size={15} className="animate-spin" /> : <Wand2 size={15} />}
+              {isAnalyzing ? 'Analyzing…' : 'Build with AI'}
+            </button>
+          </div>
+        </Panel>
 
         {/* NAVIGATION TABS FOR BRAIN SECTIONS */}
-        <div className="flex items-center gap-2 border-b border-white/10 pb-1 overflow-x-auto">
+        <div className="inline-flex max-w-full gap-1 overflow-x-auto rounded-2xl border border-border bg-card p-1">
           {[
-            { id: 'profile', label: '1. Core Brand Profile (16 Fields)', icon: Brain, count: `${coreFieldsFilledCount}/16` },
-            { id: 'icp', label: '2. Ideal Customer Profile (ICP)', icon: Target, badge: profile.icp?.personaName ? 'Ready' : 'AI Suggested' },
-            { id: 'gtm', label: '3. Go-To-Market (GTM) Strategy', icon: Rocket, badge: profile.gtm?.coreHook ? 'Ready' : 'AI Suggested' },
+            { id: 'profile', label: 'Profile', icon: Brain, count: `${coreFieldsFilledCount}/16` },
+            { id: 'icp', label: 'Customer (ICP)', icon: Target, badge: profile.icp?.personaName ? 'Ready' : 'Draft' },
+            { id: 'gtm', label: 'Go-to-market', icon: Rocket, badge: profile.gtm?.coreHook ? 'Ready' : 'Draft' },
           ].map(tab => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -720,10 +609,10 @@ export default function BrandBrainPage() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as any)}
-                className={`relative flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs whitespace-nowrap transition-all ${
+                className={`relative flex h-9 items-center gap-2 px-3.5 rounded-xl font-medium text-[13px] whitespace-nowrap transition ${
                   isActive
-                    ? 'bg-[#FF5533] text-white shadow-sm'
-                    : 'text-white/50 hover:text-white hover:bg-white/5'
+                    ? 'bg-[#FF5533] text-white'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                 }`}
               >
                 <Icon size={14} />
@@ -734,7 +623,7 @@ export default function BrandBrainPage() {
                   </span>
                 )}
                 {tab.badge && (
-                  <span className={`text-[10px] px-1.5 py-0.2 rounded font-black ${
+                  <span className={`text-[10px] px-1.5 py-0.2 rounded font-semibold ${
                     isActive ? 'bg-black/30 text-white' : 'bg-emerald-500/20 text-emerald-400'
                   }`}>
                     {tab.badge}
@@ -754,9 +643,6 @@ export default function BrandBrainPage() {
                   <Brain size={16} className="text-[#FF5533]" />
                   Core Brand Parameters
                 </h3>
-                <p className="text-xs text-white/40">
-                  You can freely modify any value. Changes are automatically fed into the Marketing Suite & SEO generators.
-                </p>
               </div>
               <span className="text-xs text-white/40 font-mono">
                 {coreFieldsFilledCount} of {fields.length} configured
@@ -766,14 +652,14 @@ export default function BrandBrainPage() {
             <div className="grid gap-5 lg:grid-cols-2">
               {fields.map(field => (
                 <div key={field.key} className={field.type === 'textarea' ? 'lg:col-span-2' : ''}>
-                  <label className="mb-2 block text-[11px] font-bold uppercase tracking-widest text-white/40">
+                  <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
                     {field.label}
                   </label>
                   {field.type === 'select' ? (
                     <select
                       value={profile[field.key] as string}
                       onChange={event => updateField(field.key, event.target.value)}
-                      className="w-full rounded-2xl border border-white/10 bg-[#0d0d0f] px-4 py-3 text-sm text-white outline-none transition-all focus:border-[#FF5533]/60 focus:ring-1 focus:ring-[#FF5533]/20"
+                      className="w-full rounded-2xl border border-border bg-card px-4 py-3 text-sm text-white outline-none transition-all focus:border-[#FF5533]/60 focus:ring-1 focus:ring-[#FF5533]/20"
                     >
                       {field.options?.map(option => <option key={option} value={option}>{option}</option>)}
                     </select>
@@ -783,14 +669,14 @@ export default function BrandBrainPage() {
                       onChange={event => updateField(field.key, event.target.value)}
                       placeholder={field.placeholder}
                       rows={3}
-                      className="w-full resize-y rounded-2xl border border-white/10 bg-[#0d0d0f] px-4 py-3 text-sm leading-6 text-white outline-none transition-all placeholder:text-white/20 focus:border-[#FF5533]/60 focus:ring-1 focus:ring-[#FF5533]/20"
+                      className="w-full resize-y rounded-2xl border border-border bg-card px-4 py-3 text-sm leading-6 text-white outline-none transition-all placeholder:text-white/20 focus:border-[#FF5533]/60 focus:ring-1 focus:ring-[#FF5533]/20"
                     />
                   ) : (
                     <input
                       value={profile[field.key] as string}
                       onChange={event => updateField(field.key, event.target.value)}
                       placeholder={field.placeholder}
-                      className="w-full rounded-2xl border border-white/10 bg-[#0d0d0f] px-4 py-3 text-sm text-white outline-none transition-all placeholder:text-white/20 focus:border-[#FF5533]/60 focus:ring-1 focus:ring-[#FF5533]/20"
+                      className="w-full rounded-2xl border border-border bg-card px-4 py-3 text-sm text-white outline-none transition-all placeholder:text-white/20 focus:border-[#FF5533]/60 focus:ring-1 focus:ring-[#FF5533]/20"
                     />
                   )}
                 </div>
@@ -804,10 +690,10 @@ export default function BrandBrainPage() {
           <div className="space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-gradient-to-r from-violet-950/30 to-purple-950/20 border border-violet-500/20 p-5 rounded-2xl">
               <div>
-                <span className="text-[10px] font-black uppercase tracking-wider text-violet-400 block mb-1">
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-violet-400 block mb-1">
                   Target Audience Blueprint
                 </span>
-                <h3 className="text-base sm:text-lg font-black text-white flex items-center gap-2">
+                <h3 className="text-base sm:text-lg font-semibold text-white flex items-center gap-2">
                   <Target size={18} className="text-violet-400" />
                   Ideal Customer Profile (ICP)
                 </h3>
@@ -838,7 +724,7 @@ export default function BrandBrainPage() {
                   value={profile.icp?.personaName || ''}
                   onChange={e => updateIcpField('personaName', e.target.value)}
                   placeholder="e.g. Scaling Ecommerce Founder, Head of Marketing, Working Professional"
-                  className="w-full rounded-2xl border border-white/10 bg-[#0d0d0f] px-4 py-3 text-sm text-white outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500/20"
+                  className="w-full rounded-2xl border border-border bg-card px-4 py-3 text-sm text-white outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500/20"
                 />
               </div>
 
@@ -851,7 +737,7 @@ export default function BrandBrainPage() {
                   value={profile.icp?.dreamOutcome || ''}
                   onChange={e => updateIcpField('dreamOutcome', e.target.value)}
                   placeholder="e.g. 3x revenue in 90 days with reliable automated lead flow"
-                  className="w-full rounded-2xl border border-white/10 bg-[#0d0d0f] px-4 py-3 text-sm text-white outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/20"
+                  className="w-full rounded-2xl border border-border bg-card px-4 py-3 text-sm text-white outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/20"
                 />
               </div>
 
@@ -865,7 +751,7 @@ export default function BrandBrainPage() {
                   onChange={e => updateIcpField('roleAndContext', e.target.value)}
                   rows={3}
                   placeholder="What is their daily routine? What makes them feel stressed or overwhelmed before discovering your solution?"
-                  className="w-full resize-y rounded-2xl border border-white/10 bg-[#0d0d0f] px-4 py-3 text-sm leading-6 text-white outline-none focus:border-violet-500"
+                  className="w-full resize-y rounded-2xl border border-border bg-card px-4 py-3 text-sm leading-6 text-white outline-none focus:border-violet-500"
                 />
               </div>
 
@@ -879,7 +765,7 @@ export default function BrandBrainPage() {
                   onChange={e => updateIcpField('primaryPains', e.target.value.split('\n').filter(Boolean))}
                   rows={4}
                   placeholder="Wasting thousands on bad marketing&#10;Slow manual client communication&#10;No predictable system to acquire new customers"
-                  className="w-full resize-y rounded-2xl border border-white/10 bg-[#0d0d0f] px-4 py-3 text-sm font-mono leading-relaxed text-white outline-none focus:border-rose-500"
+                  className="w-full resize-y rounded-2xl border border-border bg-card px-4 py-3 text-sm font-mono leading-relaxed text-white outline-none focus:border-rose-500"
                 />
               </div>
 
@@ -893,7 +779,7 @@ export default function BrandBrainPage() {
                   onChange={e => updateIcpField('purchasingTriggers', e.target.value)}
                   rows={3}
                   placeholder="What event or deadline forces them to make a buying decision immediately?"
-                  className="w-full resize-y rounded-2xl border border-white/10 bg-[#0d0d0f] px-4 py-3 text-sm leading-6 text-white outline-none focus:border-amber-500"
+                  className="w-full resize-y rounded-2xl border border-border bg-card px-4 py-3 text-sm leading-6 text-white outline-none focus:border-amber-500"
                 />
               </div>
 
@@ -907,7 +793,7 @@ export default function BrandBrainPage() {
                   onChange={e => updateIcpField('keyObjections', e.target.value.split('\n').filter(Boolean))}
                   rows={3}
                   placeholder="Too expensive? -> Show ROI breakdown&#10;Will it work for me? -> Show case studies"
-                  className="w-full resize-y rounded-2xl border border-white/10 bg-[#0d0d0f] px-4 py-3 text-sm font-mono leading-relaxed text-white outline-none focus:border-cyan-500"
+                  className="w-full resize-y rounded-2xl border border-border bg-card px-4 py-3 text-sm font-mono leading-relaxed text-white outline-none focus:border-cyan-500"
                 />
               </div>
             </div>
@@ -919,10 +805,10 @@ export default function BrandBrainPage() {
           <div className="space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-gradient-to-r from-emerald-950/30 to-teal-950/20 border border-emerald-500/20 p-5 rounded-2xl">
               <div>
-                <span className="text-[10px] font-black uppercase tracking-wider text-emerald-400 block mb-1">
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-emerald-400 block mb-1">
                   Growth & Customer Acquisition Engine
                 </span>
-                <h3 className="text-base sm:text-lg font-black text-white flex items-center gap-2">
+                <h3 className="text-base sm:text-lg font-semibold text-white flex items-center gap-2">
                   <Rocket size={18} className="text-emerald-400" />
                   Go-To-Market (GTM) Strategy
                 </h3>
@@ -945,7 +831,7 @@ export default function BrandBrainPage() {
 
             <div className="space-y-5">
               {/* Core Positioning Hook */}
-              <div className="p-5 rounded-2xl border border-white/10 bg-[#0d0d0f] space-y-2">
+              <div className="p-5 rounded-2xl border border-border bg-card space-y-2">
                 <label className="block text-[11px] font-bold uppercase tracking-widest text-[#FF5533]">
                   Core Positioning Statement / Hook
                 </label>
@@ -954,12 +840,12 @@ export default function BrandBrainPage() {
                   onChange={e => updateGtmField('coreHook', e.target.value)}
                   rows={2}
                   placeholder="Helping [Audience] achieve [Dream Outcome] without [Painful Mechanism] in [Timeframe]."
-                  className="w-full resize-y rounded-xl border border-white/10 bg-[#070709] px-4 py-3 text-sm font-semibold text-white outline-none focus:border-[#FF5533]"
+                  className="w-full resize-y rounded-xl border border-border bg-background px-4 py-3 text-sm font-semibold text-white outline-none focus:border-[#FF5533]"
                 />
               </div>
 
               {/* Recommended Acquisition Channels */}
-              <div className="p-5 rounded-2xl border border-white/10 bg-[#0d0d0f] space-y-2">
+              <div className="p-5 rounded-2xl border border-border bg-card space-y-2">
                 <label className="block text-[11px] font-bold uppercase tracking-widest text-emerald-400">
                   Recommended Acquisition Channels (One per line)
                 </label>
@@ -968,12 +854,12 @@ export default function BrandBrainPage() {
                   onChange={e => updateGtmField('recommendedChannels', e.target.value.split('\n').filter(Boolean))}
                   rows={3}
                   placeholder="High-intent SEO & Blog Strategy&#10;Cold Email & LinkedIn Outreach&#10;Shorts/Reels Organic Funnel"
-                  className="w-full resize-y rounded-xl border border-white/10 bg-[#070709] px-4 py-3 text-sm font-mono leading-relaxed text-white outline-none focus:border-emerald-500"
+                  className="w-full resize-y rounded-xl border border-border bg-background px-4 py-3 text-sm font-mono leading-relaxed text-white outline-none focus:border-emerald-500"
                 />
               </div>
 
               {/* Lead Magnet Idea */}
-              <div className="p-5 rounded-2xl border border-white/10 bg-[#0d0d0f] space-y-2">
+              <div className="p-5 rounded-2xl border border-border bg-card space-y-2">
                 <label className="block text-[11px] font-bold uppercase tracking-widest text-amber-400">
                   High-Converting Lead Magnet / Entry Offer
                 </label>
@@ -981,12 +867,12 @@ export default function BrandBrainPage() {
                   value={profile.gtm?.leadMagnetIdea || ''}
                   onChange={e => updateGtmField('leadMagnetIdea', e.target.value)}
                   placeholder="e.g. Free 15-Minute Funnel Audit, 30-Day Content Matrix Template, Calculator Sheet"
-                  className="w-full rounded-xl border border-white/10 bg-[#070709] px-4 py-3 text-sm text-white outline-none focus:border-amber-500"
+                  className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm text-white outline-none focus:border-amber-500"
                 />
               </div>
 
               {/* 30-Day Growth Roadmap */}
-              <div className="p-5 rounded-2xl border border-white/10 bg-[#0d0d0f] space-y-4">
+              <div className="p-5 rounded-2xl border border-border bg-card space-y-4">
                 <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
                   <TrendingUp size={15} className="text-[#FF5533]" />
                   30-Day Growth Execution Roadmap
@@ -995,7 +881,7 @@ export default function BrandBrainPage() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {/* Phase 1 */}
                   <div className="p-4 rounded-xl bg-slate-900/60 border border-white/5 space-y-2">
-                    <span className="text-[10px] font-black px-2 py-0.5 rounded bg-blue-500/20 text-blue-400 uppercase">
+                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-blue-500/20 text-blue-400 uppercase">
                       Phase 1 (Days 1-10)
                     </span>
                     <textarea
@@ -1003,13 +889,13 @@ export default function BrandBrainPage() {
                       onChange={e => updateGtmField('growthRoadmap', { ...(profile.gtm?.growthRoadmap || { phase1: '', phase2: '', phase3: '' }), phase1: e.target.value })}
                       rows={3}
                       placeholder="Offer clarity & validation"
-                      className="w-full resize-y rounded-lg border border-white/10 bg-[#030303] p-2.5 text-xs text-white outline-none"
+                      className="w-full resize-y rounded-lg border border-border bg-background p-2.5 text-xs text-white outline-none"
                     />
                   </div>
 
                   {/* Phase 2 */}
                   <div className="p-4 rounded-xl bg-slate-900/60 border border-white/5 space-y-2">
-                    <span className="text-[10px] font-black px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 uppercase">
+                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 uppercase">
                       Phase 2 (Days 11-20)
                     </span>
                     <textarea
@@ -1017,13 +903,13 @@ export default function BrandBrainPage() {
                       onChange={e => updateGtmField('growthRoadmap', { ...(profile.gtm?.growthRoadmap || { phase1: '', phase2: '', phase3: '' }), phase2: e.target.value })}
                       rows={3}
                       placeholder="Channel launch & outbound pipeline"
-                      className="w-full resize-y rounded-lg border border-white/10 bg-[#030303] p-2.5 text-xs text-white outline-none"
+                      className="w-full resize-y rounded-lg border border-border bg-background p-2.5 text-xs text-white outline-none"
                     />
                   </div>
 
                   {/* Phase 3 */}
                   <div className="p-4 rounded-xl bg-slate-900/60 border border-white/5 space-y-2">
-                    <span className="text-[10px] font-black px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 uppercase">
+                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 uppercase">
                       Phase 3 (Days 21-30)
                     </span>
                     <textarea
@@ -1031,7 +917,7 @@ export default function BrandBrainPage() {
                       onChange={e => updateGtmField('growthRoadmap', { ...(profile.gtm?.growthRoadmap || { phase1: '', phase2: '', phase3: '' }), phase3: e.target.value })}
                       rows={3}
                       placeholder="Conversion optimization & scaling"
-                      className="w-full resize-y rounded-lg border border-white/10 bg-[#030303] p-2.5 text-xs text-white outline-none"
+                      className="w-full resize-y rounded-lg border border-border bg-background p-2.5 text-xs text-white outline-none"
                     />
                   </div>
                 </div>
@@ -1041,16 +927,16 @@ export default function BrandBrainPage() {
         )}
 
         {/* BOTTOM SAVE & NAVIGATION BAR */}
-        <div className="sticky bottom-4 z-20 flex flex-col sm:flex-row items-center justify-between gap-4 p-4 rounded-2xl bg-[#0d0d12]/90 backdrop-blur-xl border border-white/10 shadow-2xl">
+        <div className="sticky bottom-4 z-20 flex flex-col sm:flex-row items-center justify-between gap-4 p-4 rounded-2xl bg-[#0d0d12]/90 backdrop-blur-xl border border-border ">
           <div className="flex items-center gap-2 text-xs text-white/60">
             <ShieldCheck size={16} className="text-emerald-400" />
-            <span>Profile is automatically loaded across all 12+ AI marketing tools.</span>
+            <span>Brand parameters sync automatically across your growth and content workspaces.</span>
           </div>
 
           <div className="flex items-center gap-3 w-full sm:w-auto">
             <button
               onClick={saveProfile}
-              className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] px-6 py-3.5 text-xs sm:text-sm font-black text-white shadow-xl shadow-[#FF5533]/25 transition hover:brightness-110"
+              className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#FF473A] via-[#FF622E] to-[#FF8526] px-6 py-3.5 text-xs sm:text-sm font-semibold text-white transition hover:brightness-110"
             >
               {saved ? <CheckCircle2 size={16} /> : <Save size={16} />}
               {saved ? 'Saved to Brand Brain' : 'Save Brand Brain'}
@@ -1058,7 +944,7 @@ export default function BrandBrainPage() {
 
             <Link
               href="/dashboard/marketing"
-              className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3.5 text-xs sm:text-sm font-black text-white/70 transition hover:bg-white/[0.08] hover:text-white"
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-white/[0.04] px-4 py-3.5 text-xs sm:text-sm font-semibold text-white/70 transition hover:bg-white/[0.08] hover:text-white"
             >
               <span>Marketing Suite</span>
               <ArrowRight size={15} />
