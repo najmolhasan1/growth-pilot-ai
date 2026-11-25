@@ -486,9 +486,9 @@ export default function SocialMediaWorkspacePage() {
           }}
         />
 
-        <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-12">
+        <div className="flex flex-col gap-6">
           {/* Input */}
-          <Panel title={currentTool.label} className="lg:col-span-5" bodyClassName="space-y-4">
+          <Panel title={currentTool.label} bodyClassName="space-y-4">
             {activeTool !== 'repurpose_pack' ? (
               <Field label="Topic">
                 <input
@@ -634,7 +634,6 @@ export default function SocialMediaWorkspacePage() {
           {/* Output */}
           <Panel
             title="Output"
-            className="lg:col-span-7"
             bodyClassName="min-h-[480px]"
             actions={
               generatedData && (

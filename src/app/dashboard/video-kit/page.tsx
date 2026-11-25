@@ -115,8 +115,8 @@ export default function VideoKitPage() {
     <WorkspacePage>
       <WorkspaceHeader title="Video Content Kit" crumbs={[{ label: 'Growth', href: '/dashboard' }]} />
       <WorkspaceBody>
-        <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-12">
-          <form onSubmit={generate} className="lg:col-span-5">
+        <div className="flex flex-col gap-6">
+          <form onSubmit={generate}>
             <Panel
               title="Source"
               actions={
@@ -186,7 +186,6 @@ export default function VideoKitPage() {
 
           <Panel
             title="Output"
-            className="lg:col-span-7"
             bodyClassName="min-h-[480px]"
             actions={
               result && (

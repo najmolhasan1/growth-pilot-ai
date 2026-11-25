@@ -703,12 +703,12 @@ function ToolWorkspaceContent() {
           value={activeTool.id}
         />
 
-        {/* Modern 2-Column Responsive Workspace */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        {/* Stacked Workspace: inputs on top, output below */}
+        <div className="flex flex-col gap-6">
           {/* ======================================================== */}
-          {/* LEFT PANEL: Parameters & Configuration                  */}
+          {/* TOP PANEL: Parameters & Configuration                   */}
           {/* ======================================================== */}
-          <div className="lg:col-span-5 xl:col-span-5 space-y-4">
+          <div className="space-y-4">
             <form onSubmit={generate} className="rounded-2xl border border-border bg-card p-5 space-y-5">
               {/* Top Bar of Input Card: Configuration + Voice Typing + Language */}
               <div className="flex items-center justify-between gap-3 pb-3 border-b border-border">
@@ -947,7 +947,7 @@ function ToolWorkspaceContent() {
           {/* ======================================================== */}
           {/* RIGHT PANEL: Output Studio & Execution Canvas            */}
           {/* ======================================================== */}
-          <div ref={outputRef} id="execution-output" className="lg:col-span-7 xl:col-span-7 rounded-2xl border border-border bg-card p-5 sm:p-6 space-y-5 min-h-[550px]">
+          <div ref={outputRef} id="execution-output" className="rounded-2xl border border-border bg-card p-5 sm:p-6 space-y-5 min-h-[550px]">
             {/* Studio Header Bar */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-border pb-4">
               <div>
